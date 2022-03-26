@@ -3,6 +3,7 @@ import { DisplayPreloadType } from './display/display.types';
 import { MediaPreloadType } from './media/media.types';
 import { useManageProjection } from './projection/projection.hooks';
 import useProjectionShortcuts from './projection/projection.shortcuts';
+import { useSettings } from './settings/settings.hooks';
 import { useManageSongs } from './song/song.hooks';
 import useSongShortcuts from './song/song.shortcuts';
 import { SongPreloadType } from './song/song.types';
@@ -21,6 +22,7 @@ export const useSetup = () => {
   useManageSongs();
   useGetDisplays();
   useSetupShortcuts();
+  useSettings();
 };
 
 const useSetupShortcuts = () => {

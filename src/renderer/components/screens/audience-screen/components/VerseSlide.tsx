@@ -4,12 +4,22 @@ import styled from 'styled-components';
 type VerseSlideProps = {
   text: string;
   reference: string;
+  isStage?: boolean;
 };
 
-const VerseSlide: FC<VerseSlideProps> = ({ text, reference }) => {
+const VerseSlide: FC<VerseSlideProps> = ({
+  text,
+  reference,
+  isStage = false,
+}) => {
+  const fontSize = (400 / text.length) * 100 + 500;
   return (
-    <Container>
-      <Text>{text}</Text>
+    <Container isStage={isStage}>
+      {isStage ? (
+        <StageText fontSize={fontSize}>{text}</StageText>
+      ) : (
+        <AudienceText>{text}</AudienceText>
+      )}
       <Reference>{reference}</Reference>
     </Container>
   );
@@ -17,11 +27,11 @@ const VerseSlide: FC<VerseSlideProps> = ({ text, reference }) => {
 
 export default VerseSlide;
 
-const Container = styled.div`
-  width: 80%;
+const Container = styled.div<{ isStage: boolean }>`
+  width: ${(props) => (props.isStage ? '95%' : '80%')};
 `;
 
-const Text = styled.div`
+const AudienceText = styled.div`
   font-family: 'Montserrat';
   font-size: 450%;
   font-weight: 700;
@@ -31,8 +41,17 @@ const Text = styled.div`
   text-align: center;
 `;
 
+const StageText = styled.div<{ fontSize: number }>`
+  font-family: 'Iosevka';
+  font-size: ${(props) => `${props.fontSize}%`};
+  color: white;
+  text-align: center;
+  line-height: 1;
+  letter-spacing: -0.1em;
+`;
+
 const Reference = styled.div`
-margin-top: 32px;
+  margin-top: 32px;
   font-family: 'Montserrat';
   font-size: 350%;
   font-weight: 700;

@@ -1,4 +1,3 @@
-import React from 'react';
 import ReactDOM from 'react-dom';
 import { inDev } from '@common/helpers';
 import Application from './Application';

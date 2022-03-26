@@ -1,23 +1,20 @@
 import { useAtom } from 'jotai';
-import React, { FC } from 'react';
-import Modal from 'react-modal';
 import SettingsDisplay from './SettingsDisplay';
 import { areSettingsOpenAtom } from '../../../ipc/settings/settings.atoms';
+import { Dialog, DialogContent } from '@mui/material';
 
-const Settings: FC = () => {
+const Settings = () => {
   const [areSettingsOpen, setAreSettingsOpen] = useAtom(areSettingsOpenAtom);
   return (
-    <div>
-      <Modal
-        shouldCloseOnOverlayClick
-        shouldCloseOnEsc
-        onRequestClose={() => setAreSettingsOpen(false)}
-        isOpen={areSettingsOpen}
-        contentLabel='Example Modal'
-      >
+    <Dialog
+      onClose={() => setAreSettingsOpen(false)}
+      open={areSettingsOpen}
+      fullWidth
+    >
+      <DialogContent>
         <SettingsDisplay />
-      </Modal>
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 };
 

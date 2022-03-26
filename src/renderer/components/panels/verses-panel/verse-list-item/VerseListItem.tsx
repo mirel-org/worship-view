@@ -1,5 +1,5 @@
 import { Card, CardContent, CardHeader, Typography } from '@mui/material';
-import React, { useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 
 type VerseListItemProps = {
   text: string;
@@ -20,7 +20,7 @@ const VerseListItem = ({
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (!selected || !ref?.current) return;
-    ref.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    ref.current.scrollIntoView({ block: 'center' });
   }, [selected, ref]);
   const color = selected
     ? enabled
