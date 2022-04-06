@@ -3,7 +3,7 @@ import { InputGroupsType } from '@renderer/components/ui/inputs/radio-group/Radi
 import { Display } from 'electron';
 import { useAtom } from 'jotai';
 import { useEffect } from 'react';
-import { displayScreenSelectionAtom } from './settings.display.atoms';
+import { settingsDisplayScreenSelectionAtom } from './settings.display.atoms';
 
 const defaultInput = [
   { value: 'none', checked: false, label: 'None' },
@@ -28,7 +28,7 @@ const getDefaultInputGroups = (displays: Display[]): InputGroupsType => {
 export const useDisplaySettings = () => {
   const [availableDisplays] = useAtom(availableDisplaysAtom);
   const [displayScreenSelection, setDisplayScreenSelection] = useAtom(
-    displayScreenSelectionAtom,
+    settingsDisplayScreenSelectionAtom,
   );
   useEffect(() => {
     if (Object.keys(displayScreenSelection).length === 0)

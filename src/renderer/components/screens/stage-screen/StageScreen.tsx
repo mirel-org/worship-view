@@ -2,6 +2,7 @@ import {
   currentProjectionTypeAtom,
   verseProjectionEnabledAtom,
 } from '@ipc/projection/projection.atoms';
+import { settingsSongSlideSizeAtom } from '@ipc/settings/settings.song.atoms';
 import { nextSongSlideAtom, selectedSongSlideAtom } from '@ipc/song/song.atoms';
 import {
   selectedVerseReferenceAtom,
@@ -20,6 +21,8 @@ const StageScreen: FC = () => {
   const [selectedVerseText] = useAtom(selectedVerseTextAtom);
   const [selectedVerseReference] = useAtom(selectedVerseReferenceAtom);
   const [verseProjectionEnabled] = useAtom(verseProjectionEnabledAtom);
+  const [settingsSongSlideSize] = useAtom(settingsSongSlideSizeAtom);
+  if (settingsSongSlideSize === 4) return <Container></Container>;
   if (currentProjectionType === 'song')
     return (
       <Container>

@@ -2,6 +2,7 @@ import { useAtom } from 'jotai';
 import SettingsDisplay from './SettingsDisplay';
 import { areSettingsOpenAtom } from '../../../ipc/settings/settings.atoms';
 import { Dialog, DialogContent } from '@mui/material';
+import { SettingsSong } from './SettingsSong';
 
 const Settings = () => {
   const [areSettingsOpen, setAreSettingsOpen] = useAtom(areSettingsOpenAtom);
@@ -13,6 +14,7 @@ const Settings = () => {
     >
       <DialogContent>
         <SettingsDisplay />
+        <SettingsSong />
       </DialogContent>
     </Dialog>
   );

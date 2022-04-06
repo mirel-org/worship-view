@@ -1,13 +1,14 @@
 import { availableDisplaysAtom } from '@ipc/display/display.atoms';
+import { Typography } from '@mui/material';
 import RadioGroup from '@renderer/components/ui/inputs/radio-group/RadioGroup';
 import { useRadioGroups } from '@renderer/components/ui/inputs/radio-group/RadioGroup.hooks';
 import { useAtom } from 'jotai';
-import { displayScreenSelectionAtom } from '../../../ipc/settings/settings.display.atoms';
+import { settingsDisplayScreenSelectionAtom } from '../../../ipc/settings/settings.display.atoms';
 
 const SettingsDisplay = () => {
   const [availableDisplays] = useAtom(availableDisplaysAtom);
   const [displayScreenSelection, setDisplayScreenSelection] = useAtom(
-    displayScreenSelectionAtom,
+    settingsDisplayScreenSelectionAtom,
   );
   const { onChange } = useRadioGroups(
     displayScreenSelection,
@@ -16,6 +17,9 @@ const SettingsDisplay = () => {
 
   return (
     <div>
+      <Typography variant='h4' sx={{ marginY: 2 }}>
+        Displays
+      </Typography>
       {availableDisplays.map((display) => {
         const key = display.id.toString();
         const inputs = displayScreenSelection[key];

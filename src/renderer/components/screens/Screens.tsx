@@ -1,17 +1,17 @@
 import { useAtom } from 'jotai';
-import React, { FC } from 'react';
+import { FC } from 'react';
 import Frame from '../helpers/Frame';
 import {
-  audienceDisplaysAtom,
-  stageDisplaysAtom,
+  settingsAudienceDisplaysAtom,
+  settingsStageDisplaysAtom,
 } from '../../../ipc/settings/settings.display.atoms';
 import AudienceScreen from './audience-screen/AudienceScreen';
 import { areScreensEnabledAtom } from '../../../ipc/screen/screen.atoms';
 import StageScreen from './stage-screen/StageScreen';
 
 const Screens: FC = () => {
-  const [audienceDisplays] = useAtom(audienceDisplaysAtom);
-  const [stageDisplays] = useAtom(stageDisplaysAtom);
+  const [audienceDisplays] = useAtom(settingsAudienceDisplaysAtom);
+  const [stageDisplays] = useAtom(settingsStageDisplaysAtom);
   const [areScreensEnabled] = useAtom(areScreensEnabledAtom);
   return (
     <div>

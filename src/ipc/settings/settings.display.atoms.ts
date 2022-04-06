@@ -19,17 +19,17 @@ const inputGroupToDisplaysList = (
   return returnedDisplays;
 };
 
-export const displayScreenSelectionAtom = atom<InputGroupsType>({});
-export const audienceDisplaysAtom = atom<Display[]>((get) =>
+export const settingsDisplayScreenSelectionAtom = atom<InputGroupsType>({});
+export const settingsAudienceDisplaysAtom = atom<Display[]>((get) =>
   inputGroupToDisplaysList(
-    get(displayScreenSelectionAtom),
+    get(settingsDisplayScreenSelectionAtom),
     get(availableDisplaysAtom),
     'audience',
   ),
 );
-export const stageDisplaysAtom = atom<Display[]>((get) =>
+export const settingsStageDisplaysAtom = atom<Display[]>((get) =>
   inputGroupToDisplaysList(
-    get(displayScreenSelectionAtom),
+    get(settingsDisplayScreenSelectionAtom),
     get(availableDisplaysAtom),
     'stage',
   ),
