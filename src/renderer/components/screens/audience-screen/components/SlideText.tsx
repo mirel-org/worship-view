@@ -13,6 +13,8 @@ import {
   selectedVerseReferenceAtom,
   selectedVerseTextAtom,
 } from '@ipc/verse/verse.atoms';
+import { PrayerSlide } from './PrayerSlide';
+import { prayerRequestsAtom } from '@ipc/prayer/prayer.atoms';
 
 const SlideText: FC = () => {
   const [currentProjectionType] = useAtom(currentProjectionTypeAtom);
@@ -20,14 +22,19 @@ const SlideText: FC = () => {
   const [selectedVerseReference] = useAtom(selectedVerseReferenceAtom);
   const [selectedVerseText] = useAtom(selectedVerseTextAtom);
   const [verseProjectionEnabled] = useAtom(verseProjectionEnabledAtom);
+  const [prayerRequests] = useAtom(prayerRequestsAtom);
   return (
     <Container>
-      <CrossFade>
-        <TextContainer>
-          {currentProjectionType === 'song' && (
+      {currentProjectionType === 'song' && (
+        <CrossFade>
+          <TextContainer>
             <SongSlide lines={selectedSongSlide?.lines ?? []} />
-          )}
-          {currentProjectionType === 'verse' && verseProjectionEnabled && (
+          </TextContainer>
+        </CrossFade>
+      )}
+      {currentProjectionType === 'verse' && verseProjectionEnabled && (
+        <CrossFade>
+          <TextContainer>
             <VerseSlide
               text={selectedVerseText ?? ''}
               reference={
@@ -36,9 +43,14 @@ const SlideText: FC = () => {
                   : ''
               }
             />
-          )}
+          </TextContainer>
+        </CrossFade>
+      )}
+      {currentProjectionType === 'prayer' && (
+        <TextContainer>
+          <PrayerSlide prayerRequests={prayerRequests} />
         </TextContainer>
-      </CrossFade>
+      )}
     </Container>
   );
 };

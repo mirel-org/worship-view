@@ -25,6 +25,7 @@ const useProjectionNavigation = () => {
 };
 
 const useProjectionType = () => {
+  const [selectedTabType] = useAtom(selectedTabTypeAtom);
   const [selectedSongSlide] = useAtom(selectedSongSlideAtom);
   const [selectedVerseText] = useAtom(selectedVerseTextAtom);
   const [, setCurrentProjectionType] = useAtom(currentProjectionTypeAtom);
@@ -38,7 +39,20 @@ const useProjectionType = () => {
   }, [selectedVerseText, setCurrentProjectionType]);
 
   useEffect(() => {
-    if (!selectedSongSlide && !selectedVerseText)
+    if (selectedTabType === 'prayer') setCurrentProjectionType('prayer');
+  }, [selectedTabType, setCurrentProjectionType]);
+
+  useEffect(() => {
+    if (
+      !selectedSongSlide &&
+      !selectedVerseText &&
+      selectedTabType !== 'prayer'
+    )
       setCurrentProjectionType('none');
-  }, [selectedSongSlide, selectedVerseText, setCurrentProjectionType]);
+  }, [
+    selectedSongSlide,
+    selectedVerseText,
+    setCurrentProjectionType,
+    selectedTabType,
+  ]);
 };

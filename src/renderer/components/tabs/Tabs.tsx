@@ -5,10 +5,12 @@ import styled from 'styled-components';
 import TabsBible from './TabsBible';
 import TabsSongs from './TabsSongs';
 import { selectedTabTypeAtom } from '../../../ipc/tab/tab.atoms';
+import TabsPrayer from './TabsPrayer';
 
 const TabsMap = {
   songs: <TabsSongs />,
   bible: <TabsBible />,
+  prayer: <TabsPrayer />,
 };
 
 export type TabType = keyof typeof TabsMap;
@@ -22,10 +24,10 @@ const AppTabs: FC = () => {
         <Tabs
           value={selectedTabType}
           onChange={(_, value) => setSelectedTabType(value)}
-          aria-label='basic tabs example'
         >
           <Tab label='Songs' value='songs' />
           <Tab label='Bible' value='bible' />
+          <Tab label='Prayer' value='prayer' />
         </Tabs>
       </Box>
       <TabsWrapper>{TabsMap[selectedTabType]}</TabsWrapper>
