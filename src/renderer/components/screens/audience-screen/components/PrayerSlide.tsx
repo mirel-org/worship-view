@@ -1,3 +1,5 @@
+import { prayerRequestFontSizeAtom } from '@ipc/prayer/prayer.atoms';
+import { useAtom } from 'jotai';
 import styled from 'styled-components';
 
 type PrayerSlideProps = {
@@ -15,8 +17,10 @@ function sliceIntoChunks(arr: any[], chunkSize: number) {
 
 export function PrayerSlide({ prayerRequests }: PrayerSlideProps) {
   const chunks = sliceIntoChunks(prayerRequests, 10);
+  const [prayerRequestFontSize] = useAtom(prayerRequestFontSizeAtom);
+
   return (
-    <Container>
+    <Container fontSize={prayerRequestFontSize}>
       {chunks.map((chunk, chunkIndex) => (
         <Column key={chunkIndex}>
           {chunk.map((request, requestIndex) => (
@@ -28,10 +32,10 @@ export function PrayerSlide({ prayerRequests }: PrayerSlideProps) {
   );
 }
 
-const Container = styled.div`
+const Container = styled.div<{ fontSize: number }>`
   width: 95vw;
   font-family: 'Montserrat';
-  font-size: 450%;
+  font-size: ${(props) => props.fontSize + '%'};
   font-weight: 700;
   font-style: italic;
   color: white;

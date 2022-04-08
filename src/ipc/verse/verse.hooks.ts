@@ -1,10 +1,12 @@
 import { verseProjectionEnabledAtom } from '@ipc/projection/projection.atoms';
 import { useAtom } from 'jotai';
-import { useCallback, useMemo } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 import {
   selectedVerseReferenceAtom,
   verseInputFocusAtom,
+  verseInputReferenceAtom,
   verseInputValueAtom,
+  versesHistoryAtom,
 } from './verse.atoms';
 import bibleText from '@assets/bibles/VDC.json';
 import { BibleTextType } from './verse.types';
@@ -75,7 +77,8 @@ export const useVerseControll = () => {
 
 export const useVerseSearch = () => {
   const [verseInputValue] = useAtom(verseInputValueAtom);
-  const [, setSelectedVerseReferenceAtom] = useAtom(selectedVerseReferenceAtom);
+  const [, setSelectedVerseReference] = useAtom(selectedVerseReferenceAtom);
+  const [, setVerseInputReference] = useAtom(verseInputReferenceAtom);
   const [, setVerseInputFocus] = useAtom(verseInputFocusAtom);
   const books = useMemo(() => {
     return Object.keys(bibleText);
@@ -98,7 +101,12 @@ export const useVerseSearch = () => {
       const verse = chapter[verseIndex - 1];
       if (!verse) return;
 
-      setSelectedVerseReferenceAtom({
+      setSelectedVerseReference({
+        book,
+        chapter: chapterIndex,
+        verse: verseIndex,
+      });
+      setVerseInputReference({
         book,
         chapter: chapterIndex,
         verse: verseIndex,
@@ -109,9 +117,23 @@ export const useVerseSearch = () => {
     }
   }, [
     verseInputValue,
-    setSelectedVerseReferenceAtom,
+    setSelectedVerseReference,
     setVerseInputFocus,
     books,
+    setVerseInputReference,
   ]);
   return { handleSearch };
+};
+
+export const useVersesHistory = () => {
+  const [, setVersesHistory] = useAtom(versesHistoryAtom);
+  const [verseInputReference] = useAtom(verseInputReferenceAtom);
+
+  useEffect(() => {
+    verseInputReference &&
+      setVersesHistory((versesHistory) => [
+        ...versesHistory,
+        verseInputReference,
+      ]);
+  }, [verseInputReference, setVersesHistory]);
 };

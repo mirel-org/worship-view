@@ -7,6 +7,7 @@ import { useSettings } from './settings/settings.hooks';
 import { useManageSongs } from './song/song.hooks';
 import useSongShortcuts from './song/song.shortcuts';
 import { SongPreloadType } from './song/song.types';
+import { useVersesHistory } from './verse/verse.hooks';
 import useVerseShortcuts from './verse/verse.shortcuts';
 
 export type MyAPIType = DisplayPreloadType & SongPreloadType & MediaPreloadType;
@@ -20,6 +21,7 @@ export const getApiClient = () => {
 export const useSetup = () => {
   useManageProjection();
   useManageSongs();
+  useVersesHistory();
   useGetDisplays();
   useSetupShortcuts();
   useSettings();
