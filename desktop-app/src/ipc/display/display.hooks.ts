@@ -1,10 +1,10 @@
 import { useAtom } from 'jotai';
 import { useEffect } from 'react';
-import { getApiClient } from '..';
+import { getNodeApiClient } from '..';
 import { availableDisplaysAtom } from './display.atoms';
 
 const useGetDisplays = () => {
-  const { getDisplays } = getApiClient();
+  const { getDisplays } = getNodeApiClient();
   const [, setAvailableDisplays] = useAtom(availableDisplaysAtom);
   useEffect(() => {
     getDisplays().then((displays) => {

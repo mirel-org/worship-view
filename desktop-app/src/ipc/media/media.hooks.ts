@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
-import { getApiClient } from '..';
+import { getNodeApiClient } from '..';
 import { MediaItem } from './media.types';
 
 const useGetMediaItems = () => {
-  const { getMediaItems } = getApiClient();
+  const { getMediaItems } = getNodeApiClient();
   const [mediaItems, setMediaItems] = useState<MediaItem[]>([]);
   useEffect(() => {
     getMediaItems().then((mediaItems) => setMediaItems(mediaItems));

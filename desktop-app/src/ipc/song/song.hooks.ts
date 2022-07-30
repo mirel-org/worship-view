@@ -1,16 +1,18 @@
+import { useCreateSongsMutation, useSongsQuery } from '@graphql/generated';
 import { useAtom } from 'jotai';
-import { useCallback, useEffect, useState } from 'react';
-import { getApiClient } from '..';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { getNodeApiClient } from '..';
 import {
   selectedSongAtom,
   selectedSongSlideReferenceAtom,
   selectedSongTextAtom,
 } from './song.atoms';
-import { Song } from './song.types';
+import { ImportedSong, SongType } from './song.types';
+import { mapImportedSongs } from './song.utils';
 
-export const useGetSongs = () => {
-  const { getSongs } = getApiClient();
-  const [songs, setSongs] = useState<Song[]>([]);
+export const useLocalSongs = () => {
+  const { getSongs } = getNodeApiClient();
+  const [songs, setSongs] = useState<ImportedSong[]>([]);
   useEffect(() => {
     getSongs().then((songs) => setSongs(songs));
   }, [getSongs]);
@@ -84,4 +86,31 @@ export const useManageSongs = () => {
     if (selectedSong)
       setSelectedSongSlideReference({ partIndex: 0, slideIndex: 0 });
   }, [selectedSong, setSelectedSongSlideReference]);
+};
+
+export const useImportSongs = () => {
+  const { mutate: createSongs } = useCreateSongsMutation();
+  const importedSongs = useLocalSongs();
+
+  const importSongs = useCallback(() => {
+    createSongs({ newSongs: mapImportedSongs(importedSongs) });
+  }, [createSongs, importedSongs]);
+
+  return importSongs;
+};
+
+export const useServerSongs = () => {
+  const { data } = useSongsQuery();
+  const songs: SongType[] = useMemo(
+    () =>
+      data?.songs?.map(
+        (serverSong): SongType => ({
+          id: serverSong.id,
+          content: serverSong.content,
+          arrangement: serverSong.arrangement,
+          path: serverSong.path.split('/'),
+        }),
+      ) ?? [],
+    [data],
+  );
 };

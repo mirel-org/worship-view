@@ -4,8 +4,8 @@ import {
 } from '@ipc/song/song.atoms';
 import usePreventScroll from '@renderer/hooks/usePreventScroll';
 import { useAtom } from 'jotai';
-import React from 'react';
 import styled from 'styled-components';
+import { EditSongModal } from './edit-song-modal/EditSongModal';
 import SlidesListColumn from './slides-list-column/SlidesListColumn';
 
 const SlidesListPanel = () => {
@@ -26,7 +26,7 @@ const SlidesListPanel = () => {
           <SlidesListColumn
             key={partIndex}
             slides={part.slides}
-            title={part.key}
+            title={part.title}
             selectedIndex={
               partIndex === selectedSongSlideReference?.partIndex
                 ? selectedSongSlideReference.slideIndex
@@ -35,6 +35,7 @@ const SlidesListPanel = () => {
             onSelect={(slideIndex) => handleOnSlideClick(partIndex, slideIndex)}
           />
         ))}
+      <EditSongModal />
     </SlidesContainer>
   );
 };

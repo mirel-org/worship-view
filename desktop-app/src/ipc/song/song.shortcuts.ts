@@ -4,7 +4,7 @@ import useShortcut from '@ipc/utils/useShortcut';
 import { useAtom } from 'jotai';
 import { useCallback } from 'react';
 import useShortcuts from '../utils/useShortcuts';
-import { songInputFocusAtom } from './song.atoms';
+import { isEditingSongAtom, songInputFocusAtom } from './song.atoms';
 
 const useSongShortcuts = () => {
   useSongControllerShortcuts();
@@ -16,13 +16,15 @@ const useSongControllerShortcuts = () => {
   const { gotoNextSlide, gotoPreviousSlide } = useSongControll();
   const [selectedTabType] = useAtom(selectedTabTypeAtom);
   const [songInputFocus] = useAtom(songInputFocusAtom);
+  const [isEditingSong] = useAtom(isEditingSongAtom);
+  const allowShortcut = !songInputFocus && !isEditingSong;
 
   const next = useCallback(() => {
-    if (selectedTabType === 'songs' && !songInputFocus) gotoNextSlide();
-  }, [selectedTabType, gotoNextSlide, songInputFocus]);
+    if (selectedTabType === 'songs' && allowShortcut) gotoNextSlide();
+  }, [selectedTabType, gotoNextSlide, allowShortcut]);
   const previous = useCallback(() => {
-    if (selectedTabType === 'songs' && !songInputFocus) gotoPreviousSlide();
-  }, [selectedTabType, gotoPreviousSlide, songInputFocus]);
+    if (selectedTabType === 'songs' && allowShortcut) gotoPreviousSlide();
+  }, [selectedTabType, gotoPreviousSlide, allowShortcut]);
   useShortcuts(['w', 'W', 'ArrowUp', 'a', 'A', 'ArrowLeft'], previous);
   useShortcuts(['s', 'S', 'ArrowDown', 'd', 'D', 'ArrowRight'], next);
 };

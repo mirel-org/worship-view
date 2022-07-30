@@ -14,7 +14,7 @@ export type MyAPIType = DisplayPreloadType & SongPreloadType & MediaPreloadType;
 
 type MainWindow = typeof window & { myAPI: MyAPIType };
 
-export const getApiClient = () => {
+export const getNodeApiClient = () => {
   return (window as MainWindow).myAPI;
 };
 

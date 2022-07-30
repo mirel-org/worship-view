@@ -10,6 +10,8 @@ import Settings from './components/settings/Settings';
 import { areSettingsOpenAtom } from '../ipc/settings/settings.atoms';
 import AppTabs from './components/tabs/Tabs';
 import { useSetup } from '../ipc/';
+import { useSongsQuery } from '@graphql/generated';
+import { useImportSongs } from '@ipc/song/song.hooks';
 
 const Generics = memo(function Generics() {
   return (
@@ -27,7 +29,8 @@ const Application: React.FC = () => {
     areScreensEnabledAtom,
   );
   const [, setAreSettingsOpen] = useAtom(areSettingsOpenAtom);
-
+  const { data: songsData } = useSongsQuery();
+  const importSongs = useImportSongs();
   return (
     <AppWrapper>
       <Controlls>
@@ -39,6 +42,13 @@ const Application: React.FC = () => {
         </Button>
         <Button variant='contained' onClick={() => setAreSettingsOpen(true)}>
           Settings
+        </Button>
+        <Button
+          variant='contained'
+          disabled={!songsData || (songsData.songs?.length ?? []) > 0}
+          onClick={importSongs}
+        >
+          Import
         </Button>
       </Controlls>
       <TabsContainer>
