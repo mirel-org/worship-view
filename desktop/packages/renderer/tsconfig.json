@@ -1,0 +1,35 @@
+{
+  "compilerOptions": {
+    "module": "esnext",
+    "target": "esnext",
+    "sourceMap": false,
+    "moduleResolution": "Node",
+    "skipLibCheck": true,
+    "strict": true,
+    "isolatedModules": true,
+    "jsx": "react-jsx",
+    "types": ["node"],
+    "baseUrl": ".",
+    "plugins": [
+      {
+        "name": "typescript-styled-plugin"
+      }
+    ],
+    "paths": {
+      "@common/*": ["../shared/common/*"],
+      "@preload/*": ["../preload/*"],
+      "@renderer/*": ["../renderer/*"],
+      "@ipc/*": ["../shared/ipc/*"],
+      "@assets/*": ["../../assets/*"]
+    },
+    "lib": ["ESNext", "dom", "dom.iterable"]
+  },
+  "include": [
+    "**/*.tsx",
+    "components/**/*.ts",
+    "components/**/*.tsx",
+    "types/**/*.d.ts",
+    "../../types/**/*.d.ts"
+  ],
+  "exclude": ["**/*.spec.ts", "**/*.test.ts"]
+}
