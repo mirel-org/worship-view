@@ -1,7 +1,11 @@
 {
   "private": true,
-  "workspaces": [
-    "desktop-app",
-    "backend"
-  ]
+  "workspaces": {
+    "packages": [
+      "desktop",
+      "backend",
+      "shared-types",
+      "oli-design-system"
+    ]
+  }
 }

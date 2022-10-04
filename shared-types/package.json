@@ -1,0 +1,11 @@
+{
+  "name": "shared-types",
+  "version": "0.0.1",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {},
+  "dependencies": {
+    "zod": "^3.17.10"
+  },
+  "devDependencies": {}
+}
