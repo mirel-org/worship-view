@@ -54,10 +54,11 @@ const CrossFade: FC = ({ children }) => {
 export default CrossFade;
 
 const Container = styled.div`
+  width: 100%;
+  height: 100%;
   position: absolute;
   transition: opacity 0.5s;
-  left: 0;
-  right: 0;
-  top: 20%;
-  transform: translate(0, -50%);
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
 `;

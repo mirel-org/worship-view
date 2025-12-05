@@ -29,11 +29,12 @@ const Container = styled.div`
 `;
 
 const Video = styled.video`
-  width: 100%    !important;
-  height: auto   !important;
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover;
 `;
 
 const Img = styled.img`
-  width: 100%    !important;
-  height: auto   !important;
+  width: 100% !important;
+  height: auto !important;
 `;

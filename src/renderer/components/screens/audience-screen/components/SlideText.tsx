@@ -62,6 +62,12 @@ const Container = styled.div`
 `;
 
 const TextContainer = styled.div`
+  width: 100%;
   display: flex;
   justify-content: center;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
 `;
