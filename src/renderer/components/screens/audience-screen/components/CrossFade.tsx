@@ -17,6 +17,7 @@ const CrossFade: FC = ({ children }) => {
   );
 
   useEffect(() => {
+    console.log('node', node);
     if (!React.isValidElement(node)) return;
     setNodesHistory((nodes) => [...nodes, { node, key: Math.random() }]);
     setOpacity(0);
@@ -25,7 +26,7 @@ const CrossFade: FC = ({ children }) => {
         setNodesHistory((nodes) => nodes.filter((n) => n.node !== lastNode));
       }, 500);
     }
-  }, [node, setNodesHistory, lastNode]);
+  }, [node, setNodesHistory]);
 
   useEffect(() => {
     setTimeout(() => {

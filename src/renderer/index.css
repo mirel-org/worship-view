@@ -40,24 +40,6 @@
   body {
     @apply bg-background text-foreground;
   }
-
-  @font-face {
-    font-family: 'Iosevka';
-    font-style: normal;
-    font-weight: normal;
-    src: local('Iosevka'),
-      url('../../assets/fonts/iosevka/iosevka-fixed-regular.woff2')
-        format('woff2');
-  }
-
-  @font-face {
-    font-family: 'Montserrat';
-    font-style: normal;
-    font-weight: normal;
-    src: local('Montserrat'),
-      url('../../assets/fonts/montserrat/Montserrat-SemiBold.ttf')
-        format('truetype');
-  }
 }
 
 @layer utilities {
@@ -77,4 +59,3 @@
     background-color: #1976d2;
   }
 }
-

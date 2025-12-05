@@ -45,8 +45,9 @@ module.exports = [
   },
   {
     test: /\.(woff|woff2|ttf)$/,
-    use: {
-      loader: 'url-loader',
+    type: 'asset/resource',
+    generator: {
+      filename: 'fonts/[name][ext]',
     },
   },
 ];
