@@ -1,43 +1,27 @@
 import { selectedBackgroundMediaItemAtom } from '@ipc/media/media.atoms';
 import useGetMediaItems from '@ipc/media/media.hooks';
-import {
-  List,
-  ListItem,
-  ListItemButton,
-  ListItemText,
-  Typography,
-} from '@mui/material';
 import { useAtom } from 'jotai';
 import React, { FC } from 'react';
-import styled from 'styled-components';
 
 const MediaPanel: FC = () => {
   const mediaItems = useGetMediaItems();
   const [, setSelectedMediaItem] = useAtom(selectedBackgroundMediaItemAtom);
   return (
-    <Container>
-      <Typography variant='h4'>Media</Typography>
-      <List>
+    <div className="overflow-y-auto overflow-x-hidden h-full">
+      <h2 className="text-2xl font-semibold mb-4 p-4">Media</h2>
+      <ul className="space-y-1 px-4">
         {mediaItems.map((mediaItem) => (
-          <ListItem
-            disablePadding
+          <li
             key={mediaItem.id}
             onClick={() => setSelectedMediaItem(mediaItem)}
+            className="cursor-pointer hover:bg-accent rounded-md p-2 transition-colors"
           >
-            <ListItemButton>
-              <ListItemText primary={mediaItem.name} />
-            </ListItemButton>
-          </ListItem>
+            <span>{mediaItem.name}</span>
+          </li>
         ))}
-      </List>
-    </Container>
+      </ul>
+    </div>
   );
 };
 
 export default MediaPanel;
-
-const Container = styled.div`
-  overflow-y: auto;
-  overflow-x: hidden;
-  height: 100%;
-`;

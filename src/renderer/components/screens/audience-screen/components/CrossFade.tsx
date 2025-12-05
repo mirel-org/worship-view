@@ -1,5 +1,4 @@
 import React, { FC, useEffect, useMemo, useState } from 'react';
-import styled from 'styled-components';
 
 const CrossFade: FC = ({ children }) => {
   const node = useMemo(() => {
@@ -37,28 +36,19 @@ const CrossFade: FC = ({ children }) => {
   return (
     <>
       {nodesHistory.map(({ node: n, key: k }) => (
-        <Container
+        <div
           key={k}
+          className="w-full h-full absolute transition-opacity duration-500 left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
           style={{
             opacity: n === node ? opacity : 0,
             zIndex: n === node ? 1 : 0,
           }}
         >
           {n}
-        </Container>
+        </div>
       ))}
     </>
   );
 };
 
 export default CrossFade;
-
-const Container = styled.div`
-  width: 100%;
-  height: 100%;
-  position: absolute;
-  transition: opacity 0.5s;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
-`;

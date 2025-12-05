@@ -5,7 +5,6 @@ import {
 import usePreventScroll from '@renderer/hooks/usePreventScroll';
 import { useAtom } from 'jotai';
 import React from 'react';
-import styled from 'styled-components';
 import SlidesListColumn from './slides-list-column/SlidesListColumn';
 
 const SlidesListPanel = () => {
@@ -20,7 +19,7 @@ const SlidesListPanel = () => {
   const { ref: containerRef } = usePreventScroll<HTMLDivElement>();
 
   return (
-    <SlidesContainer ref={containerRef}>
+    <div ref={containerRef} className="h-full flex flex-wrap overflow-y-auto">
       {selectedSongText &&
         selectedSongText.map((part, partIndex) => (
           <SlidesListColumn
@@ -35,15 +34,8 @@ const SlidesListPanel = () => {
             onSelect={(slideIndex) => handleOnSlideClick(partIndex, slideIndex)}
           />
         ))}
-    </SlidesContainer>
+    </div>
   );
 };
 
 export default SlidesListPanel;
-
-const SlidesContainer = styled.div`
-  height: 100%;
-  display: flex;
-  flex-wrap: wrap;
-  overflow-y: auto;
-`;

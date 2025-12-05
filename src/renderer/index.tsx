@@ -2,6 +2,7 @@ import ReactDOM from 'react-dom';
 import { inDev } from '@common/helpers';
 import Application from './Application';
 import Modal from 'react-modal';
+import './index.css';
 
 // Say something
 console.log('[ERWT] : Renderer execution started');

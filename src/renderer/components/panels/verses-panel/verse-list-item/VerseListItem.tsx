@@ -1,5 +1,6 @@
-import { Card, CardContent, CardHeader, Typography } from '@mui/material';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useEffect, useRef } from 'react';
+import { cn } from '@/lib/utils';
 
 type VerseListItemProps = {
   text: string;
@@ -22,21 +23,22 @@ const VerseListItem = ({
     if (!selected || !ref?.current) return;
     ref.current.scrollIntoView({ block: 'center' });
   }, [selected, ref]);
-  const color = selected
+  const borderColor = selected
     ? enabled
-      ? '#1976d2 solid 20px'
-      : '#e3f2fd solid 20px'
+      ? 'border-l-[20px] border-l-[#1976d2]'
+      : 'border-l-[20px] border-l-[#e3f2fd]'
     : '';
   return (
     <Card
-      sx={{ margin: 1, borderLeft: color, cursor: 'pointer' }}
-      elevation={2}
+      className={cn('m-1 cursor-pointer shadow-md', borderColor)}
       ref={ref}
       onClick={() => onClick(reference)}
     >
-      <CardHeader title={reference} />
+      <CardHeader>
+        <CardTitle>{reference}</CardTitle>
+      </CardHeader>
       <CardContent>
-        <Typography>{text}</Typography>
+        <p>{text}</p>
       </CardContent>
     </Card>
   );

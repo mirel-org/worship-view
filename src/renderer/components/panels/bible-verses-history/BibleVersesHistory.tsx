@@ -2,36 +2,28 @@ import {
   selectedVerseReferenceAtom,
   versesHistoryAtom,
 } from '@ipc/verse/verse.atoms';
-import {
-  List,
-  ListItem,
-  ListItemButton,
-  ListItemText,
-  Typography,
-} from '@mui/material';
 import { useAtom } from 'jotai';
 
 export function BibleVersesHistory() {
   const [versesHistory] = useAtom(versesHistoryAtom);
   const [, setSelectedVerseReference] = useAtom(selectedVerseReferenceAtom);
   return (
-    <div style={{ paddingLeft: 8 }}>
-      <Typography variant='h4'>Verses History</Typography>
-      <List>
+    <div className="pl-2">
+      <h2 className="text-2xl font-semibold mb-4">Verses History</h2>
+      <ul className="space-y-1">
         {versesHistory.map((verseReference, index) => (
-          <ListItem
-            disablePadding
+          <li
             key={index}
             onClick={() => setSelectedVerseReference(verseReference)}
+            className="cursor-pointer hover:bg-accent rounded-md p-2 transition-colors"
           >
-            <ListItemButton>
-              <ListItemText
-                primary={`${verseReference.book} ${verseReference.chapter}:${verseReference.verse}`}
-              />
-            </ListItemButton>
-          </ListItem>
+            <span>
+              {verseReference.book} {verseReference.chapter}:
+              {verseReference.verse}
+            </span>
+          </li>
         ))}
-      </List>
+      </ul>
     </div>
   );
 }

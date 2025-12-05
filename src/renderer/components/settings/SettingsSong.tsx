@@ -1,33 +1,42 @@
 import { settingsSongSlideSizeAtom } from '@ipc/settings/settings.song.atoms';
 import { SongSlideSize } from '@ipc/settings/settings.song.types';
-import { MenuItem, TextField, Typography } from '@mui/material';
 import { useAtom } from 'jotai';
-import { ChangeEventHandler } from 'react';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '../ui/select';
+import { Label } from '../ui/label';
 
 export function SettingsSong() {
   const [settingsSongSlideSize, setSettingsSongSlideSize] = useAtom(
     settingsSongSlideSizeAtom,
   );
 
-  const handleChange: ChangeEventHandler<HTMLInputElement> = (event) => {
-    setSettingsSongSlideSize(event.target.value as unknown as SongSlideSize);
+  const handleChange = (value: string) => {
+    setSettingsSongSlideSize(Number(value) as SongSlideSize);
   };
   return (
     <div>
-      <Typography variant='h4' sx={{ marginY: 2 }}>
-        Songs
-      </Typography>
-      <TextField
-        value={settingsSongSlideSize}
-        onChange={handleChange}
-        fullWidth
-        select
-        label='Song slide size'
-      >
-        <MenuItem value={1}>1</MenuItem>
-        <MenuItem value={2}>2</MenuItem>
-        <MenuItem value={4}>4</MenuItem>
-      </TextField>
+      <h2 className="text-2xl font-semibold my-4">Songs</h2>
+      <div className="space-y-2">
+        <Label htmlFor="song-slide-size">Song slide size</Label>
+        <Select
+          value={String(settingsSongSlideSize)}
+          onValueChange={handleChange}
+        >
+          <SelectTrigger id="song-slide-size" className="w-full">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="1">1</SelectItem>
+            <SelectItem value="2">2</SelectItem>
+            <SelectItem value="4">4</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
     </div>
   );
 }

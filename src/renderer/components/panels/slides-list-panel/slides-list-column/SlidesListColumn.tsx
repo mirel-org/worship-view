@@ -1,5 +1,4 @@
 import React, { useEffect, useRef } from 'react';
-import styled from 'styled-components';
 import SlidesListItem from './slides-list-item/SlidesListItem';
 
 export type SlideItem = {
@@ -32,8 +31,8 @@ const SlidesListColumn = ({
     onSelect(slideIndex);
   };
   return (
-    <Container ref={ref}>
-      <Title>{title}</Title>
+    <div ref={ref} className="w-[400px] h-fit">
+      <div>{title}</div>
       {slides.map((slide, slideIndex) => (
         <SlidesListItem
           key={'slide' + slideIndex}
@@ -42,15 +41,8 @@ const SlidesListColumn = ({
           selected={slideIndex === selectedIndex}
         />
       ))}
-    </Container>
+    </div>
   );
 };
 
 export default SlidesListColumn;
-
-const Container = styled.div`
-  width: 400px;
-  height: fit-content;
-`;
-
-const Title = styled.div``;

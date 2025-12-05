@@ -1,5 +1,4 @@
-import React, { FC, useCallback, useMemo, useRef, useState } from 'react';
-import styled from 'styled-components';
+import React, { FC, useCallback, useMemo, useState } from 'react';
 
 type FitTextProps = {
   text: string;
@@ -16,21 +15,14 @@ const FitText: FC<FitTextProps> = ({ text }) => {
       : 0;
   }, [domNode, text]);
   return (
-    <Container ref={onRefChange} style={{ fontSize }}>
+    <div
+      ref={onRefChange}
+      className="w-full h-full whitespace-nowrap overflow-hidden leading-none font-iosevka font-medium"
+      style={{ fontSize, letterSpacing: '-0.1em' }}
+    >
       {text}
-    </Container>
+    </div>
   );
 };
 
 export default FitText;
-
-const Container = styled.div`
-  width: 100%;
-  height: 100%;
-  white-space: nowrap;
-  overflow: hidden;
-  line-height: 1;
-  letter-spacing: -0.1em;
-  font-family: 'Iosevka';
-  font-weight: 500;
-`;

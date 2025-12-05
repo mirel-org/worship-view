@@ -2,6 +2,7 @@ const { createWebpackAliases } = require('./webpack.helpers');
 
 // Export aliases
 module.exports = createWebpackAliases({
+  '@': 'src/renderer',
   '@assets': 'assets',
   '@common': 'src/common',
   '@main': 'src/main',

@@ -5,7 +5,6 @@ import { selectedVerseReferenceAtom } from '../../../../ipc/verse/verse.atoms';
 import VerseListItem from './verse-list-item/VerseListItem';
 import { BibleTextType } from '@ipc/verse/verse.types';
 import { verseProjectionEnabledAtom } from '@ipc/projection/projection.atoms';
-import styled from 'styled-components';
 import usePreventScroll from '@renderer/hooks/usePreventScroll';
 
 const VersesPanel: FC = () => {
@@ -30,7 +29,7 @@ const VersesPanel: FC = () => {
   const { ref } = usePreventScroll<HTMLDivElement>();
 
   return (
-    <Wrapper ref={ref}>
+    <div ref={ref} className="h-full overflow-y-auto">
       {chapterVerses.map((verse, index) => (
         <VerseListItem
           enabled={verseProjectionEnabled}
@@ -41,13 +40,8 @@ const VersesPanel: FC = () => {
           onClick={handleVerseSelection}
         />
       ))}
-    </Wrapper>
+    </div>
   );
 };
 
 export default VersesPanel;
-
-const Wrapper = styled.div`
-  height: 100%;
-  overflow-y: auto;
-`;

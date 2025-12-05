@@ -14,12 +14,8 @@
     "resolveJsonModule": true,
     "strictNullChecks": true,
     "strict": true,
-    "plugins": [
-      {
-        "name": "typescript-styled-plugin"
-      }
-    ],
     "paths": {
+      "@/*": ["./src/renderer/*"],
       "*": ["node_modules/*"],
       "@assets/*": ["./assets/*"],
       "@common/*": ["./src/common/*"],

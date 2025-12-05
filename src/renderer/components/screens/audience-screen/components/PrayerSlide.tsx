@@ -1,6 +1,5 @@
 import { prayerRequestFontSizeAtom } from '@ipc/prayer/prayer.atoms';
 import { useAtom } from 'jotai';
-import styled from 'styled-components';
 
 type PrayerSlideProps = {
   prayerRequests: string[];
@@ -20,31 +19,20 @@ export function PrayerSlide({ prayerRequests }: PrayerSlideProps) {
   const [prayerRequestFontSize] = useAtom(prayerRequestFontSizeAtom);
 
   return (
-    <Container fontSize={prayerRequestFontSize}>
+    <div
+      className="w-[95vw] font-montserrat font-bold italic text-white text-center flex"
+      style={{
+        fontSize: `${prayerRequestFontSize}%`,
+        textShadow: '0.08em 0.08em 0 black',
+      }}
+    >
       {chunks.map((chunk, chunkIndex) => (
-        <Column key={chunkIndex}>
+        <div key={chunkIndex} className="h-full w-full">
           {chunk.map((request, requestIndex) => (
             <div key={requestIndex}>{request}</div>
           ))}
-        </Column>
+        </div>
       ))}
-    </Container>
+    </div>
   );
 }
-
-const Container = styled.div<{ fontSize: number }>`
-  width: 95vw;
-  font-family: 'Montserrat';
-  font-size: ${(props) => props.fontSize + '%'};
-  font-weight: 700;
-  font-style: italic;
-  color: white;
-  text-shadow: 0.08em 0.08em 0 black;
-  text-align: center;
-  display: flex;
-`;
-
-const Column = styled.div`
-  height: 100%;
-  width: 100%;
-`;

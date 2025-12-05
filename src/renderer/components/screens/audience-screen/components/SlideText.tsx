@@ -3,7 +3,6 @@ import {
   verseProjectionEnabledAtom,
 } from '@ipc/projection/projection.atoms';
 import React, { FC } from 'react';
-import styled from 'styled-components';
 import CrossFade from './CrossFade';
 import SongSlide from './SongSlide';
 import VerseSlide from './VerseSlide';
@@ -24,17 +23,17 @@ const SlideText: FC = () => {
   const [verseProjectionEnabled] = useAtom(verseProjectionEnabledAtom);
   const [prayerRequests] = useAtom(prayerRequestsAtom);
   return (
-    <Container>
+    <div className="z-10">
       {currentProjectionType === 'song' && (
         <CrossFade>
-          <TextContainer>
+          <div className="w-full flex justify-center absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
             <SongSlide lines={selectedSongSlide?.lines ?? []} />
-          </TextContainer>
+          </div>
         </CrossFade>
       )}
       {currentProjectionType === 'verse' && verseProjectionEnabled && (
         <CrossFade>
-          <TextContainer>
+          <div className="w-full flex justify-center absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
             <VerseSlide
               text={selectedVerseText ?? ''}
               reference={
@@ -43,31 +42,16 @@ const SlideText: FC = () => {
                   : ''
               }
             />
-          </TextContainer>
+          </div>
         </CrossFade>
       )}
       {currentProjectionType === 'prayer' && (
-        <TextContainer>
+        <div className="w-full flex justify-center absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
           <PrayerSlide prayerRequests={prayerRequests} />
-        </TextContainer>
+        </div>
       )}
-    </Container>
+    </div>
   );
 };
 
 export default SlideText;
-
-const Container = styled.div`
-  z-index: 10;
-`;
-
-const TextContainer = styled.div`
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-}
-`;

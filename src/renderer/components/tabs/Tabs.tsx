@@ -1,7 +1,6 @@
-import { Box, Tab, Tabs } from '@mui/material';
 import { useAtom } from 'jotai';
 import React, { FC } from 'react';
-import styled from 'styled-components';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '../ui/tabs';
 import TabsBible from './TabsBible';
 import TabsSongs from './TabsSongs';
 import { selectedTabTypeAtom } from '../../../ipc/tab/tab.atoms';
@@ -19,28 +18,22 @@ const AppTabs: FC = () => {
   const [selectedTabType, setSelectedTabType] = useAtom(selectedTabTypeAtom);
 
   return (
-    <Wrapper>
-      <Box sx={{ borderBottom: 1, borderColor: 'divider', height: '50px' }}>
+    <div className="h-full">
+      <div className="border-b border-border h-[50px]">
         <Tabs
           value={selectedTabType}
-          onChange={(_, value) => setSelectedTabType(value)}
+          onValueChange={(value) => setSelectedTabType(value as TabType)}
         >
-          <Tab label='Songs' value='songs' />
-          <Tab label='Bible' value='bible' />
-          <Tab label='Prayer' value='prayer' />
+          <TabsList>
+            <TabsTrigger value="songs">Songs</TabsTrigger>
+            <TabsTrigger value="bible">Bible</TabsTrigger>
+            <TabsTrigger value="prayer">Prayer</TabsTrigger>
+          </TabsList>
         </Tabs>
-      </Box>
-      <TabsWrapper>{TabsMap[selectedTabType]}</TabsWrapper>
-    </Wrapper>
+      </div>
+      <div className="h-[calc(100%-50px)]">{TabsMap[selectedTabType]}</div>
+    </div>
   );
 };
 
 export default AppTabs;
-
-const Wrapper = styled.div`
-  height: 100%;
-`;
-
-const TabsWrapper = styled.div`
-  height: calc(100% - 50px);
-`;

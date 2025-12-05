@@ -1,47 +1,24 @@
 import React, { FC } from 'react';
-import styled from 'styled-components';
 import MediaPanel from '../panels/media-panel/MediaPanel';
 import SlidesListPanel from '../panels/slides-list-panel/SlidesListPanel';
 import SongsListPanel from '../panels/songs-list-panel/SongsListPanel';
 
 const TabsSongs: FC = () => {
   return (
-    <Wrapper>
-      <SidePanels>
-        <FirstPanel>
+    <div className="flex h-full">
+      <div className="w-[300px] flex-none">
+        <div className="h-[50%]">
           <SongsListPanel />
-        </FirstPanel>
-        <SecondPanel>
+        </div>
+        <div className="h-[50%]">
           <MediaPanel />
-        </SecondPanel>
-      </SidePanels>
-      <Main>
+        </div>
+      </div>
+      <div className="flex-1">
         <SlidesListPanel />
-      </Main>
-    </Wrapper>
+      </div>
+    </div>
   );
 };
 
 export default TabsSongs;
-
-const Wrapper = styled.div`
-  display: flex;
-  height: 100%;
-`;
-
-const SidePanels = styled.div`
-  width: 300px;
-  flex: none;
-`;
-
-const Main = styled.div`
-  flex: 1;
-`;
-
-const FirstPanel = styled.div`
-  height: 50%;
-`;
-
-const SecondPanel = styled.div`
-  height: 50%;
-`;

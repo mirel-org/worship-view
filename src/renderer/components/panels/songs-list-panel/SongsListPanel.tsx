@@ -4,17 +4,11 @@ import {
   songInputValueAtom,
 } from '@ipc/song/song.atoms';
 import { useGetSongs } from '@ipc/song/song.hooks';
-import {
-  List,
-  ListItem,
-  ListItemButton,
-  ListItemText,
-  TextField,
-} from '@mui/material';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import useInputFocus from '@renderer/hooks/useInputFocus';
 import { useAtom } from 'jotai';
 import React from 'react';
-import styled from 'styled-components';
 
 const SongsListPanel = () => {
   const [, setSelectedSong] = useAtom(selectedSongAtom);
@@ -37,39 +31,32 @@ const SongsListPanel = () => {
   console.log(filteredSongs);
 
   return (
-    <Container>
-      <TextField
-        label='Search for song'
-        onBlur={focusProps.onBlur}
-        onFocus={focusProps.onFocus}
-        inputRef={focusProps.ref}
-        fullWidth
-        value={search}
-        onChange={(ev) => setSearch(ev.target.value)}
-      />
-      <List>
+    <div className="w-auto overflow-y-auto h-full p-2 box-border">
+      <div className="space-y-2 mb-4">
+        <Label htmlFor="search-song">Search for song</Label>
+        <Input
+          id="search-song"
+          onBlur={focusProps.onBlur}
+          onFocus={focusProps.onFocus}
+          ref={focusProps.ref}
+          className="w-full"
+          value={search}
+          onChange={(ev) => setSearch(ev.target.value)}
+        />
+      </div>
+      <ul className="space-y-1">
         {filteredSongs.map((song) => (
-          <ListItem
-            disablePadding
+          <li
             key={song.id}
             onClick={() => setSelectedSong(song)}
+            className="cursor-pointer hover:bg-accent rounded-md p-2 transition-colors"
           >
-            <ListItemButton>
-              <ListItemText primary={song.name} />
-            </ListItemButton>
-          </ListItem>
+            <span>{song.name}</span>
+          </li>
         ))}
-      </List>
-    </Container>
+      </ul>
+    </div>
   );
 };
 
 export default SongsListPanel;
-
-const Container = styled.div`
-  width: auto;
-  overflow-y: auto;
-  height: 100%;
-  padding: 8px;
-  box-sizing: border-box;
-`;

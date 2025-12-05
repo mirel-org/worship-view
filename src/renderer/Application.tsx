@@ -1,9 +1,7 @@
-import { Button } from '@mui/material';
 import { useAtom } from 'jotai';
 import React, { memo } from 'react';
 import { hot } from 'react-hot-loader';
-import styled from 'styled-components';
-import GlobalStyle from './components/helpers/GlobalStyle';
+import { Button } from './components/ui/button';
 import Screens from './components/screens/Screens';
 import { areScreensEnabledAtom } from '../ipc/screen/screen.atoms';
 import Settings from './components/settings/Settings';
@@ -14,7 +12,6 @@ import { useSetup } from '../ipc/';
 const Generics = memo(function Generics() {
   return (
     <>
-      <GlobalStyle />
       <Screens />
       <Settings />
       <Setup />
@@ -29,41 +26,27 @@ const Application: React.FC = () => {
   const [, setAreSettingsOpen] = useAtom(areSettingsOpenAtom);
 
   return (
-    <AppWrapper>
-      <Controlls>
+    <div className="h-full p-2 box-border">
+      <div className="h-[50px]">
         <Button
-          variant='contained'
+          variant="default"
           onClick={() => setAreScreensEnabled(!areScreensEnabled)}
         >
           Enable
         </Button>
-        <Button variant='contained' onClick={() => setAreSettingsOpen(true)}>
+        <Button variant="default" onClick={() => setAreSettingsOpen(true)}>
           Settings
         </Button>
-      </Controlls>
-      <TabsContainer>
+      </div>
+      <div className="h-[calc(100%-50px)]">
         <AppTabs />
-      </TabsContainer>
+      </div>
       <Generics />
-    </AppWrapper>
+    </div>
   );
 };
 
 export default hot(module)(Application);
-
-const AppWrapper = styled.div`
-  height: 100%;
-  padding: 8px;
-  box-sizing: border-box;
-`;
-
-const Controlls = styled.div`
-  height: 50px;
-`;
-
-const TabsContainer = styled.div`
-  height: calc(100% - 50px);
-`;
 
 const Setup = () => {
   useSetup();

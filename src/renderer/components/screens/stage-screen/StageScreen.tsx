@@ -10,7 +10,7 @@ import {
 } from '@ipc/verse/verse.atoms';
 import { useAtom } from 'jotai';
 import React, { FC } from 'react';
-import styled from 'styled-components';
+import { cn } from '@/lib/utils';
 import VerseSlide from '../audience-screen/components/VerseSlide';
 import FitText from './components/FitText';
 
@@ -22,25 +22,28 @@ const StageScreen: FC = () => {
   const [selectedVerseReference] = useAtom(selectedVerseReferenceAtom);
   const [verseProjectionEnabled] = useAtom(verseProjectionEnabledAtom);
   const [settingsSongSlideSize] = useAtom(settingsSongSlideSizeAtom);
-  if (settingsSongSlideSize === 4) return <Container></Container>;
+  if (settingsSongSlideSize === 4)
+    return (
+      <div className="grid grid-rows-[50%_50%] h-full w-full bg-black p-8 box-border"></div>
+    );
   if (currentProjectionType === 'song')
     return (
-      <Container>
-        <Slide isNext={false}>
+      <div className="grid grid-rows-[50%_50%] h-full w-full bg-black p-8 box-border">
+        <div className="grid grid-rows-[50%_50%] h-full text-white">
           {selectedSongSlide?.lines.map((line, index) => (
             <FitText key={index} text={line} />
           ))}
-        </Slide>
-        <Slide isNext>
+        </div>
+        <div className="grid grid-rows-[50%_50%] h-full text-[burlywood]">
           {nextSongSlide?.lines.map((line, index) => (
             <FitText key={index} text={line} />
           ))}
-        </Slide>
-      </Container>
+        </div>
+      </div>
     );
   else if (currentProjectionType === 'verse' && verseProjectionEnabled)
     return (
-      <TextContainer>
+      <div className="flex justify-center items-center h-full w-full bg-black">
         <VerseSlide
           text={selectedVerseText ?? ''}
           reference={
@@ -50,35 +53,11 @@ const StageScreen: FC = () => {
           }
           isStage
         />
-      </TextContainer>
+      </div>
     );
-  return <Container></Container>;
+  return (
+    <div className="grid grid-rows-[50%_50%] h-full w-full bg-black p-8 box-border"></div>
+  );
 };
 
 export default StageScreen;
-
-const Container = styled.div`
-  display: grid;
-  grid-template-rows: 50% 50%;
-  height: 100%;
-  width: 100%;
-  background-color: black;
-  padding: 32px;
-  box-sizing: border-box;
-`;
-
-const Slide = styled.div<{ isNext: boolean }>`
-  display: grid;
-  grid-template-rows: 50% 50%;
-  height: 100%;
-  color: ${(props) => (props.isNext ? 'burlywood' : 'white')};
-`;
-
-const TextContainer = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100%;
-  width: 100%;
-  background-color: black;
-`;

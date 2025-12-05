@@ -1,5 +1,4 @@
 import React, { FC } from 'react';
-import styled from 'styled-components';
 
 type SongSlideProps = {
   lines: string[];
@@ -7,27 +6,18 @@ type SongSlideProps = {
 
 const SongSlide: FC<SongSlideProps> = ({ lines }) => {
   return (
-    <Container>
+    <div>
       {lines.map((line, index) => (
-        <Text key={index}>{line}</Text>
+        <div
+          key={index}
+          className="font-montserrat text-[410%] font-bold italic uppercase text-white text-center"
+          style={{ textShadow: '0.06em 0.06em 1px #00000094' }}
+        >
+          {line}
+        </div>
       ))}
-    </Container>
+    </div>
   );
 };
 
 export default SongSlide;
-
-const Container = styled.div``;
-
-const Text = styled.div`
-  font-family: 'Montserrat';
-  font-size: 410%;
-  font-weight: 700;
-  font-style: italic;
-  text-transform: uppercase;
-  color: white;
-  text-shadow: 0.06em 0.06em 1px #00000094;
-  text-align: center;
-  /* background-color: #000000b9;
-  padding: 0 16px; */
-`;

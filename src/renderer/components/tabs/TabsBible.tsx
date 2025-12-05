@@ -1,53 +1,23 @@
-import styled from 'styled-components';
 import BibleSearchPanel from '../panels/bible-search-panel/BibleSearchPanel';
 import { BibleVersesHistory } from '../panels/bible-verses-history/BibleVersesHistory';
 import VersesPanel from '../panels/verses-panel/VersesPanel';
 
 const TabsBible = () => {
   return (
-    <Wrapper>
+    <div className="flex flex-col items-center h-full">
       <BibleSearchPanel />
-      <Container>
-        <SidePanels>
+      <div className="flex h-[85%]">
+        <div className="w-[300px] flex-none">
           <BibleVersesHistory />
-        </SidePanels>
-        <Main>
-          <VersesColumn>
+        </div>
+        <div className="flex-1 flex flex-col items-center">
+          <div className="w-[90%] h-full">
             <VersesPanel />
-          </VersesColumn>
-        </Main>
-      </Container>
-    </Wrapper>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 };
 
 export default TabsBible;
-
-const VersesColumn = styled.div`
-  width: 90%;
-  height: 100%;
-`;
-
-const Wrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  height: 100%;
-`;
-
-const Container = styled.div`
-  display: flex;
-  height: 85%;
-`;
-
-const SidePanels = styled.div`
-  width: 300px;
-  flex: none;
-`;
-
-const Main = styled.div`
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-`;
