@@ -1,5 +1,5 @@
 import { Display } from 'electron';
-import React, { FC, useEffect, useState } from 'react';
+import { FC, useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 
 type FrameProps = {

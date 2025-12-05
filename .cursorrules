@@ -1,0 +1,27 @@
+# Cursor Rules for Worship View Project
+
+## Code Quality Checks
+After making any code changes, always run these commands in order to verify everything works:
+1. `pnpm lint` - Check for linting errors
+2. `pnpm type-check` - Verify TypeScript types are correct
+3. `pnpm package` - Ensure the application builds successfully
+
+These checks should be run after:
+- Adding or modifying components
+- Updating dependencies
+- Changing configuration files
+- Any refactoring or code changes
+
+## Project Context
+- This is an Electron application using React, TypeScript, and Webpack
+- Uses Tailwind CSS for styling (not styled-components)
+- Uses shadcn/ui components (not Material-UI)
+- Package manager: pnpm (not npm or yarn)
+- Always use pnpm commands: `pnpm install`, `pnpm add`, etc.
+
+## Code Style
+- Use functional components with TypeScript
+- Prefer Tailwind utility classes over custom CSS
+- Use shadcn/ui components from `src/renderer/components/ui/`
+- Follow existing code patterns and conventions
+

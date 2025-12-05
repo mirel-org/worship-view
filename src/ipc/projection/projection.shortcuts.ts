@@ -6,7 +6,6 @@ import { useVerseControll } from '@ipc/verse/verse.hooks';
 import { useAtom } from 'jotai';
 import { useCallback } from 'react';
 import useShortcut from '../utils/useShortcut';
-import useShortcuts from '../utils/useShortcuts';
 
 const useProjectionShortcuts = () => {
   useEnableVerseShortcut();

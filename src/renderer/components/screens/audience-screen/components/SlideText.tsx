@@ -2,7 +2,7 @@ import {
   currentProjectionTypeAtom,
   verseProjectionEnabledAtom,
 } from '@ipc/projection/projection.atoms';
-import React, { FC } from 'react';
+import { FC } from 'react';
 import CrossFade from './CrossFade';
 import SongSlide from './SongSlide';
 import VerseSlide from './VerseSlide';

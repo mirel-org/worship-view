@@ -1,4 +1,4 @@
-import React, { FC } from 'react';
+import { FC } from 'react';
 import MediaPanel from '../panels/media-panel/MediaPanel';
 import SlidesListPanel from '../panels/slides-list-panel/SlidesListPanel';
 import SongsListPanel from '../panels/songs-list-panel/SongsListPanel';

@@ -25,7 +25,7 @@ const CrossFade: FC = ({ children }) => {
         setNodesHistory((nodes) => nodes.filter((n) => n.node !== lastNode));
       }, 500);
     }
-  }, [node, setNodesHistory]);
+  }, [node, setNodesHistory, lastNode]);
 
   useEffect(() => {
     setTimeout(() => {

@@ -4,7 +4,6 @@ import {
 } from '@ipc/song/song.atoms';
 import usePreventScroll from '@renderer/hooks/usePreventScroll';
 import { useAtom } from 'jotai';
-import React from 'react';
 import SlidesListColumn from './slides-list-column/SlidesListColumn';
 
 const SlidesListPanel = () => {

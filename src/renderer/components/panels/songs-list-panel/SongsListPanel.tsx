@@ -8,7 +8,6 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import useInputFocus from '@renderer/hooks/useInputFocus';
 import { useAtom } from 'jotai';
-import React from 'react';
 
 const SongsListPanel = () => {
   const [, setSelectedSong] = useAtom(selectedSongAtom);

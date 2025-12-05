@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { RadioChangeValueType, RadioValueType } from './RadioGroup';
 
 export const useRadioGroup = (defaultValues: RadioValueType[]) => {

@@ -1,7 +1,7 @@
 import { selectedBackgroundMediaItemAtom } from '@ipc/media/media.atoms';
 import useGetMediaItems from '@ipc/media/media.hooks';
 import { useAtom } from 'jotai';
-import React, { FC } from 'react';
+import { FC } from 'react';
 
 const MediaPanel: FC = () => {
   const mediaItems = useGetMediaItems();

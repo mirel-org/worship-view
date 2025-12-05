@@ -1,7 +1,7 @@
 import { selectedBackgroundMediaItemAtom } from '@ipc/media/media.atoms';
 import MediaBox from '@renderer/components/screens/audience-screen/components/MediaBox';
 import { useAtom } from 'jotai';
-import React, { FC } from 'react';
+import { FC } from 'react';
 import CrossFade from './CrossFade';
 
 const MediaBackground: FC = () => {

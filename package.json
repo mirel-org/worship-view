@@ -10,7 +10,8 @@
     "make": "electron-forge make",
     "publish": "electron-forge publish",
     "lint": "eslint src/ --ext .ts,.js,.tsx,.jsx",
-    "lint:fix": "eslint --fix src/ --ext .ts,.js,.tsx,.jsx"
+    "lint:fix": "eslint --fix src/ --ext .ts,.js,.tsx,.jsx",
+    "type-check": "tsc --noEmit"
   },
   "keywords": [
     "electron boilerplate",

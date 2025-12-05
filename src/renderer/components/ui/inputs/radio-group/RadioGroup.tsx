@@ -1,4 +1,4 @@
-import React, { ChangeEvent, FC } from 'react';
+import { ChangeEvent, FC } from 'react';
 
 export type RadioValueType = {
   value: string;

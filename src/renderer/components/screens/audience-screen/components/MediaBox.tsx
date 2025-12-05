@@ -1,5 +1,5 @@
 import { MediaItem } from '@ipc/media/media.types';
-import React, { FC } from 'react';
+import { FC } from 'react';
 
 type MediaBoxProps = {
   mediaItem: MediaItem;

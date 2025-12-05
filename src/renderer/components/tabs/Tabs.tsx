@@ -1,6 +1,6 @@
 import { useAtom } from 'jotai';
-import React, { FC } from 'react';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '../ui/tabs';
+import { FC } from 'react';
+import { Tabs, TabsList, TabsTrigger } from '../ui/tabs';
 import TabsBible from './TabsBible';
 import TabsSongs from './TabsSongs';
 import { selectedTabTypeAtom } from '../../../ipc/tab/tab.atoms';

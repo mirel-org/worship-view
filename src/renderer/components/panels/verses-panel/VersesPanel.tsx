@@ -1,4 +1,4 @@
-import React, { FC, useMemo } from 'react';
+import { FC, useMemo } from 'react';
 import bibleText from '@assets/bibles/VDC.json';
 import { useAtom } from 'jotai';
 import { selectedVerseReferenceAtom } from '../../../../ipc/verse/verse.atoms';

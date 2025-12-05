@@ -1,4 +1,4 @@
-import React, { FC } from 'react';
+import { FC } from 'react';
 import MediaBackground from './components/MediaBackground';
 import SlideText from './components/SlideText';
 

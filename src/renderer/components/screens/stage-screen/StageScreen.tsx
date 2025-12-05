@@ -9,8 +9,7 @@ import {
   selectedVerseTextAtom,
 } from '@ipc/verse/verse.atoms';
 import { useAtom } from 'jotai';
-import React, { FC } from 'react';
-import { cn } from '@/lib/utils';
+import { FC } from 'react';
 import VerseSlide from '../audience-screen/components/VerseSlide';
 import FitText from './components/FitText';
 
