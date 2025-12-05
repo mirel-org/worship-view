@@ -53,3 +53,42 @@ export const nextSongSlideAtom = atom<SongSlide | null>((get) => {
 
 export const songInputValueAtom = atom<string>('');
 export const songInputFocusAtom = atom<boolean>(true);
+
+// Calculate total number of slides across all parts (excluding first and last empty slides)
+export const totalSongSlidesAtom = atom<number>((get) => {
+  const selectedSongText = get(selectedSongTextAtom);
+  if (!selectedSongText) return 0;
+  const total = selectedSongText.reduce((total, part) => total + part.slides.length, 0);
+  // Subtract 2 to exclude the first and last empty slides
+  return Math.max(0, total - 2);
+});
+
+// Calculate current slide number (1-indexed, excluding first and last empty slides)
+export const currentSongSlideNumberAtom = atom<number>((get) => {
+  const selectedSongText = get(selectedSongTextAtom);
+  const selectedSongSlideReference = get(selectedSongSlideReferenceAtom);
+  if (!selectedSongSlideReference || !selectedSongText) return 0;
+
+  const { partIndex, slideIndex } = selectedSongSlideReference;
+  
+  // Calculate absolute slide position
+  let absolutePosition = 0;
+  for (let i = 0; i < partIndex; i++) {
+    absolutePosition += selectedSongText[i]?.slides.length || 0;
+  }
+  absolutePosition += slideIndex + 1; // 1-indexed
+  
+  // Check if we're on the first slide (partIndex 0, slideIndex 0)
+  const isFirstSlide = partIndex === 0 && slideIndex === 0;
+  
+  // Check if we're on the last slide
+  const lastPartIndex = selectedSongText.length - 1;
+  const lastSlideIndex = (selectedSongText[lastPartIndex]?.slides.length || 0) - 1;
+  const isLastSlide = partIndex === lastPartIndex && slideIndex === lastSlideIndex;
+  
+  // If we're on the first or last slide, return 0 (will hide counter)
+  if (isFirstSlide || isLastSlide) return 0;
+  
+  // Subtract 1 to account for skipping the first empty slide
+  return absolutePosition - 1;
+});
