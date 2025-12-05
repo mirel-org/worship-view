@@ -1,0 +1,33 @@
+{
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "allowJs": true,
+    "target": "ES6",
+    "module": "ESNext",
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "noImplicitAny": true,
+    "sourceMap": true,
+    "baseUrl": ".",
+    "outDir": "dist",
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "strictNullChecks": true,
+    "strict": true,
+    "plugins": [
+      {
+        "name": "typescript-styled-plugin"
+      }
+    ],
+    "paths": {
+      "*": ["node_modules/*"],
+      "@assets/*": ["./assets/*"],
+      "@common/*": ["./src/common/*"],
+      "@main/*": ["./src/main/*"],
+      "@renderer/*": ["./src/renderer/*"],
+      "@ipc/*": ["./src/ipc/*"],
+      "@src/*": ["./src/*"]
+    }
+  },
+  "include": ["src/**/*", "tools/**/*"]
+}

@@ -1,0 +1,102 @@
+{
+  "name": "electron-react-typescript-webpack-2021",
+  "productName": "ERWT Boilerplate",
+  "version": "5.0.0",
+  "description": "Custom boilerplate for writing Desktop Applications using Electron, React, Webpack, TypeScript in 2020",
+  "main": ".webpack/main",
+  "scripts": {
+    "start": "cross-env NODE_ENV=development electron-forge start",
+    "package": "electron-forge package",
+    "make": "electron-forge make",
+    "publish": "electron-forge publish",
+    "lint": "eslint src/ --ext .ts,.js,.tsx,.jsx",
+    "lint:fix": "eslint --fix src/ --ext .ts,.js,.tsx,.jsx"
+  },
+  "keywords": [
+    "electron boilerplate",
+    "minimal",
+    "electron-webpack",
+    "electron-react",
+    "electron-typescript",
+    "hmr",
+    "boilerplate",
+    "2020",
+    "ERWT"
+  ],
+  "author": {
+    "name": "codesbiome",
+    "url": "https://github.com/codesbiome"
+  },
+  "contributors": [
+    {
+      "name": "guasam",
+      "url": "https://github.com/guasam"
+    }
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/codesbiome/electron-react-webpack-typescript-2020"
+  },
+  "license": "MIT",
+  "config": {
+    "forge": "./tools/forge/forge.config.js"
+  },
+  "devDependencies": {
+    "@electron-forge/cli": "6.0.0-beta.61",
+    "@electron-forge/maker-deb": "6.0.0-beta.61",
+    "@electron-forge/maker-rpm": "6.0.0-beta.61",
+    "@electron-forge/maker-squirrel": "6.0.0-beta.61",
+    "@electron-forge/maker-zip": "6.0.0-beta.61",
+    "@electron-forge/plugin-webpack": "6.0.0-beta.61",
+    "@timfish/webpack-asset-relocator-loader": "^0.1.0",
+    "@types/node": "^16.11.6",
+    "@types/react": "^17.0.34",
+    "@types/react-dom": "^17.0.11",
+    "@types/react-modal": "^3.13.1",
+    "@types/react-scroll": "^1.8.3",
+    "@types/styled-components": "^5.1.15",
+    "@types/webpack-env": "^1.16.3",
+    "@typescript-eslint/eslint-plugin": "^5.3.0",
+    "@typescript-eslint/parser": "^5.3.0",
+    "classnames": "^2.3.1",
+    "cross-env": "^7.0.3",
+    "css-loader": "^6.5.1",
+    "electron": "^15.3.0",
+    "eslint": "^8.2.0",
+    "eslint-import-resolver-alias": "^1.1.2",
+    "eslint-plugin-import": "^2.25.2",
+    "eslint-plugin-react": "^7.26.1",
+    "eslint-plugin-react-hooks": "^4.3.0",
+    "file-loader": "^6.2.0",
+    "fork-ts-checker-webpack-plugin": "^6.4.0",
+    "node-loader": "^2.0.0",
+    "react-hot-loader": "^4.13.0",
+    "style-loader": "^3.3.1",
+    "ts-loader": "9.2.6",
+    "typescript": "^4.4.4",
+    "typescript-styled-plugin": "^0.18.2",
+    "url-loader": "^4.1.1",
+    "webpack": "^5.62.1"
+  },
+  "dependencies": {
+    "@hot-loader/react-dom": "^17.0.1",
+    "@mui/base": "^5.0.0-alpha.68",
+    "@mui/icons-material": "^5.4.1",
+    "@mui/material": "^5.4.1",
+    "@mui/styled-engine": "npm:@mui/styled-engine-sc@latest",
+    "electron-squirrel-startup": "^1.0.0",
+    "jotai": "^1.4.3",
+    "react": "^17.0.2",
+    "react-css-transition-replace": "^4.0.5",
+    "react-dom": "^17.0.2",
+    "react-modal": "^3.14.4",
+    "react-scroll": "^1.8.5",
+    "react-textfit": "^1.1.1",
+    "styled-components": "^5.3.3",
+    "textfit": "^2.4.0",
+    "use-fit-text": "^2.4.0"
+  },
+  "resolutions": {
+    "@mui/styled-engine": "npm:@mui/styled-engine-sc@latest"
+  }
+}
