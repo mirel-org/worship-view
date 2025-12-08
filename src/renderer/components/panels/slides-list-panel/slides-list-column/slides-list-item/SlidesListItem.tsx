@@ -15,8 +15,8 @@ const SlidesListItem: FC<SlidesListItemProps> = ({
   return (
     <div
       className={cn(
-        'bg-black text-center flex items-center justify-center m-2.5 cursor-pointer py-2',
-        selected && 'outline outline-4 outline-red'
+        'bg-black text-center flex items-center justify-center m-2.5 cursor-pointer py-2 transition-all',
+        selected && 'ring-4 ring-red-500'
       )}
       onClick={onClick}
     >

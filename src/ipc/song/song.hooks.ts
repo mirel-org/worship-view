@@ -1,5 +1,5 @@
 import { useAtom } from 'jotai';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { getApiClient } from '..';
 import {
   selectedSongAtom,
@@ -80,8 +80,17 @@ export const useManageSongs = () => {
   const [, setSelectedSongSlideReference] = useAtom(
     selectedSongSlideReferenceAtom,
   );
+  const prevSongNameRef = useRef<string | null>(null);
+  
   useEffect(() => {
-    if (selectedSong)
-      setSelectedSongSlideReference({ partIndex: 0, slideIndex: 0 });
+    if (selectedSong) {
+      // Only reset slide reference if it's a different song
+      if (prevSongNameRef.current !== selectedSong.name) {
+        setSelectedSongSlideReference({ partIndex: 0, slideIndex: 0 });
+        prevSongNameRef.current = selectedSong.name;
+      }
+    } else {
+      prevSongNameRef.current = null;
+    }
   }, [selectedSong, setSelectedSongSlideReference]);
 };
