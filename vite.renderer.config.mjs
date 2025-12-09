@@ -1,9 +1,10 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
+import tailwindcss from '@tailwindcss/vite';
 import { resolve } from 'path';
 
 export default defineConfig({
-  plugins: [react()],
+  plugins: [react(), tailwindcss()],
   base: './',
   root: resolve(__dirname, 'src/renderer'),
   build: {
@@ -23,9 +24,6 @@ export default defineConfig({
       '@ipc': resolve(__dirname, 'src/ipc'),
       '@src': resolve(__dirname, 'src'),
     },
-  },
-  css: {
-    postcss: './postcss.config.js',
   },
   server: {
     port: 3000,
