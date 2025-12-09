@@ -6,13 +6,15 @@ import {
 import { Song } from '@ipc/song/song.types';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Button } from '@/components/ui/button';
 import useInputFocus from '@renderer/hooks/useInputFocus';
 import { useAtom } from 'jotai';
 import { useState, useEffect } from 'react';
-import { Pencil, Trash2 } from 'lucide-react';
+import { Pencil, Trash2, Plus } from 'lucide-react';
 import { useGetSongs, useDeleteSong } from '@renderer/hooks/useSongs';
 import SongEditorDialog from './SongEditorDialog';
 import SongDeleteDialog from './SongDeleteDialog';
+import SongAddDialog from './SongAddDialog';
 
 const SongsListPanel = () => {
   const [selectedSong, setSelectedSong] = useAtom(selectedSongAtom);
@@ -22,6 +24,7 @@ const SongsListPanel = () => {
   const [deletingSong, setDeletingSong] = useState<Song | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [addDialogOpen, setAddDialogOpen] = useState(false);
   const [search, setSearch] = useAtom(songInputValueAtom);
   const [focused, setFocused] = useAtom(songInputFocusAtom);
   const focusProps = useInputFocus(focused, setFocused);
@@ -60,6 +63,10 @@ const SongsListPanel = () => {
     // The useEffect hook will handle updating the selected song if it was edited
     // If the song was renamed and it's currently selected, we don't need to clear it
     // because the useEffect will update it with the new name
+  };
+
+  const handleAddSave = async () => {
+    // React Query will automatically refetch songs after mutation
   };
 
   const handleDelete = async () => {
@@ -102,7 +109,18 @@ const SongsListPanel = () => {
     <>
       <div className="w-auto overflow-y-auto h-full p-2 box-border">
         <div className="space-y-2 mb-4">
-          <Label htmlFor="search-song">Search for song</Label>
+          <div className="flex items-center justify-between gap-2">
+            <Label htmlFor="search-song" className="flex-1">Search for song</Label>
+            <Button
+              onClick={() => setAddDialogOpen(true)}
+              size="sm"
+              className="h-8"
+              aria-label="Add new song"
+            >
+              <Plus className="h-4 w-4 mr-1" />
+              Add Song
+            </Button>
+          </div>
           <Input
             id="search-song"
             onBlur={focusProps.onBlur}
@@ -156,6 +174,11 @@ const SongsListPanel = () => {
         open={deleteDialogOpen}
         onOpenChange={setDeleteDialogOpen}
         onDelete={handleDelete}
+      />
+      <SongAddDialog
+        open={addDialogOpen}
+        onOpenChange={setAddDialogOpen}
+        onSave={handleAddSave}
       />
     </>
   );
