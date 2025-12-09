@@ -12,6 +12,7 @@ const gdrivePreload: GoogleDrivePreloadType = {
   loadFile: (fileId: string) => ipcRenderer.invoke(GoogleDriveChannels.loadFile, fileId),
   saveFile: (fileId: string, data: Uint8Array) => ipcRenderer.invoke(GoogleDriveChannels.saveFile, fileId, data),
   deleteFile: (fileId: string) => ipcRenderer.invoke(GoogleDriveChannels.deleteFile, fileId),
+  getFileMetadata: (fileId: string) => ipcRenderer.invoke(GoogleDriveChannels.getFileMetadata, fileId),
 };
 
 export default gdrivePreload;

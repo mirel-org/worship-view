@@ -21,8 +21,8 @@ async function initializeAutomerge() {
       const { gdriveSyncService } = await import('./lib/automerge/gdrive-sync');
       const state = gdriveSyncService.getState();
       if (state.isAuthenticated) {
-        // Start auto-sync every 60 seconds
-        gdriveSyncService.startAutoSync(60000);
+        // Start auto-sync every 30 seconds
+        gdriveSyncService.startAutoSync(30000);
         console.log('[ERWT] Google Drive auto-sync started');
       }
     } catch (error) {

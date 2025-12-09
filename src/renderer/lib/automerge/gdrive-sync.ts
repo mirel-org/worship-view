@@ -1,7 +1,11 @@
+import * as Automerge from '@automerge/automerge';
 import { getDocumentHandle } from './repo';
-import { GoogleDriveStorageAdapter } from './gdrive-storage';
 import { loadStoredTokens } from './auth';
+import { getApiClient } from '@ipc/index';
 import type { AutomergeDocument } from './types';
+
+const DOCUMENT_FILE_NAME = 'worship-view-data.automerge';
+const api = getApiClient();
 
 export type SyncStatus = 'idle' | 'syncing' | 'success' | 'error';
 
@@ -15,7 +19,8 @@ export interface SyncState {
 class GoogleDriveSyncService {
   private syncInterval: NodeJS.Timeout | null = null;
   private syncInProgress = false;
-  private gdriveAdapter: GoogleDriveStorageAdapter | null = null;
+  private fileId: string | null = null;
+  private lastKnownModifiedTime: string | null = null;
   private listeners: Set<(state: SyncState) => void> = new Set();
   private state: SyncState = {
     status: 'idle',
@@ -66,50 +71,45 @@ class GoogleDriveSyncService {
     await clearStoredTokens();
     this.state.isAuthenticated = false;
     this.state.error = null;
+    this.fileId = null;
+    this.lastKnownModifiedTime = null;
     this.notifyListeners();
   }
 
-  private getAdapter(): GoogleDriveStorageAdapter {
-    if (!this.gdriveAdapter) {
-      this.gdriveAdapter = new GoogleDriveStorageAdapter();
+  private async getFileId(): Promise<string> {
+    if (this.fileId) {
+      return this.fileId;
     }
-    return this.gdriveAdapter;
+    this.fileId = await api.findOrCreateFile(DOCUMENT_FILE_NAME);
+    return this.fileId;
   }
 
   /**
-   * Export the current Automerge document to a binary format
+   * Export the current Automerge document to a binary format using Automerge.save()
    */
   private async exportDocument(): Promise<Uint8Array> {
     const handle = await getDocumentHandle();
-    const repo = await import('./repo').then(m => m.getRepo());
+    const doc = handle.doc();
     
-    if (!repo) {
-      throw new Error('Repo not available');
-    }
-    
-    if (!handle.doc()) {
+    if (!doc) {
       throw new Error('Document not available');
     }
 
-    // Use repo.export() to get binary representation
-    // This is the recommended way when using Automerge Repo
-    const binary = await repo.export(handle.documentId);
-    if (!binary) {
-      throw new Error('Failed to export document');
-    }
-    return binary;
+    // Use Automerge.save() directly to get binary representation
+    return Automerge.save(doc);
   }
 
   /**
    * Import a binary Automerge document and merge it with the current one
+   * Uses repo.import() and handle.merge() to properly handle document state
    */
   private async importDocument(binary: Uint8Array): Promise<void> {
-    const handle = await getDocumentHandle();
     const repo = await import('./repo').then(m => m.getRepo());
-    
     if (!repo) {
       throw new Error('Repo not available');
     }
+
+    const handle = await getDocumentHandle();
     
     if (!handle.doc()) {
       throw new Error('Current document not available');
@@ -123,7 +123,7 @@ class GoogleDriveSyncService {
     await importedHandle.whenReady();
     
     // Merge the imported document into the current one using Automerge Repo's merge method
-    // This properly merges the CRDT changes
+    // This properly merges the CRDT changes and updates the handle's document state
     handle.merge(importedHandle);
     
     // Clean up: delete the temporary imported document from the repo
@@ -145,11 +145,14 @@ class GoogleDriveSyncService {
       this.notifyListeners();
 
       const binary = await this.exportDocument();
-      const adapter = this.getAdapter();
-      
-      // Use a single key for the entire document
-      const documentKey: string[] = ['worship-view-main'];
-      await adapter.save(documentKey, binary);
+      const fileId = await this.getFileId();
+      await api.saveFile(fileId, binary);
+
+      // Update modifiedTime after successful upload
+      const metadata = await api.getFileMetadata(fileId);
+      if (metadata) {
+        this.lastKnownModifiedTime = metadata.modifiedTime;
+      }
 
       this.state.status = 'success';
       this.state.lastSyncTime = new Date();
@@ -164,6 +167,7 @@ class GoogleDriveSyncService {
 
   /**
    * Download document from Google Drive
+   * Checks metadata first to avoid unnecessary downloads
    */
   async downloadFromDrive(): Promise<void> {
     if (!this.state.isAuthenticated) {
@@ -171,22 +175,42 @@ class GoogleDriveSyncService {
     }
 
     try {
-      this.state.status = 'syncing';
-      this.state.error = null;
-      this.notifyListeners();
-
-      const adapter = this.getAdapter();
-      const documentKey: string[] = ['worship-view-main'];
-      const binary = await adapter.load(documentKey);
-
-      if (!binary) {
+      const fileId = await this.getFileId();
+      
+      // Check file metadata first to see if it has changed
+      const metadata = await api.getFileMetadata(fileId);
+      
+      if (!metadata) {
         // No file in Drive yet, nothing to download
         this.state.status = 'idle';
         this.notifyListeners();
         return;
       }
 
+      // If modifiedTime hasn't changed, skip download
+      if (this.lastKnownModifiedTime && metadata.modifiedTime === this.lastKnownModifiedTime) {
+        // File hasn't changed, no need to download
+        return;
+      }
+
+      this.state.status = 'syncing';
+      this.state.error = null;
+      this.notifyListeners();
+
+      // Download the file
+      const binary = await api.loadFile(fileId);
+
+      if (!binary) {
+        // File doesn't exist or is empty
+        this.state.status = 'idle';
+        this.notifyListeners();
+        return;
+      }
+
       await this.importDocument(binary);
+
+      // Update lastKnownModifiedTime after successful download
+      this.lastKnownModifiedTime = metadata.modifiedTime;
 
       this.state.status = 'success';
       this.state.lastSyncTime = new Date();
@@ -237,7 +261,7 @@ class GoogleDriveSyncService {
   /**
    * Start automatic syncing at intervals
    */
-  startAutoSync(intervalMs = 60000): void {
+  startAutoSync(intervalMs = 30000): void {
     if (this.syncInterval) {
       return;
     }

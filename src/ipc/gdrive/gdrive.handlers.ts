@@ -289,6 +289,32 @@ const gdriveHandlers = () => {
       // File already deleted, that's fine
     }
   });
+
+  // Get file metadata (modifiedTime)
+  ipcMain.handle(GoogleDriveChannels.getFileMetadata, async (_, fileId: string) => {
+    const drive = await getAuthenticatedDrive();
+    
+    try {
+      const response = await drive.files.get({
+        fileId,
+        fields: 'id, modifiedTime',
+      });
+      
+      if (response.data.id && response.data.modifiedTime) {
+        return {
+          id: response.data.id,
+          modifiedTime: response.data.modifiedTime,
+        };
+      }
+      
+      return null;
+    } catch (error: any) {
+      if (error.code === 404) {
+        return null; // File doesn't exist
+      }
+      throw error;
+    }
+  });
 };
 
 export default gdriveHandlers;

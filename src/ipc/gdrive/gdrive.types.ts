@@ -9,6 +9,7 @@ export type GoogleDrivePreloadType = {
   loadFile: (fileId: string) => Promise<Uint8Array | null>;
   saveFile: (fileId: string, data: Uint8Array) => Promise<void>;
   deleteFile: (fileId: string) => Promise<void>;
+  getFileMetadata: (fileId: string) => Promise<{ id: string; modifiedTime: string } | null>;
 };
 
 export const GoogleDriveChannels = {
@@ -22,5 +23,6 @@ export const GoogleDriveChannels = {
   loadFile: 'gdrive.load-file',
   saveFile: 'gdrive.save-file',
   deleteFile: 'gdrive.delete-file',
+  getFileMetadata: 'gdrive.get-file-metadata',
 } as const;
 

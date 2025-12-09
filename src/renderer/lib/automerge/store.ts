@@ -162,11 +162,13 @@ export async function deleteSong(id: string): Promise<{ success: boolean }> {
     delete songsMap[id];
     // Also remove from service list if present
     if (doc.serviceList) {
-      doc.serviceList = doc.serviceList.filter((item: AutomergeServiceListItem) => item.songId !== id);
-      // Reorder positions
-      doc.serviceList.forEach((item: AutomergeServiceListItem, index: number) => {
-        item.position = index + 1;
-      });
+      // Filter and create new objects with updated positions to avoid reference issues
+      doc.serviceList = doc.serviceList
+        .filter((item: AutomergeServiceListItem) => item.songId !== id)
+        .map((item: AutomergeServiceListItem, index: number) => ({
+          songId: item.songId,
+          position: index + 1,
+        }));
     }
   });
 
@@ -353,11 +355,13 @@ export async function removeFromServiceList(
   }
 
   handle.change((doc: AutomergeDocument) => {
-    doc.serviceList = doc.serviceList.filter((item: AutomergeServiceListItem) => item.songId !== songId);
-    // Reorder positions
-    doc.serviceList.forEach((item: AutomergeServiceListItem, idx: number) => {
-      item.position = idx + 1;
-    });
+    // Filter and create new objects with updated positions to avoid reference issues
+    doc.serviceList = doc.serviceList
+      .filter((item: AutomergeServiceListItem) => item.songId !== songId)
+      .map((item: AutomergeServiceListItem, idx: number) => ({
+        songId: item.songId,
+        position: idx + 1,
+      }));
   });
 
   return { success: true };
