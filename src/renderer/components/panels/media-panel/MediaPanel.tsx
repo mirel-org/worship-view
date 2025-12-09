@@ -7,9 +7,8 @@ const MediaPanel: FC = () => {
   const mediaItems = useGetMediaItems();
   const [, setSelectedMediaItem] = useAtom(selectedBackgroundMediaItemAtom);
   return (
-    <div className="overflow-y-auto overflow-x-hidden h-full">
-      <h2 className="text-2xl font-semibold mb-4 p-4">Media</h2>
-      <ul className="space-y-1 px-4">
+    <div className="h-full overflow-y-auto overflow-x-hidden p-4">
+      <ul className="space-y-1">
         {mediaItems.map((mediaItem) => (
           <li
             key={mediaItem.id}

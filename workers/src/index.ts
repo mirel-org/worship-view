@@ -6,6 +6,11 @@ import {
   handleDeleteSong,
   handleBatchUpsertSongs,
   handleDeleteAllSongs,
+  handleGetServiceList,
+  handleAddToServiceList,
+  handleRemoveFromServiceList,
+  handleReorderServiceList,
+  handleClearServiceList,
 } from './routes/songs';
 
 export default {
@@ -144,6 +149,67 @@ export default {
         console.log('Handling DELETE /api/songs (delete all)');
         const response = await handleDeleteAllSongs(env);
         console.log(`DELETE /api/songs completed in ${Date.now() - startTime}ms with status ${response.status}`);
+        return new Response(response.body, {
+          ...response,
+          headers: { ...response.headers, ...corsHeaders },
+        });
+      }
+      
+      // Service List Routes
+      if (url.pathname === '/api/service-list' && request.method === 'GET') {
+        console.log('Handling GET /api/service-list');
+        const response = await handleGetServiceList(env);
+        console.log(`GET /api/service-list completed in ${Date.now() - startTime}ms with status ${response.status}`);
+        return new Response(response.body, {
+          ...response,
+          headers: { ...response.headers, ...corsHeaders },
+        });
+      }
+      
+      if (url.pathname === '/api/service-list' && request.method === 'POST') {
+        console.log('Handling POST /api/service-list');
+        const body = await request.json();
+        const response = await handleAddToServiceList(body, env);
+        console.log(`POST /api/service-list completed in ${Date.now() - startTime}ms with status ${response.status}`);
+        return new Response(response.body, {
+          ...response,
+          headers: { ...response.headers, ...corsHeaders },
+        });
+      }
+      
+      if (url.pathname === '/api/service-list/reorder' && request.method === 'PUT') {
+        console.log('Handling PUT /api/service-list/reorder');
+        const body = await request.json();
+        const response = await handleReorderServiceList(body, env);
+        console.log(`PUT /api/service-list/reorder completed in ${Date.now() - startTime}ms with status ${response.status}`);
+        return new Response(response.body, {
+          ...response,
+          headers: { ...response.headers, ...corsHeaders },
+        });
+      }
+      
+      if (url.pathname === '/api/service-list' && request.method === 'DELETE') {
+        console.log('Handling DELETE /api/service-list (clear all)');
+        const response = await handleClearServiceList(env);
+        console.log(`DELETE /api/service-list completed in ${Date.now() - startTime}ms with status ${response.status}`);
+        return new Response(response.body, {
+          ...response,
+          headers: { ...response.headers, ...corsHeaders },
+        });
+      }
+      
+      if (url.pathname.startsWith('/api/service-list/') && request.method === 'DELETE') {
+        const songIdStr = url.pathname.split('/api/service-list/')[1];
+        const songId = parseInt(songIdStr, 10);
+        if (isNaN(songId)) {
+          return new Response(JSON.stringify({ error: 'Invalid song ID' }), {
+            status: 400,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
+        console.log(`Handling DELETE /api/service-list/${songId}`);
+        const response = await handleRemoveFromServiceList(songId, env);
+        console.log(`DELETE /api/service-list/${songId} completed in ${Date.now() - startTime}ms with status ${response.status}`);
         return new Response(response.body, {
           ...response,
           headers: { ...response.headers, ...corsHeaders },

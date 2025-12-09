@@ -111,7 +111,7 @@ const SongEditorDialog = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-3xl max-h-[90vh] flex flex-col">
+      <DialogContent className="max-w-3xl max-h-[95vh] flex flex-col">
         <DialogHeader>
           <DialogTitle>Edit Song</DialogTitle>
           <DialogDescription>
@@ -139,7 +139,7 @@ const SongEditorDialog = ({
               <>
                 <textarea
                   id="song-content"
-                  className="flex min-h-[400px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 font-mono resize-none"
+                  className="flex min-h-[800px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 font-mono resize-none"
                   value={content}
                   onChange={(e) => setContent(e.target.value)}
                   disabled={loading || saving}

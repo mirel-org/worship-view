@@ -10,8 +10,12 @@ import { Button } from '@/components/ui/button';
 import useInputFocus from '@renderer/hooks/useInputFocus';
 import { useAtom } from 'jotai';
 import { useState, useEffect } from 'react';
-import { Pencil, Trash2, Plus } from 'lucide-react';
-import { useGetSongs, useDeleteSong } from '@renderer/hooks/useSongs';
+import { Pencil, Trash2, Plus, ListPlus } from 'lucide-react';
+import {
+  useGetSongs,
+  useDeleteSong,
+  useAddToServiceList,
+} from '@renderer/hooks/useSongs';
 import SongEditorDialog from './SongEditorDialog';
 import SongDeleteDialog from './SongDeleteDialog';
 import SongAddDialog from './SongAddDialog';
@@ -20,6 +24,7 @@ const SongsListPanel = () => {
   const [selectedSong, setSelectedSong] = useAtom(selectedSongAtom);
   const { data: songs = [], isLoading } = useGetSongs();
   const deleteSongMutation = useDeleteSong();
+  const addToServiceListMutation = useAddToServiceList();
   const [editingSong, setEditingSong] = useState<Song | null>(null);
   const [deletingSong, setDeletingSong] = useState<Song | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -84,18 +89,39 @@ const SongsListPanel = () => {
     }
   };
 
+  const handleAddToServiceList = async (
+    e: React.MouseEvent,
+    song: Song,
+  ) => {
+    e.stopPropagation();
+    try {
+      await addToServiceListMutation.mutateAsync(song.id);
+    } catch (error: any) {
+      // Show error message if song already exists
+      if (error.message?.includes('already')) {
+        alert(error.message);
+      } else {
+        console.error('Failed to add song to service list:', error);
+      }
+    }
+  };
+
+  // Sort songs alphabetically by name
+  const sortedSongs = [...songs].sort((a, b) =>
+    a.name.localeCompare(b.name, undefined, { sensitivity: 'base' })
+  );
+
   const filteredSongs =
     search.length > 2
-      ? songs.filter((song: Song) =>
+      ? sortedSongs.filter((song: Song) =>
           song.fullText.includes(
             (search.toLocaleLowerCase().match(/(\w+-\w+)|\w+/g) ?? []).join(
               ' ',
             ),
           ),
         )
-      : songs;
+      : sortedSongs;
 
-  console.log(filteredSongs);
 
   if (isLoading) {
     return (
@@ -107,8 +133,8 @@ const SongsListPanel = () => {
 
   return (
     <>
-      <div className="w-auto overflow-y-auto h-full p-2 box-border">
-        <div className="space-y-2 mb-4">
+      <div className="h-full flex flex-col p-2 box-border">
+        <div className="space-y-2 mb-4 flex-shrink-0">
           <div className="flex items-center justify-between gap-2">
             <Label htmlFor="search-song" className="flex-1">Search for song</Label>
             <Button
@@ -131,37 +157,47 @@ const SongsListPanel = () => {
             onChange={(ev) => setSearch(ev.target.value)}
           />
         </div>
-        <ul className="space-y-1">
-          {filteredSongs.map((song: Song) => (
-            <li
-              key={song.id}
-              className="group flex items-center justify-between cursor-pointer hover:bg-accent rounded-md p-2 transition-colors"
-            >
-              <span
-                onClick={() => setSelectedSong(song)}
-                className="flex-1"
+        <div className="flex-1 overflow-y-auto min-h-0">
+          <ul className="space-y-1">
+            {filteredSongs.map((song: Song) => (
+              <li
+                key={song.id}
+                className="group flex items-center justify-between cursor-pointer hover:bg-accent rounded-md p-2 transition-colors"
               >
-                {song.name}
-              </span>
-              <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                <button
-                  onClick={(e) => handleEditClick(e, song)}
-                  className="p-1 hover:bg-accent-foreground/10 rounded"
-                  aria-label={`Edit ${song.name}`}
+                <span
+                  onClick={() => setSelectedSong(song)}
+                  className="flex-1"
                 >
-                  <Pencil className="h-4 w-4" />
-                </button>
-                <button
-                  onClick={(e) => handleDeleteClick(e, song)}
-                  className="p-1 hover:bg-destructive/10 rounded text-destructive"
-                  aria-label={`Delete ${song.name}`}
-                >
-                  <Trash2 className="h-4 w-4" />
-                </button>
-              </div>
-            </li>
-          ))}
-        </ul>
+                  {song.name}
+                </span>
+                <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <button
+                    onClick={(e) => handleAddToServiceList(e, song)}
+                    className="p-1 hover:bg-accent-foreground/10 rounded"
+                    aria-label={`Add ${song.name} to service list`}
+                    disabled={addToServiceListMutation.isLoading}
+                  >
+                    <ListPlus className="h-4 w-4" />
+                  </button>
+                  <button
+                    onClick={(e) => handleEditClick(e, song)}
+                    className="p-1 hover:bg-accent-foreground/10 rounded"
+                    aria-label={`Edit ${song.name}`}
+                  >
+                    <Pencil className="h-4 w-4" />
+                  </button>
+                  <button
+                    onClick={(e) => handleDeleteClick(e, song)}
+                    className="p-1 hover:bg-destructive/10 rounded text-destructive"
+                    aria-label={`Delete ${song.name}`}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </button>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </div>
       </div>
       <SongEditorDialog
         song={editingSong}

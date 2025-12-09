@@ -1,5 +1,5 @@
 import { getDb, closeDb } from '../db';
-import { songs } from '../db/schema';
+import { songs, serviceListSongs } from '../db/schema';
 import { eq, sql } from 'drizzle-orm';
 
 export async function handleGetSongs(env?: {
@@ -301,6 +301,218 @@ export async function handleDeleteAllSongs(
     console.error('[handleDeleteAllSongs] Error:', error);
     return Response.json(
       { error: 'Failed to delete all songs', details: error.message },
+      { status: 500 },
+    );
+  } finally {
+    await closeDb(db);
+  }
+}
+
+// Service List Handlers
+export async function handleGetServiceList(
+  env?: { DATABASE_URL?: string; HYPERDRIVE?: { connectionString: string } },
+): Promise<Response> {
+  const db = getDb(env);
+  try {
+    const serviceList = await db
+      .select({
+        id: serviceListSongs.id,
+        songId: serviceListSongs.songId,
+        position: serviceListSongs.position,
+        song: songs,
+      })
+      .from(serviceListSongs)
+      .innerJoin(songs, eq(serviceListSongs.songId, songs.id))
+      .orderBy(serviceListSongs.position);
+
+    return Response.json(serviceList);
+  } catch (error: any) {
+    console.error('[handleGetServiceList] Error:', error);
+    return Response.json(
+      { error: 'Failed to fetch service list', details: error.message },
+      { status: 500 },
+    );
+  } finally {
+    await closeDb(db);
+  }
+}
+
+export async function handleAddToServiceList(
+  body: { songId: number },
+  env?: { DATABASE_URL?: string; HYPERDRIVE?: { connectionString: string } },
+): Promise<Response> {
+  const db = getDb(env);
+  try {
+    // Check if song exists
+    const [song] = await db
+      .select()
+      .from(songs)
+      .where(eq(songs.id, body.songId))
+      .limit(1);
+
+    if (!song) {
+      return Response.json({ error: 'Song not found' }, { status: 404 });
+    }
+
+    // Check if song is already in service list
+    const [existing] = await db
+      .select()
+      .from(serviceListSongs)
+      .where(eq(serviceListSongs.songId, body.songId))
+      .limit(1);
+
+    if (existing) {
+      return Response.json(
+        { error: 'Song is already in the service list' },
+        { status: 409 },
+      );
+    }
+
+    // Get the maximum position
+    const maxPositionResult = await db
+      .select({ max: sql<number>`max(${serviceListSongs.position})` })
+      .from(serviceListSongs);
+    const maxPosition = Number(maxPositionResult[0]?.max || 0);
+
+    // Add song to service list
+    const [newEntry] = await db
+      .insert(serviceListSongs)
+      .values({
+        songId: body.songId,
+        position: maxPosition + 1,
+      })
+      .returning();
+
+    // Fetch the full entry with song data
+    const [result] = await db
+      .select({
+        id: serviceListSongs.id,
+        songId: serviceListSongs.songId,
+        position: serviceListSongs.position,
+        song: songs,
+      })
+      .from(serviceListSongs)
+      .innerJoin(songs, eq(serviceListSongs.songId, songs.id))
+      .where(eq(serviceListSongs.id, newEntry.id))
+      .limit(1);
+
+    return Response.json(result, { status: 201 });
+  } catch (error: any) {
+    console.error('[handleAddToServiceList] Error:', error);
+    if (error.code === '23505') {
+      return Response.json(
+        { error: 'Song is already in the service list' },
+        { status: 409 },
+      );
+    }
+    return Response.json(
+      { error: 'Failed to add song to service list', details: error.message },
+      { status: 500 },
+    );
+  } finally {
+    await closeDb(db);
+  }
+}
+
+export async function handleRemoveFromServiceList(
+  songId: number,
+  env?: { DATABASE_URL?: string; HYPERDRIVE?: { connectionString: string } },
+): Promise<Response> {
+  const db = getDb(env);
+  try {
+    const [deleted] = await db
+      .delete(serviceListSongs)
+      .where(eq(serviceListSongs.songId, songId))
+      .returning();
+
+    if (!deleted) {
+      return Response.json(
+        { error: 'Song not found in service list' },
+        { status: 404 },
+      );
+    }
+
+    // Reorder remaining songs
+    const remaining = await db
+      .select()
+      .from(serviceListSongs)
+      .orderBy(serviceListSongs.position);
+
+    for (let i = 0; i < remaining.length; i++) {
+      await db
+        .update(serviceListSongs)
+        .set({ position: i + 1 })
+        .where(eq(serviceListSongs.id, remaining[i].id));
+    }
+
+    return Response.json({ success: true });
+  } catch (error: any) {
+    console.error('[handleRemoveFromServiceList] Error:', error);
+    return Response.json(
+      { error: 'Failed to remove song from service list', details: error.message },
+      { status: 500 },
+    );
+  } finally {
+    await closeDb(db);
+  }
+}
+
+export async function handleReorderServiceList(
+  body: { songIds: number[] },
+  env?: { DATABASE_URL?: string; HYPERDRIVE?: { connectionString: string } },
+): Promise<Response> {
+  const db = getDb(env);
+  try {
+    if (!body.songIds || !Array.isArray(body.songIds)) {
+      return Response.json(
+        { error: 'songIds array is required' },
+        { status: 400 },
+      );
+    }
+
+    // Update positions for each song
+    for (let i = 0; i < body.songIds.length; i++) {
+      await db
+        .update(serviceListSongs)
+        .set({ position: i + 1 })
+        .where(eq(serviceListSongs.songId, body.songIds[i]));
+    }
+
+    // Fetch updated service list
+    const serviceList = await db
+      .select({
+        id: serviceListSongs.id,
+        songId: serviceListSongs.songId,
+        position: serviceListSongs.position,
+        song: songs,
+      })
+      .from(serviceListSongs)
+      .innerJoin(songs, eq(serviceListSongs.songId, songs.id))
+      .orderBy(serviceListSongs.position);
+
+    return Response.json(serviceList);
+  } catch (error: any) {
+    console.error('[handleReorderServiceList] Error:', error);
+    return Response.json(
+      { error: 'Failed to reorder service list', details: error.message },
+      { status: 500 },
+    );
+  } finally {
+    await closeDb(db);
+  }
+}
+
+export async function handleClearServiceList(
+  env?: { DATABASE_URL?: string; HYPERDRIVE?: { connectionString: string } },
+): Promise<Response> {
+  const db = getDb(env);
+  try {
+    await db.delete(serviceListSongs);
+    return Response.json({ success: true });
+  } catch (error: any) {
+    console.error('[handleClearServiceList] Error:', error);
+    return Response.json(
+      { error: 'Failed to clear service list', details: error.message },
       { status: 500 },
     );
   } finally {

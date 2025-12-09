@@ -159,3 +159,106 @@ export async function deleteAllSongs(): Promise<DeleteAllResponse> {
 
   return response.json();
 }
+
+// Service List API
+export interface ServiceListSongResponse {
+  id: number;
+  songId: number;
+  position: number;
+  song: SongResponse;
+}
+
+export async function getServiceList(): Promise<ServiceListSongResponse[]> {
+  const response = await fetch(`${API_BASE_URL}/api/service-list`);
+  if (!response.ok) {
+    const error = await response
+      .json()
+      .catch(() => ({ error: response.statusText }));
+    throw new Error(
+      error.error || `Failed to fetch service list: ${response.statusText}`,
+    );
+  }
+  return response.json();
+}
+
+export async function addToServiceList(
+  songId: number,
+): Promise<ServiceListSongResponse> {
+  const response = await fetch(`${API_BASE_URL}/api/service-list`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ songId }),
+  });
+
+  if (!response.ok) {
+    const error = await response
+      .json()
+      .catch(() => ({ error: response.statusText }));
+    throw new Error(
+      error.error || `Failed to add song to service list: ${response.statusText}`,
+    );
+  }
+
+  return response.json();
+}
+
+export async function removeFromServiceList(
+  songId: number,
+): Promise<{ success: boolean }> {
+  const response = await fetch(`${API_BASE_URL}/api/service-list/${songId}`, {
+    method: 'DELETE',
+  });
+
+  if (!response.ok) {
+    const error = await response
+      .json()
+      .catch(() => ({ error: response.statusText }));
+    throw new Error(
+      error.error || `Failed to remove song from service list: ${response.statusText}`,
+    );
+  }
+
+  return response.json();
+}
+
+export async function reorderServiceList(
+  songIds: number[],
+): Promise<ServiceListSongResponse[]> {
+  const response = await fetch(`${API_BASE_URL}/api/service-list/reorder`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ songIds }),
+  });
+
+  if (!response.ok) {
+    const error = await response
+      .json()
+      .catch(() => ({ error: response.statusText }));
+    throw new Error(
+      error.error || `Failed to reorder service list: ${response.statusText}`,
+    );
+  }
+
+  return response.json();
+}
+
+export async function clearServiceList(): Promise<{ success: boolean }> {
+  const response = await fetch(`${API_BASE_URL}/api/service-list`, {
+    method: 'DELETE',
+  });
+
+  if (!response.ok) {
+    const error = await response
+      .json()
+      .catch(() => ({ error: response.statusText }));
+    throw new Error(
+      error.error || `Failed to clear service list: ${response.statusText}`,
+    );
+  }
+
+  return response.json();
+}
