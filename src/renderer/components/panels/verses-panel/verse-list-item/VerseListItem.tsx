@@ -25,8 +25,8 @@ const VerseListItem = ({
   }, [selected, ref]);
   const borderColor = selected
     ? enabled
-      ? 'border-l-[20px] border-l-[#1976d2]'
-      : 'border-l-[20px] border-l-[#e3f2fd]'
+      ? 'border-l-[20px] border-l-primary'
+      : 'border-l-[20px] border-l-primary/30'
     : '';
   return (
     <Card

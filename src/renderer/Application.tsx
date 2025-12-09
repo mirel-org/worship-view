@@ -36,19 +36,36 @@ const Application: React.FC = () => {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <div className="h-full p-2 box-border">
-        <div className="h-[50px]">
-          <Button
-            variant="default"
-            onClick={() => setAreScreensEnabled(!areScreensEnabled)}
-          >
-            Enable
-          </Button>
-          <Button variant="default" onClick={() => setAreSettingsOpen(true)}>
-            Settings
+      <div className="h-full p-4 box-border bg-background text-foreground font-sans antialiased selection:bg-primary selection:text-primary-foreground">
+        <div className="h-[50px] flex items-center justify-between gap-4 mb-4">
+          <div className="flex items-center gap-2">
+            <Button
+              variant={areScreensEnabled ? 'default' : 'secondary'}
+              onClick={() => setAreScreensEnabled(!areScreensEnabled)}
+              className="w-24"
+            >
+              {areScreensEnabled ? 'Enabled' : 'Enable'}
+            </Button>
+          </div>
+          <Button variant="ghost" size="icon" onClick={() => setAreSettingsOpen(true)}>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="lucide lucide-settings"
+            >
+              <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.09a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.09a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.09a2 2 0 0 1-1-1.74v-.47a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.39a2 2 0 0 0-2.73-.73l-.15.09a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" />
+              <circle cx="12" cy="12" r="3" />
+            </svg>
           </Button>
         </div>
-        <div className="h-[calc(100%-50px)]">
+        <div className="h-[calc(100%-66px)] border border-border rounded-xl overflow-hidden bg-card shadow-sm">
           <AppTabs />
         </div>
         <Generics />

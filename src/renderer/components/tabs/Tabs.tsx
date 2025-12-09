@@ -18,20 +18,20 @@ const AppTabs: FC = () => {
   const [selectedTabType, setSelectedTabType] = useAtom(selectedTabTypeAtom);
 
   return (
-    <div className="h-full">
-      <div className="border-b border-border h-[50px]">
+    <div className="h-full flex flex-col">
+      <div className="border-b border-border p-2 bg-muted/20">
         <Tabs
           value={selectedTabType}
           onValueChange={(value) => setSelectedTabType(value as TabType)}
         >
-          <TabsList>
+          <TabsList className="grid w-full grid-cols-3 bg-muted/50">
             <TabsTrigger value="songs">Songs</TabsTrigger>
             <TabsTrigger value="bible">Bible</TabsTrigger>
             <TabsTrigger value="prayer">Prayer</TabsTrigger>
           </TabsList>
         </Tabs>
       </div>
-      <div className="h-[calc(100%-50px)]">{TabsMap[selectedTabType]}</div>
+      <div className="flex-1 overflow-hidden bg-card">{TabsMap[selectedTabType]}</div>
     </div>
   );
 };
