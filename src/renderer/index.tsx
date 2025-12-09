@@ -15,6 +15,20 @@ async function initializeAutomerge() {
     // Pre-initialize the document handle so it's ready when needed
     await getDocumentHandle();
     console.log('[ERWT] Automerge initialized successfully');
+    
+    // Start Google Drive auto-sync if authenticated
+    try {
+      const { gdriveSyncService } = await import('./lib/automerge/gdrive-sync');
+      const state = gdriveSyncService.getState();
+      if (state.isAuthenticated) {
+        // Start auto-sync every 60 seconds
+        gdriveSyncService.startAutoSync(60000);
+        console.log('[ERWT] Google Drive auto-sync started');
+      }
+    } catch (error) {
+      // Google Drive sync not available, continue without it
+      console.log('[ERWT] Google Drive sync not available:', error);
+    }
   } catch (error) {
     console.error('Failed to initialize Automerge:', error);
   }

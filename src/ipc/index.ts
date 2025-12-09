@@ -1,6 +1,7 @@
 import useGetDisplays from './display/display.hooks';
 import { DisplayPreloadType } from './display/display.types';
 import { MediaPreloadType } from './media/media.types';
+import { GoogleDrivePreloadType } from './gdrive/gdrive.types';
 import { useManageProjection } from './projection/projection.hooks';
 import useProjectionShortcuts from './projection/projection.shortcuts';
 import { useSettings } from './settings/settings.hooks';
@@ -10,7 +11,7 @@ import { useVersesHistory } from './verse/verse.hooks';
 import useVerseShortcuts from './verse/verse.shortcuts';
 import { useCommandPaletteShortcuts } from './command/command.shortcuts';
 
-export type MyAPIType = DisplayPreloadType & MediaPreloadType;
+export type MyAPIType = DisplayPreloadType & MediaPreloadType & GoogleDrivePreloadType;
 
 type MainWindow = typeof window & { myAPI: MyAPIType };
 

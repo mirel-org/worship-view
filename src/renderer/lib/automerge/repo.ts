@@ -1,6 +1,5 @@
 import { Repo, DocHandle, AnyDocumentId } from '@automerge/automerge-repo';
 import { IndexedDBStorageAdapter } from '@automerge/automerge-repo-storage-indexeddb';
-import { GoogleDriveStorageAdapter } from './gdrive-storage';
 import { createEmptyDocument, AutomergeDocument } from './schema';
 
 let repo: Repo | null = null;
@@ -58,13 +57,43 @@ export async function getDocumentHandle(): Promise<DocHandle<AutomergeDocument>>
     }
   }
   
-  // Create new document if it doesn't exist
-  const handle = repoInstance.create<AutomergeDocument>();
+  // Check if we should try loading from Google Drive first (if IndexedDB is empty)
+  const shouldTryGDrive = !documentId;
   
-  // Initialize the document with empty structure
-  handle.change((doc: AutomergeDocument) => {
-    Object.assign(doc, createEmptyDocument());
-  });
+  if (shouldTryGDrive) {
+    try {
+      const { gdriveSyncService } = await import('./gdrive-sync');
+      const gdriveState = gdriveSyncService.getState();
+      
+      if (gdriveState.isAuthenticated) {
+        // Try to download from Google Drive
+        try {
+          await gdriveSyncService.downloadFromDrive();
+          // If download succeeded, try to find the document again
+          if (typeof window !== 'undefined') {
+            documentId = localStorage.getItem(DOCUMENT_ID_KEY);
+            if (documentId) {
+              const handle = await repoInstance.find<AutomergeDocument>(documentId as AnyDocumentId);
+              if (handle) {
+                await handle.whenReady();
+                documentHandle = handle;
+                return documentHandle;
+              }
+            }
+          }
+        } catch (error) {
+          // Download failed, continue with creating new document
+          console.log('Failed to load from Google Drive, creating new document:', error);
+        }
+      }
+    } catch (error) {
+      // Google Drive sync not available, continue with creating new document
+      console.log('Google Drive sync not available:', error);
+    }
+  }
+  
+  // Create new document with initial empty structure
+  const handle = repoInstance.create<AutomergeDocument>(createEmptyDocument());
 
   // Wait for document to be ready
   await handle.whenReady();

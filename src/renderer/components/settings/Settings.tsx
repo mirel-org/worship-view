@@ -6,14 +6,16 @@ import {
   DialogContent,
 } from '../ui/dialog';
 import { SettingsSong } from './SettingsSong';
+import { SettingsGoogleDrive } from './SettingsGoogleDrive';
 
 const Settings = () => {
   const [areSettingsOpen, setAreSettingsOpen] = useAtom(areSettingsOpenAtom);
   return (
     <Dialog open={areSettingsOpen} onOpenChange={setAreSettingsOpen}>
-      <DialogContent className="max-w-2xl">
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <SettingsDisplay />
         <SettingsSong />
+        <SettingsGoogleDrive />
       </DialogContent>
     </Dialog>
   );

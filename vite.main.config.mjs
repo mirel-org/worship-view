@@ -8,6 +8,28 @@ export default defineConfig({
       output: {
         entryFileNames: 'main.js',
       },
+      // Mark Node.js built-ins and googleapis as external
+      // They will be loaded from node_modules at runtime
+      external: [
+        'electron',
+        'googleapis',
+        'dotenv',
+        'fs',
+        'path',
+        'crypto',
+        'stream',
+        'util',
+        'url',
+        'http',
+        'https',
+        'zlib',
+        'events',
+        'buffer',
+        'os',
+        'net',
+        'tls',
+        'child_process',
+      ],
     },
     outDir: '.vite/build',
     emptyOutDir: true,

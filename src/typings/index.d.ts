@@ -32,6 +32,11 @@ interface ImportMeta {
     off(event: string, cb: (...args: any[]) => void): void;
     send(event: string, data?: any): void;
   };
+  readonly env: {
+    readonly [key: string]: string | boolean | undefined;
+    readonly VITE_GOOGLE_CLIENT_ID?: string;
+    readonly VITE_GOOGLE_CLIENT_SECRET?: string;
+  };
 }
 
 declare namespace NodeJS {

@@ -38,6 +38,5 @@ export default defineConfig({
   optimizeDeps: {
     exclude: ['@automerge/automerge'],
   },
-  define: {},
 });
 
