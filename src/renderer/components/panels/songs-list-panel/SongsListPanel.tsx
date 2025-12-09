@@ -112,7 +112,7 @@ const SongsListPanel = () => {
   );
 
   const filteredSongs =
-    search.length > 2
+    search.length > 6
       ? sortedSongs.filter((song: Song) =>
           song.fullText.includes(
             (search.toLocaleLowerCase().match(/(\w+-\w+)|\w+/g) ?? []).join(
@@ -120,7 +120,7 @@ const SongsListPanel = () => {
             ),
           ),
         )
-      : sortedSongs;
+      : [];
 
 
   if (isLoading) {
