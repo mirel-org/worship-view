@@ -1,6 +1,6 @@
 import React, { FC, useEffect, useMemo, useState } from 'react';
 
-const CrossFade: FC = ({ children }) => {
+const CrossFade: FC<{ children?: React.ReactNode }> = ({ children }) => {
   const node = useMemo(() => {
     const cs = React.Children.map(children, (x) => x);
     if (cs) return cs[0];

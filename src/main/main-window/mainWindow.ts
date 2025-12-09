@@ -3,9 +3,9 @@ import mediaHandlers from '@ipc/media/media.handlers';
 import { app, BrowserWindow } from 'electron';
 import path from 'path';
 
-// Electron Forge automatically creates these entry points
-declare const APP_WINDOW_WEBPACK_ENTRY: string;
-declare const APP_WINDOW_PRELOAD_WEBPACK_ENTRY: string;
+// Electron Forge automatically creates these entry points for Vite
+declare const APP_WINDOW_VITE_DEV_SERVER_URL: string;
+declare const APP_WINDOW_VITE_NAME: string;
 
 let appWindow: BrowserWindow | null;
 
@@ -22,16 +22,19 @@ export function createAppWindow(): BrowserWindow {
     icon: path.resolve('assets/images/appIcon.ico'),
     webPreferences: {
       nodeIntegration: false,
-      nativeWindowOpen: true,
       contextIsolation: true,
       nodeIntegrationInWorker: false,
       nodeIntegrationInSubFrames: false,
-      preload: APP_WINDOW_PRELOAD_WEBPACK_ENTRY,
+      preload: path.join(__dirname, 'preload.js'),
     },
   });
 
   // Load the index.html of the app window.
-  appWindow.loadURL(APP_WINDOW_WEBPACK_ENTRY);
+  if (APP_WINDOW_VITE_DEV_SERVER_URL) {
+    appWindow.loadURL(APP_WINDOW_VITE_DEV_SERVER_URL);
+  } else {
+    appWindow.loadFile(path.join(__dirname, `../renderer/${APP_WINDOW_VITE_NAME}/index.html`));
+  }
 
   // Show window when its ready to
   appWindow.on('ready-to-show', () => appWindow && appWindow.show());

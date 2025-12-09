@@ -1,6 +1,5 @@
 import { useAtom } from 'jotai';
 import React, { memo } from 'react';
-import { hot } from 'react-hot-loader';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Button } from './components/ui/button';
 import Screens from './components/screens/Screens';
@@ -58,7 +57,7 @@ const Application: React.FC = () => {
   );
 };
 
-export default hot(module)(Application);
+export default Application;
 
 const Setup = () => {
   useSetup();

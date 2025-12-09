@@ -1,5 +1,5 @@
-import MontserratVariable from '@assets/fonts/montserrat/Montserrat-VariableFont_wght.ttf';
-import IosevkaRegular from '@assets/fonts/iosevka/iosevka-fixed-regular.woff2';
+import MontserratVariable from '@assets/fonts/montserrat/Montserrat-VariableFont_wght.ttf?url';
+import IosevkaRegular from '@assets/fonts/iosevka/iosevka-fixed-regular.woff2?url';
 
 // Convert relative/absolute URLs to full localhost URLs for frame windows
 function getFontUrl(fontPath: string, targetDocument: Document): string {
@@ -8,19 +8,19 @@ function getFontUrl(fontPath: string, targetDocument: Document): string {
                          targetDocument.defaultView?.location.protocol === 'about:';
   
   if (isFrameWindow) {
-    // For frame windows, convert to absolute URL pointing to webpack dev server
+    // For frame windows, convert to absolute URL pointing to Vite dev server
     // If fontPath is already absolute (starts with http), use it as-is
     if (fontPath.startsWith('http://') || fontPath.startsWith('https://')) {
       return fontPath;
     }
-    // If it's a relative path, make it absolute to localhost:3000
+    // If it's a relative path, make it absolute to localhost:3000 (Vite dev server)
     const baseUrl = 'http://localhost:3000';
-    // Remove leading slash if present, webpack usually outputs paths like "/fonts/..."
+    // Remove leading slash if present, Vite outputs paths like "/assets/..."
     const cleanPath = fontPath.startsWith('/') ? fontPath : `/${fontPath}`;
     return `${baseUrl}${cleanPath}`;
   }
   
-  // For main window, use the path as-is
+  // For main window, use the path as-is (Vite handles this automatically)
   return fontPath;
 }
 

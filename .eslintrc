@@ -18,7 +18,7 @@
   "settings": {
     "import/resolver": {
       "node": {
-        "extensions": [".js", ".jsx", ".ts", ".tsx"]
+        "extensions": [".js", ".jsx", ".ts", ".tsx", ".mjs"]
       },
       "alias": {
         "map": [
@@ -42,6 +42,12 @@
     "@typescript-eslint/no-var-requires": "off",
     "@typescript-eslint/no-explicit-any": "off",
     "import/named": "off",
+    "import/no-unresolved": [
+      "error",
+      {
+        "ignore": ["\\.(ttf|woff2|woff|png|jpg|jpeg|gif|svg|css)$", "\\?url$", "^react-dom/client$"]
+      }
+    ],
     "@typescript-eslint/no-unused-vars": [
       "warn",
       {

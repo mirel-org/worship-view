@@ -5,6 +5,7 @@ import { injectFontCSS } from '../../lib/fonts';
 
 type FrameProps = {
   display: Display;
+  children: React.ReactNode;
 };
 
 const Frame: FC<FrameProps> = ({ children, display }) => {

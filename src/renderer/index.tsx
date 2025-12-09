@@ -1,5 +1,4 @@
-import ReactDOM from 'react-dom';
-import { inDev } from '@common/helpers';
+import { createRoot } from 'react-dom/client';
 import Application from './Application';
 import Modal from 'react-modal';
 import { injectFontCSS } from './lib/fonts';
@@ -16,14 +15,21 @@ Modal.setAppElement(document.getElementById('app') as HTMLElement);
 // Application to Render
 const app = <Application />;
 
-// Render application in DOM
-ReactDOM.render(app, document.getElementById('app'));
+// Get root element
+const container = document.getElementById('app');
+if (!container) {
+  throw new Error('Root element not found');
+}
 
-// Hot module replacement
-if (inDev() && module.hot) {
-  module.hot.accept();
+// Render application in DOM using React 18+ API
+const root = createRoot(container);
+root.render(app);
+
+// Hot module replacement with Vite
+if (import.meta.hot) {
+  import.meta.hot.accept();
   // Re-inject fonts on HMR
-  module.hot.accept('./lib/fonts', () => {
+  import.meta.hot.accept('./lib/fonts', () => {
     injectFontCSS();
   });
 }

@@ -43,51 +43,29 @@ module.exports = {
   ],
   // Forge Plugins
   plugins: [
-    [
-      // The Webpack plugin allows you to use standard Webpack tooling to compile both your main process code
-      // and your renderer process code, with built in support for Hot Module Reloading in the renderer
-      // process and support for multiple renderers.
-      '@electron-forge/plugin-webpack',
-      {
-        // fix content-security-policy error when image or video src isn't same origin
-        devContentSecurityPolicy: '',
-        // Ports
-        port: 3000, // Webpack Dev Server port
-        loggerPort: 9000, // Logger port
-        // Main process webpack configuration
-        mainConfig: path.join(rootDir, 'tools/webpack/webpack.main.js'),
-        // Renderer process webpack configuration
-        renderer: {
-          // Configuration file path
-          config: path.join(rootDir, 'tools/webpack/webpack.renderer.js'),
-          // Entrypoints of the application
-          entryPoints: [
-            {
-              // Window process name
-              name: 'app_window',
-              // React Hot Module Replacement (HMR)
-              rhmr: 'react-hot-loader/patch',
-              // HTML index file template
-              html: path.join(rootDir, 'src/renderer/index.html'),
-              // Renderer
-              js: path.join(rootDir, 'src/renderer/index.tsx'),
-              // Main Window
-              // Preload
-              preload: {
-                js: path.join(rootDir, 'src/preload/index.tsx'),
-              },
-            },
-          ],
-        },
-        devServer: {
-          liveReload: false,
-          headers: {
-            'Access-Control-Allow-Origin': '*',
-            'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, PATCH, OPTIONS',
-            'Access-Control-Allow-Headers': 'X-Requested-With, content-type, Authorization',
+    {
+      name: '@electron-forge/plugin-vite',
+      config: {
+        // Build configuration for main process and preload scripts
+        build: [
+          {
+            entry: path.join(rootDir, 'src/main/index.ts'),
+            config: path.join(rootDir, 'vite.main.config.mjs'),
           },
-        },
+          {
+            entry: path.join(rootDir, 'src/preload/index.tsx'),
+            config: path.join(rootDir, 'vite.preload.config.mjs'),
+            name: 'app_window_preload',
+          },
+        ],
+        // Renderer configuration
+        renderer: [
+          {
+            name: 'app_window',
+            config: path.join(rootDir, 'vite.renderer.config.mjs'),
+          },
+        ],
       },
-    ],
+    },
   ],
 };
