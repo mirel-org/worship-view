@@ -24,15 +24,32 @@ export const useCommandPaletteSearch = (searchValue?: string) => {
 
   const searchSongs = useCallback(
     (query: string): Song[] => {
-      if (query.length <= 6) return [];
+      // Allow searching with any length, but require at least 1 character
+      if (query.trim().length === 0) return [];
       
-      const searchTerms = (
-        query.toLocaleLowerCase().match(/(\w+-\w+)|\w+/g) ?? []
-      ).join(' ');
+      const queryLower = query.toLocaleLowerCase();
       
-      return songs.filter((song: Song) =>
-        song.fullText.includes(searchTerms)
+      // First try exact name match (works with any length)
+      const nameMatches = songs.filter((song: Song) =>
+        song.name.toLocaleLowerCase().includes(queryLower)
       );
+      
+      if (nameMatches.length > 0) {
+        return nameMatches;
+      }
+      
+      // If no name matches and query is long enough, search in fullText
+      if (query.length > 6) {
+        const searchTerms = (
+          queryLower.match(/(\w+-\w+)|\w+/g) ?? []
+        ).join(' ');
+        
+        return songs.filter((song: Song) =>
+          song.fullText.includes(searchTerms)
+        );
+      }
+      
+      return [];
     },
     [songs]
   );
@@ -119,9 +136,40 @@ export const useCommandPaletteSearch = (searchValue?: string) => {
     [books]
   );
 
+  // Available commands
+  const availableCommands = useMemo(() => [
+    { id: 'create-song' as const, label: 'Create new song', description: 'Add a new song to your library' },
+    { id: 'clear-service-list' as const, label: 'Clear service list', description: 'Remove all songs from the service list' },
+    { id: 'open-settings' as const, label: 'Open settings', description: 'Open application settings' },
+  ], []);
+
+  // Search commands
+  const searchCommands = useCallback(
+    (query: string) => {
+      if (query.trim().length === 0) {
+        // Show all commands when search is empty
+        return availableCommands;
+      }
+      
+      const queryLower = query.toLowerCase();
+      return availableCommands.filter((cmd) =>
+        cmd.label.toLowerCase().includes(queryLower) ||
+        cmd.description?.toLowerCase().includes(queryLower) ||
+        cmd.id.toLowerCase().includes(queryLower)
+      );
+    },
+    [availableCommands]
+  );
+
   // Perform search whenever search term changes
   useEffect(() => {
     const results: CommandPaletteResult[] = [];
+    
+    // Search commands (always show if search matches or search is empty)
+    const commandResults = searchCommands(search);
+    commandResults.forEach((cmd) => {
+      results.push({ type: 'command', data: cmd });
+    });
     
     // Search songs
     const songResults = searchSongs(search);
@@ -136,7 +184,7 @@ export const useCommandPaletteSearch = (searchValue?: string) => {
     });
     
     setResults(results);
-  }, [search, searchSongs, searchVerses, setResults]);
+  }, [search, searchSongs, searchVerses, searchCommands, setResults]);
 
   return { search, setSearch: setSearchAtom };
 };

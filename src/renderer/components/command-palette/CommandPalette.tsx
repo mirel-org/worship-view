@@ -21,7 +21,7 @@ import { BibleReferenceType, BibleTextType } from '@ipc/verse/verse.types';
 import bibleText from '@assets/bibles/VDC.json';
 import { settingsSongSlideSizeAtom } from '@ipc/settings/settings.song.atoms';
 import { getSongSlidesBySize } from '@ipc/song/song.utils';
-import { Music, BookOpen, ListPlus, Pencil, Trash2 } from 'lucide-react';
+import { Music, BookOpen, ListPlus, Pencil, Trash2, Plus, Settings, X } from 'lucide-react';
 import { useCommandPaletteSearch } from '@ipc/command/command.hooks';
 import { selectedTabTypeAtom } from '@ipc/tab/tab.atoms';
 import { selectedSongAtom } from '@ipc/song/song.atoms';
@@ -29,9 +29,13 @@ import { selectedVerseReferenceAtom } from '@ipc/verse/verse.atoms';
 import {
   useDeleteSong,
   useAddToServiceList,
+  useClearServiceList,
 } from '@renderer/hooks/useSongs';
+import { areSettingsOpenAtom } from '@ipc/settings/settings.atoms';
 import SongEditorDialog from '../panels/songs-list-panel/SongEditorDialog';
 import SongDeleteDialog from '../panels/songs-list-panel/SongDeleteDialog';
+import SongAddDialog from '../panels/songs-list-panel/SongAddDialog';
+import type { CommandAction } from '@ipc/command/command.atoms';
 
 const CommandPalette: FC = () => {
   const [open, setOpen] = useAtom(commandPaletteOpenAtom);
@@ -44,10 +48,13 @@ const CommandPalette: FC = () => {
   const [searchValue, setSearchValue] = useState<string>('');
   const [editingSong, setEditingSong] = useState<Song | null>(null);
   const [deletingSong, setDeletingSong] = useState<Song | null>(null);
+  const [addDialogOpen, setAddDialogOpen] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [, setSettingsOpen] = useAtom(areSettingsOpenAtom);
   const deleteSongMutation = useDeleteSong();
   const addToServiceListMutation = useAddToServiceList();
+  const clearServiceListMutation = useClearServiceList();
   const commandRef = useRef<HTMLDivElement>(null);
   
   // Trigger search when search term changes
@@ -65,9 +72,15 @@ const CommandPalette: FC = () => {
   const selectedResult = useMemo(() => {
     if (!selectedValue) return null;
     return results.find((result) => {
-      const key = result.type === 'song' 
-        ? `song-${(result.data as Song).id}`
-        : `verse-${(result.data as BibleReferenceType).book}-${(result.data as BibleReferenceType).chapter}-${(result.data as BibleReferenceType).verse}`;
+      let key: string;
+      if (result.type === 'song') {
+        key = `song-${(result.data as Song).id}`;
+      } else if (result.type === 'verse') {
+        const verse = result.data as BibleReferenceType;
+        key = `verse-${verse.book}-${verse.chapter}-${verse.verse}`;
+      } else {
+        key = `command-${(result.data as { id: CommandAction }).id}`;
+      }
       return key === selectedValue;
     }) || null;
   }, [selectedValue, results]);
@@ -102,11 +115,17 @@ const CommandPalette: FC = () => {
     };
   }, [selectedResult]);
 
-  const handleSelect = (value: string) => {
+  const handleSelect = async (value: string) => {
     const result = results.find((r) => {
-      const key = r.type === 'song' 
-        ? `song-${(r.data as Song).id}`
-        : `verse-${(r.data as BibleReferenceType).book}-${(r.data as BibleReferenceType).chapter}-${(r.data as BibleReferenceType).verse}`;
+      let key: string;
+      if (r.type === 'song') {
+        key = `song-${(r.data as Song).id}`;
+      } else if (r.type === 'verse') {
+        const verse = r.data as BibleReferenceType;
+        key = `verse-${verse.book}-${verse.chapter}-${verse.verse}`;
+      } else {
+        key = `command-${(r.data as { id: CommandAction }).id}`;
+      }
       return key === value;
     });
 
@@ -120,6 +139,32 @@ const CommandPalette: FC = () => {
       setSelectedTabType('bible');
       setSelectedVerseReference(result.data);
       setOpen(false);
+    } else if (result.type === 'command') {
+      const command = result.data as { id: CommandAction };
+      await handleCommand(command.id);
+    }
+  };
+
+  const handleCommand = async (commandId: CommandAction) => {
+    switch (commandId) {
+      case 'create-song':
+        setAddDialogOpen(true);
+        setOpen(false);
+        break;
+      case 'clear-service-list':
+        if (window.confirm('Are you sure you want to clear the entire service list?')) {
+          try {
+            await clearServiceListMutation.mutateAsync();
+            setOpen(false);
+          } catch (error) {
+            console.error('Failed to clear service list:', error);
+          }
+        }
+        break;
+      case 'open-settings':
+        setSettingsOpen(true);
+        setOpen(false);
+        break;
     }
   };
 
@@ -155,8 +200,8 @@ const CommandPalette: FC = () => {
     }
   };
 
-  const handleSave = async (_newName?: string) => {
-    // React Query will automatically refetch songs after mutation
+  const handleSave = async () => {
+    // Song will be automatically added via Automerge subscription
   };
 
   const handleDelete = async () => {
@@ -174,13 +219,17 @@ const CommandPalette: FC = () => {
     return `${ref.book} ${ref.chapter}:${ref.verse}`;
   };
 
-  // Separate results into songs and verses
+  // Separate results into songs, verses, and commands
   const songResults = useMemo(() => 
     results.filter(r => r.type === 'song'),
     [results]
   );
   const verseResults = useMemo(() => 
     results.filter(r => r.type === 'verse'),
+    [results]
+  );
+  const commandResults = useMemo(() => 
+    results.filter(r => r.type === 'command'),
     [results]
   );
 
@@ -201,7 +250,7 @@ const CommandPalette: FC = () => {
               filter={() => 1}
             >
               <CommandInput 
-                placeholder="Search songs or bible verses..." 
+                placeholder="Search songs, verses, or commands..." 
                 className="h-12"
                 value={searchValue}
                 onValueChange={setSearchValue}
@@ -215,9 +264,43 @@ const CommandPalette: FC = () => {
               <CommandList className="flex-1 overflow-y-auto">
                 <CommandEmpty>
                   <div className="p-4 text-center text-muted-foreground">
-                    No results found. Type at least 7 characters to search songs.
+                    {searchValue.length === 0 
+                      ? 'Start typing to search songs, verses, or commands...'
+                      : 'No results found. Type at least 7 characters to search songs.'}
                   </div>
                 </CommandEmpty>
+                {commandResults.length > 0 && (
+                  <CommandGroup heading="Commands">
+                    {commandResults.map((result) => {
+                      const command = result.data as { id: CommandAction; label: string; description?: string };
+                      const value = `command-${command.id}`;
+                      return (
+                        <CommandItem
+                          key={value}
+                          value={value}
+                          keywords={[command.label, command.description || '', command.id]}
+                          onSelect={(currentValue) => {
+                            if (currentValue === value) {
+                              handleSelect(value);
+                            }
+                          }}
+                        >
+                          <div className="flex items-center gap-2">
+                            {command.id === 'create-song' && <Plus className="h-4 w-4 text-muted-foreground" />}
+                            {command.id === 'clear-service-list' && <X className="h-4 w-4 text-muted-foreground" />}
+                            {command.id === 'open-settings' && <Settings className="h-4 w-4 text-muted-foreground" />}
+                            <div className="flex flex-col">
+                              <span>{command.label}</span>
+                              {command.description && (
+                                <span className="text-xs text-muted-foreground">{command.description}</span>
+                              )}
+                            </div>
+                          </div>
+                        </CommandItem>
+                      );
+                    })}
+                  </CommandGroup>
+                )}
                 {songResults.length > 0 && (
                   <CommandGroup heading="Songs">
                     {songResults.map((result) => {
@@ -369,6 +452,11 @@ const CommandPalette: FC = () => {
         open={deleteDialogOpen}
         onOpenChange={setDeleteDialogOpen}
         onDelete={handleDelete}
+      />
+      <SongAddDialog
+        open={addDialogOpen}
+        onOpenChange={setAddDialogOpen}
+        onSave={handleSave}
       />
     </Dialog>
   );

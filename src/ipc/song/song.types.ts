@@ -1,5 +1,5 @@
 export type Song = {
-  id: number;
+  id: string; // Changed from number to UUID string
   name: string;
   parts: SongPart[];
   arrangement: SongArrangement;

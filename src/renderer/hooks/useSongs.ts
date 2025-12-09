@@ -1,330 +1,440 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import * as api from '../lib/api';
+import { useState, useEffect, useCallback } from 'react';
+import { getDocumentHandle } from '../lib/automerge/repo';
+import * as store from '../lib/automerge/store';
 import { parseSong } from '../lib/songParser';
 import type { Song } from '@ipc/song/song.types';
-import type { ServiceListSongResponse } from '../lib/api';
+import type { ServiceListSongResponse } from '../lib/automerge/store';
 
+// Hook to get all songs with Automerge subscription
 export function useGetSongs() {
-  return useQuery({
-    queryKey: ['songs'],
-    queryFn: async () => {
-      const songs = await api.getSongs();
-      // Parse each song to convert fullText to Song structure
-      return songs.map((song) => parseSong(song.id, song.name, song.fullText));
-    },
-  });
+  const [songs, setSongs] = useState<Song[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
+
+  useEffect(() => {
+    let mounted = true;
+
+    async function loadSongs() {
+      try {
+        setIsLoading(true);
+        const songResponses = await store.getSongs();
+        if (mounted) {
+          const parsedSongs = songResponses.map((song) =>
+            parseSong(song.id, song.name, song.fullText)
+          );
+          setSongs(parsedSongs);
+          setError(null);
+        }
+      } catch (err) {
+        if (mounted) {
+          setError(err instanceof Error ? err : new Error('Failed to load songs'));
+        }
+      } finally {
+        if (mounted) {
+          setIsLoading(false);
+        }
+      }
+    }
+
+    // Initial load
+    loadSongs();
+
+    // Subscribe to document changes
+    let handle: Awaited<ReturnType<typeof getDocumentHandle>> | null = null;
+    let onChange: (() => void) | null = null;
+    
+    async function subscribe() {
+      try {
+        handle = await getDocumentHandle();
+        
+        // Subscribe to changes
+        onChange = () => {
+          console.log('Document changed, reloading songs...');
+          if (mounted) {
+            // Reload songs when document changes
+            loadSongs();
+          }
+        };
+        
+        // Subscribe to change events
+        handle.on('change', onChange);
+        
+        // Ensure document is ready, then load songs
+        handle.whenReady().then(() => {
+          if (mounted) {
+            loadSongs();
+          }
+        });
+      } catch (err) {
+        console.error('Failed to subscribe to document changes:', err);
+      }
+    }
+
+    subscribe();
+
+    return () => {
+      mounted = false;
+      // Unsubscribe from change events
+      if (handle && onChange) {
+        handle.off('change', onChange);
+      }
+    };
+  }, []);
+
+  return { data: songs, isLoading, error };
 }
 
-export function useGetSongContent(id: number) {
-  return useQuery({
-    queryKey: ['songs', id],
-    queryFn: () => api.getSongContent(id),
-    enabled: !!id,
-  });
+// Hook to get song content
+export function useGetSongContent(id: string) {
+  const [content, setContent] = useState<string>('');
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
+
+  useEffect(() => {
+    if (!id) {
+      setIsLoading(false);
+      return;
+    }
+
+    let mounted = true;
+
+    async function loadContent() {
+      try {
+        setIsLoading(true);
+        const songContent = await store.getSongContent(id);
+        if (mounted) {
+          setContent(songContent);
+          setError(null);
+        }
+      } catch (err) {
+        if (mounted) {
+          setError(err instanceof Error ? err : new Error('Failed to load song content'));
+        }
+      } finally {
+        if (mounted) {
+          setIsLoading(false);
+        }
+      }
+    }
+
+    loadContent();
+
+    // Subscribe to document changes
+    let handle: Awaited<ReturnType<typeof getDocumentHandle>> | null = null;
+    let onChange: (() => void) | null = null;
+    
+    async function subscribe() {
+      try {
+        handle = await getDocumentHandle();
+        onChange = () => {
+          if (mounted) {
+            loadContent();
+          }
+        };
+        handle.on('change', onChange);
+      } catch (err) {
+        console.error('Failed to subscribe to document changes:', err);
+      }
+    }
+
+    subscribe();
+
+    return () => {
+      mounted = false;
+      // Unsubscribe from change events
+      if (handle && onChange) {
+        handle.off('change', onChange);
+      }
+    };
+  }, [id]);
+
+  return { data: content, isLoading, error };
 }
 
+// Hook to save a new song
 export function useSaveSong() {
-  const queryClient = useQueryClient();
-  
-  return useMutation({
-    mutationFn: ({ name, content }: { name: string; content: string }) =>
-      api.saveSong(name, content),
-    onMutate: async ({ name, content }) => {
-      await queryClient.cancelQueries({ queryKey: ['songs'] });
-      
-      const previousSongs = queryClient.getQueryData<Song[]>(['songs']);
-      
-      // Optimistically add the new song
-      if (previousSongs) {
-        const newSong = parseSong(Date.now(), name, content); // Temporary ID
-        queryClient.setQueryData<Song[]>(['songs'], (old = []) => [...old, newSong]);
-      }
-      
-      return { previousSongs };
-    },
-    onError: (err, variables, context) => {
-      if (context?.previousSongs) {
-        queryClient.setQueryData(['songs'], context.previousSongs);
-      }
-    },
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['songs'] });
-    },
-  });
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
+
+  const mutate = useCallback(async ({ name, content }: { name: string; content: string }) => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const result = await store.saveSong(name, content);
+      return result;
+    } catch (err) {
+      const error = err instanceof Error ? err : new Error('Failed to save song');
+      setError(error);
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  return {
+    mutateAsync: mutate,
+    mutate,
+    isLoading,
+    error,
+  };
 }
 
+// Hook to rename a song
 export function useRenameSong() {
-  const queryClient = useQueryClient();
-  
-  return useMutation({
-    mutationFn: ({ id, newName }: { id: number; newName: string }) =>
-      api.renameSong(id, newName),
-    onMutate: async ({ id, newName }) => {
-      await queryClient.cancelQueries({ queryKey: ['songs'] });
-      
-      const previousSongs = queryClient.getQueryData<Song[]>(['songs']);
-      
-      // Optimistically update the song name
-      if (previousSongs) {
-        queryClient.setQueryData<Song[]>(['songs'], (old = []) =>
-          old.map((song) =>
-            song.id === id ? { ...song, name: newName } : song
-          )
-        );
-      }
-      
-      return { previousSongs };
-    },
-    onError: (err, variables, context) => {
-      if (context?.previousSongs) {
-        queryClient.setQueryData(['songs'], context.previousSongs);
-      }
-    },
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['songs'] });
-    },
-  });
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
+
+  const mutate = useCallback(async ({ id, newName }: { id: string; newName: string }) => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const result = await store.renameSong(id, newName);
+      return result;
+    } catch (err) {
+      const error = err instanceof Error ? err : new Error('Failed to rename song');
+      setError(error);
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  return {
+    mutateAsync: mutate,
+    mutate,
+    isLoading,
+    error,
+  };
 }
 
+// Hook to update a song
 export function useUpdateSong() {
-  const queryClient = useQueryClient();
-  
-  return useMutation({
-    mutationFn: ({ id, updates }: { id: number; updates: { name?: string; fullText?: string } }) =>
-      api.updateSong(id, updates),
-    onMutate: async ({ id, updates }) => {
-      await queryClient.cancelQueries({ queryKey: ['songs'] });
-      await queryClient.cancelQueries({ queryKey: ['songs', id] });
-      
-      const previousSongs = queryClient.getQueryData<Song[]>(['songs']);
-      const previousSongContent = queryClient.getQueryData<string>(['songs', id]);
-      
-      // Optimistically update the song
-      if (previousSongs) {
-        queryClient.setQueryData<Song[]>(['songs'], (old = []) =>
-          old.map((song) => {
-            if (song.id === id) {
-              const updatedSong = updates.fullText
-                ? parseSong(id, updates.name || song.name, updates.fullText)
-                : { ...song, ...(updates.name && { name: updates.name }) };
-              return updatedSong;
-            }
-            return song;
-          })
-        );
-      }
-      
-      // Update song content cache if fullText changed
-      if (updates.fullText && previousSongContent !== undefined) {
-        queryClient.setQueryData(['songs', id], updates.fullText);
-      }
-      
-      return { previousSongs, previousSongContent };
-    },
-    onError: (err, variables, context) => {
-      if (context?.previousSongs) {
-        queryClient.setQueryData(['songs'], context.previousSongs);
-      }
-      if (context?.previousSongContent !== undefined) {
-        queryClient.setQueryData(['songs', variables.id], context.previousSongContent);
-      }
-    },
-    onSettled: (data, error, variables) => {
-      queryClient.invalidateQueries({ queryKey: ['songs'] });
-      queryClient.invalidateQueries({ queryKey: ['songs', variables.id] });
-    },
-  });
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
+
+  const mutate = useCallback(async ({ id, updates }: { id: string; updates: { name?: string; fullText?: string } }) => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const result = await store.updateSong(id, updates);
+      return result;
+    } catch (err) {
+      const error = err instanceof Error ? err : new Error('Failed to update song');
+      setError(error);
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  return {
+    mutateAsync: mutate,
+    mutate,
+    isLoading,
+    error,
+  };
 }
 
+// Hook to delete a song
 export function useDeleteSong() {
-  const queryClient = useQueryClient();
-  
-  return useMutation({
-    mutationFn: (id: number) => api.deleteSong(id),
-    onMutate: async (id) => {
-      await queryClient.cancelQueries({ queryKey: ['songs'] });
-      
-      const previousSongs = queryClient.getQueryData<Song[]>(['songs']);
-      
-      // Optimistically remove the song
-      if (previousSongs) {
-        queryClient.setQueryData<Song[]>(['songs'], (old = []) =>
-          old.filter((song) => song.id !== id)
-        );
-      }
-      
-      return { previousSongs };
-    },
-    onError: (err, variables, context) => {
-      if (context?.previousSongs) {
-        queryClient.setQueryData(['songs'], context.previousSongs);
-      }
-    },
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['songs'] });
-    },
-  });
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
+
+  const mutate = useCallback(async (id: string) => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const result = await store.deleteSong(id);
+      return result;
+    } catch (err) {
+      const error = err instanceof Error ? err : new Error('Failed to delete song');
+      setError(error);
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  return {
+    mutateAsync: mutate,
+    mutate,
+    isLoading,
+    error,
+  };
 }
 
 // Service List Hooks
+
+// Hook to get service list
 export function useGetServiceList() {
-  return useQuery({
-    queryKey: ['service-list'],
-    queryFn: () => api.getServiceList(),
-  });
-}
+  const [serviceList, setServiceList] = useState<ServiceListSongResponse[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
 
-export function useAddToServiceList() {
-  const queryClient = useQueryClient();
-  
-  return useMutation({
-    mutationFn: (songId: number) => api.addToServiceList(songId),
-    onMutate: async (songId) => {
-      await queryClient.cancelQueries({ queryKey: ['service-list'] });
-      await queryClient.cancelQueries({ queryKey: ['songs'] });
-      
-      const previousList = queryClient.getQueryData<ServiceListSongResponse[]>(['service-list']);
-      const songs = queryClient.getQueryData<Song[]>(['songs']);
-      
-      // Find the song data
-      const song = songs?.find((s) => s.id === songId);
-      
-      if (previousList && song) {
-        // Check if song is already in the list
-        const exists = previousList.some((item) => item.songId === songId);
-        if (exists) {
-          throw new Error('Song is already in the service list');
+  useEffect(() => {
+    let mounted = true;
+
+    async function loadServiceList() {
+      try {
+        setIsLoading(true);
+        const list = await store.getServiceList();
+        if (mounted) {
+          setServiceList(list);
+          setError(null);
         }
-        
-        // Optimistically add the song
-        const newItem: ServiceListSongResponse = {
-          id: Date.now(), // Temporary ID
-          songId: songId,
-          position: previousList.length + 1,
-          song: {
-            id: song.id,
-            name: song.name,
-            fullText: song.fullText,
-          },
+      } catch (err) {
+        if (mounted) {
+          setError(err instanceof Error ? err : new Error('Failed to load service list'));
+        }
+      } finally {
+        if (mounted) {
+          setIsLoading(false);
+        }
+      }
+    }
+
+    loadServiceList();
+
+    // Subscribe to document changes
+    let handle: Awaited<ReturnType<typeof getDocumentHandle>> | null = null;
+    let onChange: (() => void) | null = null;
+    
+    async function subscribe() {
+      try {
+        handle = await getDocumentHandle();
+        onChange = () => {
+          if (mounted) {
+            loadServiceList();
+          }
         };
-        
-        queryClient.setQueryData<ServiceListSongResponse[]>(
-          ['service-list'],
-          (old = []) => [...old, newItem]
-        );
+        handle.on('change', onChange);
+      } catch (err) {
+        console.error('Failed to subscribe to document changes:', err);
       }
-      
-      return { previousList };
-    },
-    onError: (err, songId, context) => {
-      if (context?.previousList) {
-        queryClient.setQueryData(['service-list'], context.previousList);
+    }
+
+    subscribe();
+
+    return () => {
+      mounted = false;
+      // Unsubscribe from change events
+      if (handle && onChange) {
+        handle.off('change', onChange);
       }
-    },
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['service-list'] });
-    },
-  });
+    };
+  }, []);
+
+  return { data: serviceList, isLoading, error };
 }
 
+// Hook to add to service list
+export function useAddToServiceList() {
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
+
+  const mutate = useCallback(async (songId: string) => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const result = await store.addToServiceList(songId);
+      return result;
+    } catch (err) {
+      const error = err instanceof Error ? err : new Error('Failed to add song to service list');
+      setError(error);
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  return {
+    mutateAsync: mutate,
+    mutate,
+    isLoading,
+    error,
+  };
+}
+
+// Hook to remove from service list
 export function useRemoveFromServiceList() {
-  const queryClient = useQueryClient();
-  
-  return useMutation({
-    mutationFn: (songId: number) => api.removeFromServiceList(songId),
-    onMutate: async (songId) => {
-      await queryClient.cancelQueries({ queryKey: ['service-list'] });
-      
-      const previousList = queryClient.getQueryData<ServiceListSongResponse[]>(['service-list']);
-      
-      // Optimistically remove the song and reorder positions
-      if (previousList) {
-        const filtered = previousList.filter((item) => item.songId !== songId);
-        const reordered = filtered.map((item, index) => ({
-          ...item,
-          position: index + 1,
-        }));
-        
-        queryClient.setQueryData<ServiceListSongResponse[]>(
-          ['service-list'],
-          reordered
-        );
-      }
-      
-      return { previousList };
-    },
-    onError: (err, songId, context) => {
-      if (context?.previousList) {
-        queryClient.setQueryData(['service-list'], context.previousList);
-      }
-    },
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['service-list'] });
-    },
-  });
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
+
+  const mutate = useCallback(async (songId: string) => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const result = await store.removeFromServiceList(songId);
+      return result;
+    } catch (err) {
+      const error = err instanceof Error ? err : new Error('Failed to remove song from service list');
+      setError(error);
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  return {
+    mutateAsync: mutate,
+    mutate,
+    isLoading,
+    error,
+  };
 }
 
+// Hook to reorder service list
 export function useReorderServiceList() {
-  const queryClient = useQueryClient();
-  
-  return useMutation({
-    mutationFn: (songIds: number[]) => api.reorderServiceList(songIds),
-    onMutate: async (songIds) => {
-      await queryClient.cancelQueries({ queryKey: ['service-list'] });
-      
-      const previousList = queryClient.getQueryData<ServiceListSongResponse[]>(['service-list']);
-      
-      // Optimistically reorder the list
-      if (previousList) {
-        const reordered = songIds
-          .map((songId, index) => {
-            const item = previousList.find((i) => i.songId === songId);
-            return item ? { ...item, position: index + 1 } : null;
-          })
-          .filter((item): item is ServiceListSongResponse => item !== null);
-        
-        queryClient.setQueryData<ServiceListSongResponse[]>(
-          ['service-list'],
-          reordered
-        );
-      }
-      
-      return { previousList };
-    },
-    onError: (err, songIds, context) => {
-      if (context?.previousList) {
-        queryClient.setQueryData(['service-list'], context.previousList);
-      }
-    },
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['service-list'] });
-    },
-  });
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
+
+  const mutate = useCallback(async (songIds: string[]) => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const result = await store.reorderServiceList(songIds);
+      return result;
+    } catch (err) {
+      const error = err instanceof Error ? err : new Error('Failed to reorder service list');
+      setError(error);
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  return {
+    mutateAsync: mutate,
+    mutate,
+    isLoading,
+    error,
+  };
 }
 
+// Hook to clear service list
 export function useClearServiceList() {
-  const queryClient = useQueryClient();
-  
-  return useMutation({
-    mutationFn: () => api.clearServiceList(),
-    onMutate: async () => {
-      await queryClient.cancelQueries({ queryKey: ['service-list'] });
-      
-      const previousList = queryClient.getQueryData<ServiceListSongResponse[]>(['service-list']);
-      
-      // Optimistically clear the list
-      queryClient.setQueryData<ServiceListSongResponse[]>(['service-list'], []);
-      
-      return { previousList };
-    },
-    onError: (err, variables, context) => {
-      if (context?.previousList) {
-        queryClient.setQueryData(['service-list'], context.previousList);
-      }
-    },
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['service-list'] });
-    },
-  });
-}
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
 
+  const mutate = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const result = await store.clearServiceList();
+      return result;
+    } catch (err) {
+      const error = err instanceof Error ? err : new Error('Failed to clear service list');
+      setError(error);
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  return {
+    mutateAsync: mutate,
+    mutate,
+    isLoading,
+    error,
+  };
+}

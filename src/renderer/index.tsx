@@ -2,10 +2,25 @@ import { createRoot } from 'react-dom/client';
 import Application from './Application';
 import Modal from 'react-modal';
 import { injectFontCSS } from './lib/fonts';
+import { initializeRepo, getDocumentHandle } from './lib/automerge/repo';
 import './index.css';
 
 // Say something
 console.log('[ERWT] : Renderer execution started');
+
+// Initialize Automerge repo and document on app start
+async function initializeAutomerge() {
+  try {
+    await initializeRepo();
+    // Pre-initialize the document handle so it's ready when needed
+    await getDocumentHandle();
+    console.log('[ERWT] Automerge initialized successfully');
+  } catch (error) {
+    console.error('Failed to initialize Automerge:', error);
+  }
+}
+
+initializeAutomerge();
 
 // Inject fonts before rendering
 injectFontCSS();

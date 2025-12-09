@@ -29,10 +29,10 @@ const SongEditorDialog = ({
   const [songName, setSongName] = useState('');
   const [content, setContent] = useState('');
   const [error, setError] = useState<string | null>(null);
-  const lastLoadedSongId = useRef<number | null>(null);
+  const lastLoadedSongId = useRef<string | null>(null);
   
   const { data: songContent, isLoading: loading } = useGetSongContent(
-    song?.id || 0
+    song?.id || ''
   );
   const updateSongMutation = useUpdateSong();
 

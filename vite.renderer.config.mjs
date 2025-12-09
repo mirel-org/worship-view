@@ -1,10 +1,12 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
+import wasm from 'vite-plugin-wasm';
+import topLevelAwait from 'vite-plugin-top-level-await';
 import { resolve } from 'path';
 
 export default defineConfig({
-  plugins: [react(), tailwindcss()],
+  plugins: [react(), tailwindcss(), wasm(), topLevelAwait()],
   base: './',
   root: resolve(__dirname, 'src/renderer'),
   build: {
@@ -33,10 +35,9 @@ export default defineConfig({
       'Access-Control-Allow-Headers': 'X-Requested-With, content-type, Authorization',
     },
   },
-  define: {
-    'process.env.WORKERS_API_URL': JSON.stringify(
-      process.env.WORKERS_API_URL || 'http://localhost:8787'
-    ),
+  optimizeDeps: {
+    exclude: ['@automerge/automerge'],
   },
+  define: {},
 });
 

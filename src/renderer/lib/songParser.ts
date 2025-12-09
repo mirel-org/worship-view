@@ -1,6 +1,6 @@
 import { Song, SongArrangement, SongPart, SongSlide } from '@ipc/song/song.types';
 
-export const parseSong = (id: number, name: string, data: string): Song => {
+export const parseSong = (id: string, name: string, data: string): Song => {
   const chunks = data.split('\n---\n');
   const arrangement: SongArrangement = chunks.slice(-1)[0].split(' ');
   const parts: SongPart[] = chunks.slice(0, -1).map((chunk) => {

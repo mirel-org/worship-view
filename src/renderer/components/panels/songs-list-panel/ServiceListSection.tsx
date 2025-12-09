@@ -10,7 +10,7 @@ import {
   useClearServiceList,
 } from '@renderer/hooks/useSongs';
 import { parseSong } from '@renderer/lib/songParser';
-import type { ServiceListSongResponse } from '@renderer/lib/api';
+import type { ServiceListSongResponse } from '@renderer/lib/automerge/store';
 
 const ServiceListSection = () => {
   const { data: serviceList = [], isLoading } = useGetServiceList();
@@ -78,7 +78,7 @@ const ServiceListSection = () => {
     setDragOverIndex(null);
   };
 
-  const handleRemove = async (songId: number, e: React.MouseEvent) => {
+  const handleRemove = async (songId: string, e: React.MouseEvent) => {
     e.stopPropagation();
     try {
       await removeMutation.mutateAsync(songId);

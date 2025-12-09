@@ -36,6 +36,7 @@ interface ImportMeta {
 
 declare namespace NodeJS {
   interface ProcessEnv {
-    WORKERS_API_URL?: string;
+    GOOGLE_CLIENT_ID?: string;
+    GOOGLE_CLIENT_SECRET?: string;
   }
 }
