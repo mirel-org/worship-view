@@ -126,3 +126,36 @@
     background-color: hsl(var(--primary) / 0.8);
   }
 }
+
+/* cmdk styles */
+[cmdk-root] {
+  @apply flex flex-col h-full;
+}
+
+[cmdk-input] {
+  @apply w-full border-0 outline-none bg-transparent;
+}
+
+[cmdk-list] {
+  @apply flex-1 overflow-y-auto;
+}
+
+[cmdk-item] {
+  @apply flex items-center gap-2 px-3 py-2 rounded-md cursor-pointer transition-colors;
+}
+
+[cmdk-item][data-selected="true"] {
+  @apply bg-accent;
+}
+
+[cmdk-item]:hover {
+  @apply bg-accent/50;
+}
+
+[cmdk-group-heading] {
+  @apply px-3 py-2 text-xs font-semibold text-muted-foreground uppercase;
+}
+
+[cmdk-empty] {
+  @apply py-6 text-center text-sm text-muted-foreground;
+}

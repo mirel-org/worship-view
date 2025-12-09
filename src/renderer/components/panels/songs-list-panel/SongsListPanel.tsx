@@ -37,7 +37,7 @@ const SongsListPanel = () => {
   // Update selected song when songs list updates (e.g., after edit)
   useEffect(() => {
     if (selectedSong && songs.length > 0) {
-      const updatedSong = songs.find((song) => song.id === selectedSong.id);
+      const updatedSong = songs.find((song: Song) => song.id === selectedSong.id);
       if (updatedSong) {
         // Only update if the song data has actually changed
         // Compare by checking if name or fullText changed

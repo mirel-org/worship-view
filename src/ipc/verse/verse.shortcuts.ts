@@ -30,13 +30,8 @@ const useVerseControllShortcuts = () => {
 };
 
 const useStartVerseSearchShortcut = () => {
-  const [, setSelectedTabType] = useAtom(selectedTabTypeAtom);
-  const [, setVerseInputFocus] = useAtom(verseInputFocusAtom);
-  const searchBible = useCallback(() => {
-    setSelectedTabType('bible');
-    setVerseInputFocus(true);
-  }, [setSelectedTabType, setVerseInputFocus]);
-  useShortcut('F2', searchBible);
+  // F2 shortcut is now handled by command palette
+  // This function is kept for potential future use but does nothing
 };
 
 const useEndVerseSearchShortcut = () => {

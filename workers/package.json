@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "wrangler dev",
     "deploy": "wrangler deploy",
+    "type-check": "tsc --noEmit",
     "db:generate": "dotenv -e ../.env -e .env -- drizzle-kit generate",
     "db:migrate": "dotenv -e ../.env -e .env -- drizzle-kit migrate",
     "db:push": "dotenv -e ../.env -e .env -- drizzle-kit push",

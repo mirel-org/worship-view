@@ -8,6 +8,7 @@ import { useManageSongs } from './song/song.hooks';
 import useSongShortcuts from './song/song.shortcuts';
 import { useVersesHistory } from './verse/verse.hooks';
 import useVerseShortcuts from './verse/verse.shortcuts';
+import { useCommandPaletteShortcuts } from './command/command.shortcuts';
 
 export type MyAPIType = DisplayPreloadType & MediaPreloadType;
 
@@ -30,4 +31,5 @@ const useSetupShortcuts = () => {
   useVerseShortcuts();
   useSongShortcuts();
   useProjectionShortcuts();
+  useCommandPaletteShortcuts();
 };

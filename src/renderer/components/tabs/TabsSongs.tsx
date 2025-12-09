@@ -2,7 +2,6 @@ import { FC } from 'react';
 import { PanelGroup, Panel, PanelResizeHandle } from 'react-resizable-panels';
 import MediaPanel from '../panels/media-panel/MediaPanel';
 import SlidesListPanel from '../panels/slides-list-panel/SlidesListPanel';
-import SongsListPanel from '../panels/songs-list-panel/SongsListPanel';
 import ServiceListSection from '../panels/songs-list-panel/ServiceListSection';
 
 const TabsSongs: FC = () => {
@@ -13,8 +12,8 @@ const TabsSongs: FC = () => {
         <PanelGroup direction="vertical" autoSaveId="songs-tabs-panels">
           {/* Service List Panel */}
           <Panel
-            defaultSize={20}
-            minSize={5}
+            defaultSize={50}
+            minSize={20}
           >
             <div className="h-full flex flex-col border-b border-border">
               <div className="flex items-center justify-between px-2 py-1 bg-muted/50 border-b border-border flex-shrink-0">
@@ -28,27 +27,10 @@ const TabsSongs: FC = () => {
           
           <PanelResizeHandle className="h-1 bg-border hover:bg-primary/50 transition-colors" />
 
-          {/* Songs Panel */}
-          <Panel
-            defaultSize={40}
-            minSize={15}
-          >
-            <div className="h-full flex flex-col border-b border-border">
-              <div className="flex items-center justify-between px-2 py-1 bg-muted/50 border-b border-border flex-shrink-0">
-                <span className="text-sm font-semibold">Songs</span>
-              </div>
-              <div className="flex-1 overflow-hidden">
-                <SongsListPanel />
-              </div>
-            </div>
-          </Panel>
-
-          <PanelResizeHandle className="h-1 bg-border hover:bg-primary/50 transition-colors" />
-
           {/* Media Panel */}
           <Panel
-            defaultSize={40}
-            minSize={15}
+            defaultSize={50}
+            minSize={20}
           >
             <div className="h-full flex flex-col">
               <div className="flex items-center justify-between px-2 py-1 bg-muted/50 border-b border-border flex-shrink-0">

@@ -1,6 +1,5 @@
 import { useSongControll } from '@ipc/song/song.hooks';
 import { selectedTabTypeAtom } from '@ipc/tab/tab.atoms';
-import useShortcut from '@ipc/utils/useShortcut';
 import { useAtom } from 'jotai';
 import { useCallback } from 'react';
 import useShortcuts from '../utils/useShortcuts';
@@ -28,11 +27,6 @@ const useSongControllerShortcuts = () => {
 };
 
 const useStartSongSearchShortcut = () => {
-  const [, setSelectedTabType] = useAtom(selectedTabTypeAtom);
-  const [, setSongInputFocus] = useAtom(songInputFocusAtom);
-  const searchSong = useCallback(() => {
-    setSelectedTabType('songs');
-    setSongInputFocus(true);
-  }, [setSelectedTabType, setSongInputFocus]);
-  useShortcut('F1', searchSong);
+  // F1 shortcut is now handled by command palette
+  // This function is kept for potential future use but does nothing
 };

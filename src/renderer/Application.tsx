@@ -7,6 +7,7 @@ import { areScreensEnabledAtom } from '../ipc/screen/screen.atoms';
 import Settings from './components/settings/Settings';
 import { areSettingsOpenAtom } from '../ipc/settings/settings.atoms';
 import AppTabs from './components/tabs/Tabs';
+import CommandPalette from './components/command-palette/CommandPalette';
 import { useSetup } from '../ipc/';
 
 const queryClient = new QueryClient({
@@ -23,6 +24,7 @@ const Generics = memo(function Generics() {
     <>
       <Screens />
       <Settings />
+      <CommandPalette />
       <Setup />
     </>
   );
