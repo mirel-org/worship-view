@@ -1,21 +1,10 @@
 import { useAtom } from 'jotai';
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { getApiClient } from '..';
+import { useCallback, useEffect, useRef } from 'react';
 import {
   selectedSongAtom,
   selectedSongSlideReferenceAtom,
   selectedSongTextAtom,
 } from './song.atoms';
-import { Song } from './song.types';
-
-export const useGetSongs = () => {
-  const { getSongs } = getApiClient();
-  const [songs, setSongs] = useState<Song[]>([]);
-  useEffect(() => {
-    getSongs().then((songs) => setSongs(songs));
-  }, [getSongs]);
-  return songs;
-};
 
 export const useSongControll = () => {
   const [selectedSongSlideReference, setSelectedSongSlideReference] = useAtom(

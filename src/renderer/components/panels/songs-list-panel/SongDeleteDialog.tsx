@@ -1,4 +1,3 @@
-import { getApiClient } from '@ipc/index';
 import { Song } from '@ipc/song/song.types';
 import { Button } from '@/components/ui/button';
 import {
@@ -41,8 +40,8 @@ const SongDeleteDialog = ({
     setError(null);
 
     try {
-      await getApiClient().deleteSong(song.name);
-      setDeleting(false);
+      // The actual deletion is handled by the parent component
+      // This just triggers the callback
       onDelete();
       onOpenChange(false);
     } catch (err) {

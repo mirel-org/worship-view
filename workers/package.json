@@ -1,0 +1,26 @@
+{
+  "name": "worship-view-workers",
+  "version": "1.0.0",
+  "description": "Cloudflare Workers backend for Worship View",
+  "main": "src/index.ts",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "db:generate": "dotenv -e ../.env -e .env -- drizzle-kit generate",
+    "db:migrate": "dotenv -e ../.env -e .env -- drizzle-kit migrate",
+    "db:push": "dotenv -e ../.env -e .env -- drizzle-kit push",
+    "db:studio": "dotenv -e ../.env -e .env -- drizzle-kit studio",
+    "db:introspect": "dotenv -e ../.env -e .env -- drizzle-kit introspect"
+  },
+  "dependencies": {
+    "drizzle-orm": "^0.45.0",
+    "postgres": "^3.4.7"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20251205.0",
+    "drizzle-kit": "^0.31.8",
+    "dotenv-cli": "^11.0.0",
+    "wrangler": "^4.53.0"
+  }
+}
+

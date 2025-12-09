@@ -1,4 +1,3 @@
-import { getApiClient } from '@ipc/index';
 import { Song } from '@ipc/song/song.types';
 import { Button } from '@/components/ui/button';
 import {
@@ -11,7 +10,8 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
+import { useGetSongContent, useUpdateSong } from '@renderer/hooks/useSongs';
 
 type SongEditorDialogProps = {
   song: Song | null;
@@ -28,31 +28,38 @@ const SongEditorDialog = ({
 }: SongEditorDialogProps) => {
   const [songName, setSongName] = useState('');
   const [content, setContent] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const lastLoadedSongId = useRef<number | null>(null);
+  
+  const { data: songContent, isLoading: loading } = useGetSongContent(
+    song?.id || 0
+  );
+  const updateSongMutation = useUpdateSong();
 
   useEffect(() => {
     if (open && song) {
       setSongName(song.name);
-      setLoading(true);
       setError(null);
-      getApiClient()
-        .getSongContent(song.name)
-        .then((songContent) => {
-          setContent(songContent);
-          setLoading(false);
-        })
-        .catch((err) => {
-          setError(err.message || 'Failed to load song content');
-          setLoading(false);
-        });
+      // Reset content only when opening with a different song
+      if (lastLoadedSongId.current !== null && lastLoadedSongId.current !== song.id) {
+        setContent('');
+      }
     } else if (!open) {
       setSongName('');
       setContent('');
       setError(null);
+      lastLoadedSongId.current = null;
     }
   }, [open, song]);
+
+  useEffect(() => {
+    // When dialog is open and we have song content, set it
+    // This handles both fresh fetches and cached data
+    if (open && song && songContent !== undefined && !loading) {
+      setContent(songContent);
+      lastLoadedSongId.current = song.id;
+    }
+  }, [open, song, songContent, loading]);
 
   const handleSave = async () => {
     if (!song) return;
@@ -62,28 +69,41 @@ const SongEditorDialog = ({
       return;
     }
 
-    setSaving(true);
+    if (!content.trim()) {
+      setError('Song content cannot be empty');
+      return;
+    }
+
     setError(null);
 
     try {
       const nameChanged = songName.trim() !== song.name;
       
-      // If name changed, rename the file first
+      // Always send the fullText update when saving
+      // The user explicitly clicked save, so we should update the server
+      const updates: { name?: string; fullText: string } = {
+        fullText: content,
+      };
+      
       if (nameChanged) {
-        await getApiClient().renameSong(song.name, songName.trim());
+        updates.name = songName.trim();
       }
+
+      console.log('Saving song:', { id: song.id, updates });
+      const result = await updateSongMutation.mutateAsync({
+        id: song.id,
+        updates,
+      });
+      console.log('Save result:', result);
       
-      // Save the content (with the new name if renamed)
-      await getApiClient().saveSong(songName.trim(), content);
-      
-      setSaving(false);
       onSave(nameChanged ? songName.trim() : undefined);
       onOpenChange(false);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to save song');
-      setSaving(false);
     }
   };
+  
+  const saving = updateSongMutation.isLoading;
 
   const handleCancel = () => {
     onOpenChange(false);
@@ -141,7 +161,7 @@ const SongEditorDialog = ({
           </Button>
           <Button
             onClick={handleSave}
-            disabled={loading || saving || !songName.trim()}
+            disabled={loading || saving || !songName.trim() || !content.trim()}
           >
             {saving ? 'Saving...' : 'Save'}
           </Button>

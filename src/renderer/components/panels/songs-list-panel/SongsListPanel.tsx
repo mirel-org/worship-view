@@ -10,13 +10,14 @@ import useInputFocus from '@renderer/hooks/useInputFocus';
 import { useAtom } from 'jotai';
 import { useState, useEffect } from 'react';
 import { Pencil, Trash2 } from 'lucide-react';
-import { getApiClient } from '@ipc/index';
+import { useGetSongs, useDeleteSong } from '@renderer/hooks/useSongs';
 import SongEditorDialog from './SongEditorDialog';
 import SongDeleteDialog from './SongDeleteDialog';
 
 const SongsListPanel = () => {
   const [selectedSong, setSelectedSong] = useAtom(selectedSongAtom);
-  const [songs, setSongs] = useState<Song[]>([]);
+  const { data: songs = [], isLoading } = useGetSongs();
+  const deleteSongMutation = useDeleteSong();
   const [editingSong, setEditingSong] = useState<Song | null>(null);
   const [deletingSong, setDeletingSong] = useState<Song | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -25,17 +26,22 @@ const SongsListPanel = () => {
   const [focused, setFocused] = useAtom(songInputFocusAtom);
   const focusProps = useInputFocus(focused, setFocused);
 
-  // Load songs
-  const loadSongs = async (): Promise<Song[]> => {
-    const loadedSongs = await getApiClient().getSongs();
-    setSongs(loadedSongs);
-    return loadedSongs;
-  };
-
-  // Initial load
+  // Update selected song when songs list updates (e.g., after edit)
   useEffect(() => {
-    loadSongs();
-  }, []);
+    if (selectedSong && songs.length > 0) {
+      const updatedSong = songs.find((song) => song.id === selectedSong.id);
+      if (updatedSong) {
+        // Only update if the song data has actually changed
+        // Compare by checking if name or fullText changed
+        if (
+          updatedSong.name !== selectedSong.name ||
+          updatedSong.fullText !== selectedSong.fullText
+        ) {
+          setSelectedSong(updatedSong);
+        }
+      }
+    }
+  }, [songs, selectedSong, setSelectedSong]);
 
   const handleEditClick = (e: React.MouseEvent, song: Song) => {
     e.stopPropagation();
@@ -49,33 +55,31 @@ const SongsListPanel = () => {
     setDeleteDialogOpen(true);
   };
 
-  const handleSave = async (newName?: string) => {
-    const updatedSongs = await loadSongs();
-    // If the edited song was selected, update it with the new data
-    if (editingSong) {
-      // If renamed, find by new name; otherwise find by old name
-      const searchName = newName || editingSong.name;
-      const updatedSong = updatedSongs.find((s) => s.name === searchName);
-      if (updatedSong) {
-        setSelectedSong(updatedSong);
-      } else if (newName && selectedSong?.name === editingSong.name) {
-        // Song was renamed but not found, clear selection
-        setSelectedSong(null);
-      }
-    }
+  const handleSave = async (_newName?: string) => {
+    // React Query will automatically refetch songs after mutation
+    // The useEffect hook will handle updating the selected song if it was edited
+    // If the song was renamed and it's currently selected, we don't need to clear it
+    // because the useEffect will update it with the new name
   };
 
   const handleDelete = async () => {
-    // If the deleted song was selected, clear the selection
-    if (deletingSong && selectedSong?.name === deletingSong.name) {
-      setSelectedSong(null);
+    if (!deletingSong) return;
+    
+    try {
+      await deleteSongMutation.mutateAsync(deletingSong.id);
+      // If the deleted song was selected, clear the selection
+      if (selectedSong?.id === deletingSong.id) {
+        setSelectedSong(null);
+      }
+      setDeleteDialogOpen(false);
+    } catch (error) {
+      console.error('Failed to delete song:', error);
     }
-    await loadSongs();
   };
 
   const filteredSongs =
     search.length > 2
-      ? songs.filter((song) =>
+      ? songs.filter((song: Song) =>
           song.fullText.includes(
             (search.toLocaleLowerCase().match(/(\w+-\w+)|\w+/g) ?? []).join(
               ' ',
@@ -85,6 +89,14 @@ const SongsListPanel = () => {
       : songs;
 
   console.log(filteredSongs);
+
+  if (isLoading) {
+    return (
+      <div className="w-auto overflow-y-auto h-full p-2 box-border flex items-center justify-center">
+        <p className="text-muted-foreground">Loading songs...</p>
+      </div>
+    );
+  }
 
   return (
     <>
@@ -102,7 +114,7 @@ const SongsListPanel = () => {
           />
         </div>
         <ul className="space-y-1">
-          {filteredSongs.map((song) => (
+          {filteredSongs.map((song: Song) => (
             <li
               key={song.id}
               className="group flex items-center justify-between cursor-pointer hover:bg-accent rounded-md p-2 transition-colors"

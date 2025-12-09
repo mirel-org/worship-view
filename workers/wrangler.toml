@@ -1,0 +1,24 @@
+name = "worship-view-api"
+main = "src/index.ts"
+compatibility_date = "2024-09-23"
+compatibility_flags = ["nodejs_compat"]
+
+# Hyperdrive configuration for PostgreSQL connection
+# Cloudflare Workers require Hyperdrive for PostgreSQL connections (even in local dev)
+# 
+# IMPORTANT: Use the Transaction Pooler URL from Supabase (not the direct connection)
+# Get it from: Supabase Dashboard → Settings → Database → Connection string → Transaction pooler
+# Format: postgresql://postgres:[PASSWORD]@[PROJECT-REF].pooler.supabase.com:6543/postgres
+[[hyperdrive]]
+binding = "HYPERDRIVE"
+id = "71c14ab435544fdc808e40ce8aa7ca1d"
+# Transaction Pooler URL from Supabase (required for Cloudflare Workers/serverless)
+localConnectionString = "postgresql://postgres.wzlgfxauyyhbttguixdk:cWK1IQ5h7KGfhqOO@aws-1-eu-west-1.pooler.supabase.com:6543/postgres"
+
+[env.production]
+vars = { ENVIRONMENT = "production" }
+
+[env.development]
+vars = { ENVIRONMENT = "development" }
+# DATABASE_URL will be loaded from .env file for local development
+

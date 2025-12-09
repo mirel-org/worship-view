@@ -85,6 +85,9 @@ jspm_packages/
 # Electron-Forge
 out/
 
+# Cloudflare Workers
+.wrangler/
+
 # Media
 outside/
 

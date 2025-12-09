@@ -6,11 +6,10 @@ import useProjectionShortcuts from './projection/projection.shortcuts';
 import { useSettings } from './settings/settings.hooks';
 import { useManageSongs } from './song/song.hooks';
 import useSongShortcuts from './song/song.shortcuts';
-import { SongPreloadType } from './song/song.types';
 import { useVersesHistory } from './verse/verse.hooks';
 import useVerseShortcuts from './verse/verse.shortcuts';
 
-export type MyAPIType = DisplayPreloadType & SongPreloadType & MediaPreloadType;
+export type MyAPIType = DisplayPreloadType & MediaPreloadType;
 
 type MainWindow = typeof window & { myAPI: MyAPIType };
 
