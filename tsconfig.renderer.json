@@ -1,0 +1,23 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "outDir": ".vite/renderer",
+    "jsx": "react-jsx",
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "types": ["vite/client"],
+    "noEmit": false,
+    "skipLibCheck": true,
+    "paths": {
+      "@/*": ["./src/renderer/*"],
+      "@assets/*": ["./assets/*"],
+      "@common/*": ["./src/common/*"],
+      "@main/*": ["./src/main/*"],
+      "@renderer/*": ["./src/renderer/*"],
+      "@ipc/*": ["./src/ipc/*"],
+      "@src/*": ["./src/*"]
+    }
+  },
+  "include": ["src/renderer/**/*", "src/typings/**/*", "src/ipc/**/*.hooks.ts", "src/ipc/**/*.atoms.ts", "src/ipc/**/*.shortcuts.ts", "src/ipc/**/*.utils.ts", "src/ipc/index.ts"],
+  "exclude": ["node_modules"]
+}
+

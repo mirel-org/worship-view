@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { GripVertical, X } from 'lucide-react';
 import { useAtom } from 'jotai';
@@ -10,7 +10,7 @@ import {
   useClearServiceList,
 } from '@renderer/hooks/useSongs';
 import { parseSong } from '@renderer/lib/songParser';
-import type { ServiceListSongResponse } from '@renderer/lib/automerge/store';
+import type { ServiceListSongResponse } from '@renderer/lib/jazz/store';
 
 const ServiceListSection = () => {
   const { data: serviceList = [], isLoading } = useGetServiceList();

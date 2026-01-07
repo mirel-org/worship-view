@@ -1,166 +1,85 @@
 import { useState, useEffect, useCallback } from 'react';
-import { getDocumentHandle } from '../lib/automerge/repo';
-import * as store from '../lib/automerge/store';
+import * as store from '../lib/jazz/store';
 import { parseSong } from '../lib/songParser';
-import type { Song } from '@ipc/song/song.types';
-import type { ServiceListSongResponse } from '../lib/automerge/store';
+import type { Song } from '../../ipc/song/song.types';
+import type { ServiceListSongResponse } from '../lib/jazz/store';
+import { useActiveOrganization } from './useActiveOrganization';
 
-// Hook to get all songs with Automerge subscription
+// Hook to get all songs with Jazz reactive updates
 export function useGetSongs() {
+  const { activeOrganization } = useActiveOrganization();
   const [songs, setSongs] = useState<Song[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
-    let mounted = true;
+    if (!activeOrganization) {
+      setSongs([]);
+      setIsLoading(false);
+      return;
+    }
 
-    async function loadSongs() {
       try {
         setIsLoading(true);
-        const songResponses = await store.getSongs();
-        if (mounted) {
+      const songResponses = store.getSongs(activeOrganization);
           const parsedSongs = songResponses.map((song) =>
             parseSong(song.id, song.name, song.fullText)
           );
           setSongs(parsedSongs);
           setError(null);
-        }
+      setIsLoading(false);
       } catch (err) {
-        if (mounted) {
           setError(err instanceof Error ? err : new Error('Failed to load songs'));
-        }
-      } finally {
-        if (mounted) {
           setIsLoading(false);
         }
-      }
-    }
 
-    // Initial load
-    loadSongs();
-
-    // Subscribe to document changes
-    let handle: Awaited<ReturnType<typeof getDocumentHandle>> | null = null;
-    let onChange: (() => void) | null = null;
-    
-    async function subscribe() {
-      try {
-        handle = await getDocumentHandle();
-        
-        // Subscribe to changes
-        onChange = () => {
-          console.log('Document changed, reloading songs...');
-          if (mounted) {
-            // Reload songs when document changes
-            loadSongs();
-          }
-        };
-        
-        // Subscribe to change events
-        handle.on('change', onChange);
-        
-        // Ensure document is ready, then load songs
-        handle.whenReady().then(() => {
-          if (mounted) {
-            loadSongs();
-          }
-        });
-      } catch (err) {
-        console.error('Failed to subscribe to document changes:', err);
-      }
-    }
-
-    subscribe();
-
-    return () => {
-      mounted = false;
-      // Unsubscribe from change events
-      if (handle && onChange) {
-        handle.off('change', onChange);
-      }
-    };
-  }, []);
+    // Jazz automatically handles reactivity, but we can re-run when organization changes
+    // The organization object itself is reactive, so changes will trigger re-renders
+  }, [activeOrganization]);
 
   return { data: songs, isLoading, error };
 }
 
 // Hook to get song content
 export function useGetSongContent(id: string) {
+  const { activeOrganization } = useActiveOrganization();
   const [content, setContent] = useState<string>('');
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
-    if (!id) {
+    if (!id || !activeOrganization) {
       setIsLoading(false);
       return;
     }
 
-    let mounted = true;
-
-    async function loadContent() {
       try {
         setIsLoading(true);
-        const songContent = await store.getSongContent(id);
-        if (mounted) {
+      const songContent = store.getSongContent(activeOrganization, id);
           setContent(songContent);
           setError(null);
-        }
+      setIsLoading(false);
       } catch (err) {
-        if (mounted) {
           setError(err instanceof Error ? err : new Error('Failed to load song content'));
-        }
-      } finally {
-        if (mounted) {
           setIsLoading(false);
         }
-      }
-    }
-
-    loadContent();
-
-    // Subscribe to document changes
-    let handle: Awaited<ReturnType<typeof getDocumentHandle>> | null = null;
-    let onChange: (() => void) | null = null;
-    
-    async function subscribe() {
-      try {
-        handle = await getDocumentHandle();
-        onChange = () => {
-          if (mounted) {
-            loadContent();
-          }
-        };
-        handle.on('change', onChange);
-      } catch (err) {
-        console.error('Failed to subscribe to document changes:', err);
-      }
-    }
-
-    subscribe();
-
-    return () => {
-      mounted = false;
-      // Unsubscribe from change events
-      if (handle && onChange) {
-        handle.off('change', onChange);
-      }
-    };
-  }, [id]);
+  }, [id, activeOrganization]);
 
   return { data: content, isLoading, error };
 }
 
 // Hook to save a new song
 export function useSaveSong() {
+  const { activeOrganization } = useActiveOrganization();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
-  const mutate = useCallback(async ({ name, content }: { name: string; content: string }) => {
+  const mutate = useCallback(
+    async ({ name, content }: { name: string; content: string }) => {
     setIsLoading(true);
     setError(null);
     try {
-      const result = await store.saveSong(name, content);
+        const result = store.saveSong(activeOrganization, name, content);
       return result;
     } catch (err) {
       const error = err instanceof Error ? err : new Error('Failed to save song');
@@ -169,7 +88,9 @@ export function useSaveSong() {
     } finally {
       setIsLoading(false);
     }
-  }, []);
+    },
+    [activeOrganization]
+  );
 
   return {
     mutateAsync: mutate,
@@ -181,14 +102,16 @@ export function useSaveSong() {
 
 // Hook to rename a song
 export function useRenameSong() {
+  const { activeOrganization } = useActiveOrganization();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
-  const mutate = useCallback(async ({ id, newName }: { id: string; newName: string }) => {
+  const mutate = useCallback(
+    async ({ id, newName }: { id: string; newName: string }) => {
     setIsLoading(true);
     setError(null);
     try {
-      const result = await store.renameSong(id, newName);
+        const result = store.renameSong(activeOrganization, id, newName);
       return result;
     } catch (err) {
       const error = err instanceof Error ? err : new Error('Failed to rename song');
@@ -197,7 +120,9 @@ export function useRenameSong() {
     } finally {
       setIsLoading(false);
     }
-  }, []);
+    },
+    [activeOrganization]
+  );
 
   return {
     mutateAsync: mutate,
@@ -209,14 +134,22 @@ export function useRenameSong() {
 
 // Hook to update a song
 export function useUpdateSong() {
+  const { activeOrganization } = useActiveOrganization();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
-  const mutate = useCallback(async ({ id, updates }: { id: string; updates: { name?: string; fullText?: string } }) => {
+  const mutate = useCallback(
+    async ({
+      id,
+      updates,
+    }: {
+      id: string;
+      updates: { name?: string; fullText?: string };
+    }) => {
     setIsLoading(true);
     setError(null);
     try {
-      const result = await store.updateSong(id, updates);
+        const result = store.updateSong(activeOrganization, id, updates);
       return result;
     } catch (err) {
       const error = err instanceof Error ? err : new Error('Failed to update song');
@@ -225,7 +158,9 @@ export function useUpdateSong() {
     } finally {
       setIsLoading(false);
     }
-  }, []);
+    },
+    [activeOrganization]
+  );
 
   return {
     mutateAsync: mutate,
@@ -237,14 +172,16 @@ export function useUpdateSong() {
 
 // Hook to delete a song
 export function useDeleteSong() {
+  const { activeOrganization } = useActiveOrganization();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
-  const mutate = useCallback(async (id: string) => {
+  const mutate = useCallback(
+    async (id: string) => {
     setIsLoading(true);
     setError(null);
     try {
-      const result = await store.deleteSong(id);
+        const result = store.deleteSong(activeOrganization, id);
       return result;
     } catch (err) {
       const error = err instanceof Error ? err : new Error('Failed to delete song');
@@ -253,7 +190,9 @@ export function useDeleteSong() {
     } finally {
       setIsLoading(false);
     }
-  }, []);
+    },
+    [activeOrganization]
+  );
 
   return {
     mutateAsync: mutate,
@@ -267,85 +206,59 @@ export function useDeleteSong() {
 
 // Hook to get service list
 export function useGetServiceList() {
+  const { activeOrganization } = useActiveOrganization();
   const [serviceList, setServiceList] = useState<ServiceListSongResponse[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
-    let mounted = true;
+    if (!activeOrganization) {
+      setServiceList([]);
+      setIsLoading(false);
+      return;
+    }
 
-    async function loadServiceList() {
       try {
         setIsLoading(true);
-        const list = await store.getServiceList();
-        if (mounted) {
+      const list = store.getServiceList(activeOrganization);
           setServiceList(list);
           setError(null);
-        }
+      setIsLoading(false);
       } catch (err) {
-        if (mounted) {
           setError(err instanceof Error ? err : new Error('Failed to load service list'));
-        }
-      } finally {
-        if (mounted) {
           setIsLoading(false);
         }
-      }
-    }
-
-    loadServiceList();
-
-    // Subscribe to document changes
-    let handle: Awaited<ReturnType<typeof getDocumentHandle>> | null = null;
-    let onChange: (() => void) | null = null;
-    
-    async function subscribe() {
-      try {
-        handle = await getDocumentHandle();
-        onChange = () => {
-          if (mounted) {
-            loadServiceList();
-          }
-        };
-        handle.on('change', onChange);
-      } catch (err) {
-        console.error('Failed to subscribe to document changes:', err);
-      }
-    }
-
-    subscribe();
-
-    return () => {
-      mounted = false;
-      // Unsubscribe from change events
-      if (handle && onChange) {
-        handle.off('change', onChange);
-      }
-    };
-  }, []);
+  }, [activeOrganization]);
 
   return { data: serviceList, isLoading, error };
 }
 
 // Hook to add to service list
 export function useAddToServiceList() {
+  const { activeOrganization } = useActiveOrganization();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
-  const mutate = useCallback(async (songId: string) => {
+  const mutate = useCallback(
+    async (songId: string) => {
     setIsLoading(true);
     setError(null);
     try {
-      const result = await store.addToServiceList(songId);
+        const result = store.addToServiceList(activeOrganization, songId);
       return result;
     } catch (err) {
-      const error = err instanceof Error ? err : new Error('Failed to add song to service list');
+        const error =
+          err instanceof Error
+            ? err
+            : new Error('Failed to add song to service list');
       setError(error);
       throw error;
     } finally {
       setIsLoading(false);
     }
-  }, []);
+    },
+    [activeOrganization]
+  );
 
   return {
     mutateAsync: mutate,
@@ -357,23 +270,30 @@ export function useAddToServiceList() {
 
 // Hook to remove from service list
 export function useRemoveFromServiceList() {
+  const { activeOrganization } = useActiveOrganization();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
-  const mutate = useCallback(async (songId: string) => {
+  const mutate = useCallback(
+    async (songId: string) => {
     setIsLoading(true);
     setError(null);
     try {
-      const result = await store.removeFromServiceList(songId);
+        const result = store.removeFromServiceList(activeOrganization, songId);
       return result;
     } catch (err) {
-      const error = err instanceof Error ? err : new Error('Failed to remove song from service list');
+        const error =
+          err instanceof Error
+            ? err
+            : new Error('Failed to remove song from service list');
       setError(error);
       throw error;
     } finally {
       setIsLoading(false);
     }
-  }, []);
+    },
+    [activeOrganization]
+  );
 
   return {
     mutateAsync: mutate,
@@ -385,23 +305,28 @@ export function useRemoveFromServiceList() {
 
 // Hook to reorder service list
 export function useReorderServiceList() {
+  const { activeOrganization } = useActiveOrganization();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
-  const mutate = useCallback(async (songIds: string[]) => {
+  const mutate = useCallback(
+    async (songIds: string[]) => {
     setIsLoading(true);
     setError(null);
     try {
-      const result = await store.reorderServiceList(songIds);
+        const result = store.reorderServiceList(activeOrganization, songIds);
       return result;
     } catch (err) {
-      const error = err instanceof Error ? err : new Error('Failed to reorder service list');
+        const error =
+          err instanceof Error ? err : new Error('Failed to reorder service list');
       setError(error);
       throw error;
     } finally {
       setIsLoading(false);
     }
-  }, []);
+    },
+    [activeOrganization]
+  );
 
   return {
     mutateAsync: mutate,
@@ -413,6 +338,7 @@ export function useReorderServiceList() {
 
 // Hook to clear service list
 export function useClearServiceList() {
+  const { activeOrganization } = useActiveOrganization();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
@@ -420,16 +346,17 @@ export function useClearServiceList() {
     setIsLoading(true);
     setError(null);
     try {
-      const result = await store.clearServiceList();
+      const result = store.clearServiceList(activeOrganization);
       return result;
     } catch (err) {
-      const error = err instanceof Error ? err : new Error('Failed to clear service list');
+      const error =
+        err instanceof Error ? err : new Error('Failed to clear service list');
       setError(error);
       throw error;
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [activeOrganization]);
 
   return {
     mutateAsync: mutate,

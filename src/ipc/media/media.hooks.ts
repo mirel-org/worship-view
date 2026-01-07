@@ -6,7 +6,7 @@ const useGetMediaItems = () => {
   const { getMediaItems } = getApiClient();
   const [mediaItems, setMediaItems] = useState<MediaItem[]>([]);
   useEffect(() => {
-    getMediaItems().then((mediaItems) => setMediaItems(mediaItems));
+    getMediaItems().then((mediaItems: MediaItem[]) => setMediaItems(mediaItems));
   }, [getMediaItems]);
   return mediaItems;
 };

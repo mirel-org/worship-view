@@ -1,0 +1,19 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "outDir": ".vite/build",
+    "jsx": "react-jsx",
+    "lib": ["ES2020"],
+    "types": ["node"],
+    "noEmit": false,
+    "skipLibCheck": true,
+    "paths": {
+      "@ipc/*": ["./src/ipc/*"],
+      "@common/*": ["./src/common/*"],
+      "@src/*": ["./src/*"]
+    }
+  },
+  "include": ["src/preload/**/*", "src/ipc/**/*.preload.ts", "src/ipc/**/*.types.ts"],
+  "exclude": ["node_modules"]
+}
+

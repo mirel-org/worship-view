@@ -1,6 +1,7 @@
 import { useAtom } from 'jotai';
-import React, { memo } from 'react';
+import React, { memo, useState, useEffect } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { useIsAuthenticated } from 'jazz-tools/react';
 import { Button } from './components/ui/button';
 import Screens from './components/screens/Screens';
 import { areScreensEnabledAtom } from '../ipc/screen/screen.atoms';
@@ -8,6 +9,9 @@ import Settings from './components/settings/Settings';
 import { areSettingsOpenAtom } from '../ipc/settings/settings.atoms';
 import AppTabs from './components/tabs/Tabs';
 import CommandPalette from './components/command-palette/CommandPalette';
+import { AuthModal } from './components/auth/AuthModal';
+import { AcceptInviteHandler } from './components/organizations/AcceptInviteHandler';
+import { OrganizationManager } from './components/organizations/OrganizationManager';
 import { useSetup } from '../ipc/';
 
 const queryClient = new QueryClient({
@@ -35,12 +39,23 @@ const Application: React.FC = () => {
     areScreensEnabledAtom,
   );
   const [, setAreSettingsOpen] = useAtom(areSettingsOpenAtom);
+  const isAuthenticated = useIsAuthenticated();
+  const [authModalOpen, setAuthModalOpen] = useState(false);
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      setAuthModalOpen(true);
+    }
+  }, [isAuthenticated]);
 
   return (
     <QueryClientProvider client={queryClient}>
+      <AuthModal open={authModalOpen} onOpenChange={setAuthModalOpen} />
+      <AcceptInviteHandler />
       <div className="h-full p-4 box-border bg-background text-foreground font-sans antialiased selection:bg-primary selection:text-primary-foreground">
         <div className="h-[50px] flex items-center justify-between gap-4 mb-4">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-1">
+            <OrganizationManager />
             <Button
               variant={areScreensEnabled ? 'default' : 'secondary'}
               onClick={() => setAreScreensEnabled(!areScreensEnabled)}

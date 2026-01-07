@@ -2,12 +2,12 @@ import { contextBridge } from 'electron';
 import displayPreload from '@ipc/display/display.preload';
 import { MyAPIType } from '@ipc/index';
 import mediaPreload from '@ipc/media/media.preload';
-import gdrivePreload from '@ipc/gdrive/gdrive.preload';
+import jazzPreload from '@ipc/jazz/jazz.preload';
 
 const MyAPI: MyAPIType = {
   ...displayPreload,
   ...mediaPreload,
-  ...gdrivePreload,
+  ...jazzPreload,
 };
 
 contextBridge.exposeInMainWorld('myAPI', MyAPI);

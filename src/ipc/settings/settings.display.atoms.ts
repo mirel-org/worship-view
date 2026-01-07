@@ -1,5 +1,6 @@
 import { availableDisplaysAtom } from '@ipc/display/display.atoms';
 import { InputGroupsType } from '@renderer/components/ui/inputs/radio-group/RadioGroup.hooks';
+import { RadioValueType } from '@renderer/components/ui/inputs/radio-group/RadioGroup';
 import { Display } from 'electron';
 import { atom } from 'jotai';
 
@@ -13,7 +14,7 @@ const inputGroupToDisplaysList = (
     const inputGroup = inputGroups[key];
     const display = displays.find((display) => display.id.toString() === key);
     if (!display) continue;
-    if (inputGroup.find((input) => input.value === type)?.checked)
+    if (inputGroup.find((input: RadioValueType) => input.value === type)?.checked)
       returnedDisplays.push(display);
   }
   return returnedDisplays;

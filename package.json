@@ -11,7 +11,7 @@
     "publish": "electron-forge publish",
     "lint": "eslint src/ --ext .ts,.js,.tsx,.jsx",
     "lint:fix": "eslint --fix src/ --ext .ts,.js,.tsx,.jsx",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit --project tsconfig.main.json && tsc --noEmit --project tsconfig.renderer.json && tsc --noEmit --project tsconfig.preload.json"
   },
   "keywords": [
     "electron boilerplate",
@@ -77,9 +77,6 @@
     "vite-plugin-wasm": "^3.5.0"
   },
   "dependencies": {
-    "@automerge/automerge": "^3.2.1",
-    "@automerge/automerge-repo": "^2.0.0",
-    "@automerge/automerge-repo-storage-indexeddb": "^2.0.0",
     "@radix-ui/react-dialog": "^1.1.15",
     "@radix-ui/react-label": "^2.1.8",
     "@radix-ui/react-select": "^2.2.6",
@@ -92,7 +89,7 @@
     "cmdk": "^1.1.1",
     "dotenv": "^17.2.3",
     "electron-squirrel-startup": "^1.0.0",
-    "googleapis": "^167.0.0",
+    "jazz-tools": "^0.19.18",
     "jotai": "^1.4.3",
     "lucide-react": "^0.556.0",
     "react": "^19.0.0",

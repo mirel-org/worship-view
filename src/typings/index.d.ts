@@ -14,6 +14,12 @@ declare module "*.ttf?url" {
 }
 declare module 'textfit';
 
+// JSON module declarations
+declare module '*.json' {
+  const value: any;
+  export default value;
+}
+
 // Vite-specific declarations
 declare const APP_WINDOW_VITE_DEV_SERVER_URL: string;
 declare const APP_WINDOW_VITE_NAME: string;
@@ -34,14 +40,12 @@ interface ImportMeta {
   };
   readonly env: {
     readonly [key: string]: string | boolean | undefined;
-    readonly VITE_GOOGLE_CLIENT_ID?: string;
-    readonly VITE_GOOGLE_CLIENT_SECRET?: string;
+    readonly VITE_JAZZ_API_KEY?: string;
   };
 }
 
 declare namespace NodeJS {
   interface ProcessEnv {
-    GOOGLE_CLIENT_ID?: string;
-    GOOGLE_CLIENT_SECRET?: string;
+    VITE_JAZZ_API_KEY?: string;
   }
 }
