@@ -35,6 +35,7 @@
     "url": "https://github.com/AlexandruRoman/worship-view.git"
   },
   "license": "MIT",
+  "private": true,
   "config": {
     "forge": "./tools/forge/forge.config.js"
   },
