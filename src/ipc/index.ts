@@ -2,7 +2,6 @@ import useGetDisplays from './display/display.hooks';
 import { DisplayPreloadType } from './display/display.types';
 import { MediaPreloadType } from './media/media.types';
 import { JazzPreloadType } from './jazz/jazz.types';
-import { UpdatePreloadType } from './update/update.types';
 import { useManageProjection } from './projection/projection.hooks';
 import useProjectionShortcuts from './projection/projection.shortcuts';
 import { useSettings } from './settings/settings.hooks';
@@ -12,7 +11,7 @@ import { useVersesHistory } from './verse/verse.hooks';
 import useVerseShortcuts from './verse/verse.shortcuts';
 import { useCommandPaletteShortcuts } from './command/command.shortcuts';
 
-export type MyAPIType = DisplayPreloadType & MediaPreloadType & JazzPreloadType & UpdatePreloadType;
+export type MyAPIType = DisplayPreloadType & MediaPreloadType & JazzPreloadType;
 
 type MainWindow = typeof window & { myAPI: MyAPIType };
 

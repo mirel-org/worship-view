@@ -12,7 +12,6 @@ import CommandPalette from './components/command-palette/CommandPalette';
 import { AuthModal } from './components/auth/AuthModal';
 import { AcceptInviteHandler } from './components/organizations/AcceptInviteHandler';
 import { OrganizationManager } from './components/organizations/OrganizationManager';
-import { UpdateDialog } from './components/update/UpdateDialog';
 import { useSetup } from '../ipc/';
 
 const queryClient = new QueryClient({
@@ -30,7 +29,6 @@ const Generics = memo(function Generics() {
       <Screens />
       <Settings />
       <CommandPalette />
-      <UpdateDialog />
       <Setup />
     </>
   );

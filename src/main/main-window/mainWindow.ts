@@ -1,7 +1,6 @@
 import displayHandlers from '@ipc/display/display.handlers';
 import mediaHandlers from '@ipc/media/media.handlers';
 import jazzHandlers from '@ipc/jazz/jazz.handlers';
-import updateHandlers from '@ipc/update/update.handlers';
 import { app, BrowserWindow } from 'electron';
 import path from 'path';
 
@@ -64,5 +63,4 @@ function registerMainIPC() {
   displayHandlers();
   mediaHandlers();
   jazzHandlers();
-  updateHandlers();
 }

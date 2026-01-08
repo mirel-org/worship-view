@@ -45,6 +45,7 @@ jobs:
       - name: Build and publish application
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VITE_JAZZ_API_KEY: ${{ secrets.VITE_JAZZ_API_KEY }}
         run: |
           # Based on research: Electron Forge may check npm registry even with GitHub publisher only
           # Configure npm to allow anonymous read access to prevent auth errors

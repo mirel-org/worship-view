@@ -88,8 +88,6 @@
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",
     "dotenv": "^17.2.3",
-    "electron-squirrel-startup": "^1.0.0",
-    "update-electron-app": "^3.1.2",
     "jazz-tools": "^0.19.18",
     "jotai": "^1.4.3",
     "lucide-react": "^0.556.0",

@@ -18,12 +18,6 @@ for (const envPath of possiblePaths) {
 }
 import { fileHandler } from './main-window/fileProtocol';
 import { createAppWindow } from './main-window/mainWindow';
-import { checkForUpdatesOnStartup } from './updater';
-
-/** Handle creating/removing shortcuts on Windows when installing/uninstalling. */
-if (require('electron-squirrel-startup')) {
-  app.quit();
-}
 
 /**
  * This method will be called when Electron has finished
@@ -36,9 +30,6 @@ app.on('ready', () => {
     fileHandler,
   );
   createAppWindow();
-  
-  // Check for updates on startup (Windows only, production only)
-  checkForUpdatesOnStartup();
 });
 
 /**
