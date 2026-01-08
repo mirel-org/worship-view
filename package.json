@@ -1,8 +1,8 @@
 {
-  "name": "electron-react-typescript-webpack-2021",
-  "productName": "ERWT Boilerplate",
-  "version": "5.0.0",
-  "description": "Custom boilerplate for writing Desktop Applications using Electron, React, Webpack, TypeScript in 2020",
+  "name": "worship-view",
+  "productName": "Worship View",
+  "version": "1.0.0",
+  "description": "Worship View is a desktop application for viewing and editing worship songs.",
   "main": ".vite/build/main.js",
   "scripts": {
     "start": "cross-env NODE_ENV=development electron-forge start",
@@ -14,29 +14,24 @@
     "type-check": "tsc --noEmit --project tsconfig.main.json && tsc --noEmit --project tsconfig.renderer.json && tsc --noEmit --project tsconfig.preload.json"
   },
   "keywords": [
-    "electron boilerplate",
-    "minimal",
-    "electron-webpack",
-    "electron-react",
-    "electron-typescript",
-    "hmr",
-    "boilerplate",
-    "2020",
-    "ERWT"
+    "worship",
+    "songs",
+    "view",
+    "editor"
   ],
   "author": {
-    "name": "codesbiome",
-    "url": "https://github.com/codesbiome"
+    "name": "AlexandruRoman",
+    "url": "https://github.com/AlexandruRoman"
   },
   "contributors": [
     {
-      "name": "guasam",
-      "url": "https://github.com/guasam"
+      "name": "AlexandruRoman",
+      "url": "https://github.com/AlexandruRoman"
     }
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/codesbiome/electron-react-webpack-typescript-2020"
+    "url": "https://github.com/AlexandruRoman/worship-view.git"
   },
   "license": "MIT",
   "config": {
@@ -45,10 +40,12 @@
   "devDependencies": {
     "@electron-forge/cli": "^7.0.0",
     "@electron-forge/maker-deb": "^7.0.0",
+    "@electron-forge/maker-dmg": "^7.0.0",
     "@electron-forge/maker-rpm": "^7.0.0",
     "@electron-forge/maker-squirrel": "^7.0.0",
     "@electron-forge/maker-zip": "^7.0.0",
     "@electron-forge/plugin-vite": "^7.0.0",
+    "@electron-forge/publisher-github": "^7.0.0",
     "@tailwindcss/vite": "^4.0.0",
     "@types/node": "^16.11.6",
     "@types/react": "^19.0.0",
@@ -79,6 +76,7 @@
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.15",
     "@radix-ui/react-label": "^2.1.8",
+    "@radix-ui/react-progress": "^1.1.0",
     "@radix-ui/react-select": "^2.2.6",
     "@radix-ui/react-slot": "^1.2.4",
     "@radix-ui/react-tabs": "^1.1.13",
@@ -89,6 +87,7 @@
     "cmdk": "^1.1.1",
     "dotenv": "^17.2.3",
     "electron-squirrel-startup": "^1.0.0",
+    "update-electron-app": "^3.1.2",
     "jazz-tools": "^0.19.18",
     "jotai": "^1.4.3",
     "lucide-react": "^0.556.0",

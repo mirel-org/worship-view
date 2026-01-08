@@ -1,6 +1,27 @@
 // Forge Configuration
 const path = require('path');
 const rootDir = process.cwd();
+const packageJson = require(path.join(rootDir, 'package.json'));
+
+// Parse GitHub repository from package.json
+const getRepoInfo = () => {
+  if (packageJson.repository && packageJson.repository.url) {
+    const match = packageJson.repository.url.match(/github\.com[:/]([^/]+)\/([^/]+?)(?:\.git)?$/);
+    if (match) {
+      return {
+        owner: match[1],
+        name: match[2],
+      };
+    }
+  }
+  // Fallback - should be updated with actual repository info
+  return {
+    owner: 'codesbiome',
+    name: 'electron-react-webpack-typescript-2020',
+  };
+};
+
+const repoInfo = getRepoInfo();
 
 module.exports = {
   // Packager Config
@@ -15,11 +36,11 @@ module.exports = {
   // Forge Makers
   makers: [
     {
-      // Squirrel.Windows is a no-prompt, no-hassle, no-admin method of installing
-      // Windows applications and is therefore the most user friendly you can get.
+      // Squirrel.Windows installer for Windows
+      // Works with update-electron-app for auto-updates (no NSIS required)
       name: '@electron-forge/maker-squirrel',
       config: {
-        name: 'electron-react-typescript-webpack-2021',
+        name: 'worship-view',
       },
     },
     {
@@ -27,6 +48,15 @@ module.exports = {
       // There are no platform specific dependencies for using this maker and it will run on any platform.
       name: '@electron-forge/maker-zip',
       platforms: ['darwin'],
+    },
+    {
+      // The DMG target builds .dmg files for macOS distribution.
+      // DMG files are the standard disk image format for macOS applications.
+      name: '@electron-forge/maker-dmg',
+      config: {
+        background: undefined,
+        format: 'UDZO',
+      },
     },
     {
       // The deb target builds .deb packages, which are the standard package format for Debian-based
@@ -65,6 +95,19 @@ module.exports = {
             config: path.join(rootDir, 'vite.renderer.config.mjs'),
           },
         ],
+      },
+    },
+  ],
+  // Forge Publishers
+  publishers: [
+    {
+      name: '@electron-forge/publisher-github',
+      config: {
+        repository: {
+          owner: repoInfo.owner,
+          name: repoInfo.name,
+        },
+        prerelease: false,
       },
     },
   ],
