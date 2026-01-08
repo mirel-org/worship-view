@@ -45,5 +45,11 @@ jobs:
       - name: Build and publish application
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SKIP_NPM_PUBLISH: true
-        run: pnpm publish
+        run: |
+          # Based on research: Electron Forge may check npm registry even with GitHub publisher only
+          # Configure npm to allow anonymous read access to prevent auth errors
+          # The package.json has "private": true which prevents actual npm publishing
+          npm config set //registry.npmjs.org/:_authToken "" || true
+          npm config set registry https://registry.npmjs.org/ || true
+          # Run electron-forge publish directly
+          pnpm exec electron-forge publish
