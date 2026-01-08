@@ -34,20 +34,38 @@ jobs:
         with:
           version: 10
 
-      - name: Setup 7-Zip for Squirrel (Windows only)
+      - name: Install 7-Zip for Squirrel (Windows only)
         if: matrix.platform == 'win32'
         run: |
-          # Check if 7-Zip is already installed
-          if (Test-Path "C:\Program Files\7-Zip\7z.exe") {
-            echo "7-Zip found at C:\Program Files\7-Zip"
-            echo "C:\Program Files\7-Zip" | Out-File -FilePath $env:GITHUB_PATH -Append -Encoding utf8
-          } elseif (Test-Path "C:\Program Files (x86)\7-Zip\7z.exe") {
-            echo "7-Zip found at C:\Program Files (x86)\7-Zip"
-            echo "C:\Program Files (x86)\7-Zip" | Out-File -FilePath $env:GITHUB_PATH -Append -Encoding utf8
+          # Install 7-Zip using Chocolatey (available on GitHub Actions Windows runners)
+          choco install 7zip -y --no-progress
+          
+      - name: Verify 7-Zip installation (Windows only)
+        if: matrix.platform == 'win32'
+        run: |
+          # Add 7-Zip to PATH
+          $sevenZipPath = "C:\Program Files\7-Zip"
+          if (Test-Path "$sevenZipPath\7z.exe") {
+            echo "7z.exe found at $sevenZipPath"
+            echo "$sevenZipPath" | Out-File -FilePath $env:GITHUB_PATH -Append -Encoding utf8
+          }
+          if (Test-Path "$sevenZipPath\7za.exe") {
+            echo "7za.exe found at $sevenZipPath"
+          }
+          # Also check Chocolatey path
+          $chocoPath = "C:\ProgramData\chocolatey\bin"
+          if (Test-Path "$chocoPath\7za.exe") {
+            echo "7za.exe found at $chocoPath"
+            echo "$chocoPath" | Out-File -FilePath $env:GITHUB_PATH -Append -Encoding utf8
+          }
+          # Verify 7z is accessible
+          $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
+          $sevenZip = Get-Command 7z.exe -ErrorAction SilentlyContinue
+          if ($sevenZip) {
+            echo "7z.exe is accessible: $($sevenZip.Path)"
+            & 7z.exe --version
           } else {
-            # Install 7-Zip using winget (built into Windows)
-            winget install --id 7zip.7zip -e --accept-package-agreements --accept-source-agreements
-            echo "C:\Program Files\7-Zip" | Out-File -FilePath $env:GITHUB_PATH -Append -Encoding utf8
+            Write-Error "7z.exe not found in PATH"
           }
 
       - name: Install dependencies
@@ -63,7 +81,30 @@ jobs:
             (cd node_modules/fs-xattr && npx node-gyp rebuild) || true
           fi
 
-      - name: Build application
+      - name: Build application (Windows)
+        if: matrix.platform == 'win32'
+        run: |
+          # Ensure 7-Zip is accessible
+          $sevenZipExe = "C:\Program Files\7-Zip\7z.exe"
+          $sevenZipAExe = "C:\Program Files\7-Zip\7za.exe"
+          
+          # Create 7za.exe if it doesn't exist (Squirrel might look for this)
+          if ((Test-Path $sevenZipExe) -and -not (Test-Path $sevenZipAExe)) {
+            Copy-Item $sevenZipExe $sevenZipAExe
+            echo "Created 7za.exe from 7z.exe"
+          }
+          
+          # Add to PATH for this session
+          $env:Path += ";C:\Program Files\7-Zip"
+          $env:Path += ";C:\ProgramData\chocolatey\bin"
+          
+          # Verify 7z is accessible
+          & 7z.exe --version
+          
+          pnpm make
+          
+      - name: Build application (macOS)
+        if: matrix.platform == 'darwin'
         run: pnpm make
 
       - name: Upload artifacts
