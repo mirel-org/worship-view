@@ -63,7 +63,8 @@ jobs:
           $sevenZip = Get-Command 7z.exe -ErrorAction SilentlyContinue
           if ($sevenZip) {
             echo "7z.exe is accessible: $($sevenZip.Path)"
-            & 7z.exe --version
+            # Test 7z with help command (valid command)
+            & 7z.exe 2>&1 | Select-Object -First 1
           } else {
             Write-Error "7z.exe not found in PATH"
           }
@@ -98,8 +99,8 @@ jobs:
           $env:Path += ";C:\Program Files\7-Zip"
           $env:Path += ";C:\ProgramData\chocolatey\bin"
           
-          # Verify 7z is accessible
-          & 7z.exe --version
+          # Verify 7z is accessible (test with help output)
+          & 7z.exe 2>&1 | Select-Object -First 1
           
           pnpm make
           
