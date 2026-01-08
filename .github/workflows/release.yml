@@ -36,6 +36,16 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+        
+      - name: Rebuild native modules (macOS only)
+        if: matrix.platform == 'darwin'
+        run: |
+          if [ -d "node_modules/macos-alias" ]; then
+            (cd node_modules/macos-alias && npx node-gyp rebuild) || true
+          fi
+          if [ -d "node_modules/fs-xattr" ]; then
+            (cd node_modules/fs-xattr && npx node-gyp rebuild) || true
+          fi
 
       - name: Build application
         run: pnpm make

@@ -11,7 +11,8 @@
     "publish": "electron-forge publish",
     "lint": "eslint src/ --ext .ts,.js,.tsx,.jsx",
     "lint:fix": "eslint --fix src/ --ext .ts,.js,.tsx,.jsx",
-    "type-check": "tsc --noEmit --project tsconfig.main.json && tsc --noEmit --project tsconfig.renderer.json && tsc --noEmit --project tsconfig.preload.json"
+    "type-check": "tsc --noEmit --project tsconfig.main.json && tsc --noEmit --project tsconfig.renderer.json && tsc --noEmit --project tsconfig.preload.json",
+    "postinstall": "(cd node_modules/macos-alias 2>/dev/null && npx node-gyp rebuild) || true; (cd node_modules/fs-xattr 2>/dev/null && npx node-gyp rebuild) || true"
   },
   "keywords": [
     "worship",
