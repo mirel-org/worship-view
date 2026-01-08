@@ -2,11 +2,6 @@ name: Release
 
 on:
   workflow_dispatch:
-    inputs:
-      version:
-        description: 'Release version (e.g., v1.0.0)'
-        required: true
-        type: string
 
 jobs:
   build:
@@ -34,140 +29,20 @@ jobs:
         with:
           version: 10
 
-      - name: Install 7-Zip for Squirrel (Windows only)
-        if: matrix.platform == 'win32'
-        run: |
-          # Install 7-Zip using Chocolatey (available on GitHub Actions Windows runners)
-          choco install 7zip -y --no-progress
-          
-      - name: Verify 7-Zip installation (Windows only)
-        if: matrix.platform == 'win32'
-        run: |
-          # Add 7-Zip to PATH
-          $sevenZipPath = "C:\Program Files\7-Zip"
-          if (Test-Path "$sevenZipPath\7z.exe") {
-            echo "7z.exe found at $sevenZipPath"
-            echo "$sevenZipPath" | Out-File -FilePath $env:GITHUB_PATH -Append -Encoding utf8
-          }
-          if (Test-Path "$sevenZipPath\7za.exe") {
-            echo "7za.exe found at $sevenZipPath"
-          }
-          # Also check Chocolatey path
-          $chocoPath = "C:\ProgramData\chocolatey\bin"
-          if (Test-Path "$chocoPath\7za.exe") {
-            echo "7za.exe found at $chocoPath"
-            echo "$chocoPath" | Out-File -FilePath $env:GITHUB_PATH -Append -Encoding utf8
-          }
-          # Verify 7z is accessible
-          $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
-          $sevenZip = Get-Command 7z.exe -ErrorAction SilentlyContinue
-          if ($sevenZip) {
-            echo "7z.exe is accessible: $($sevenZip.Path)"
-            # Test 7z with help command (valid command)
-            & 7z.exe 2>&1 | Select-Object -First 1
-          } else {
-            Write-Error "7z.exe not found in PATH"
-          }
-
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
         
-      - name: Rebuild native modules (macOS only)
-        if: matrix.platform == 'darwin'
-        run: |
-          if [ -d "node_modules/macos-alias" ]; then
-            (cd node_modules/macos-alias && npx node-gyp rebuild) || true
-          fi
-          if [ -d "node_modules/fs-xattr" ]; then
-            (cd node_modules/fs-xattr && npx node-gyp rebuild) || true
-          fi
+      # - name: Rebuild native modules (macOS only)
+      #   if: matrix.platform == 'darwin'
+      #   run: |
+      #     if [ -d "node_modules/macos-alias" ]; then
+      #       (cd node_modules/macos-alias && npx node-gyp rebuild) || true
+      #     fi
+      #     if [ -d "node_modules/fs-xattr" ]; then
+      #       (cd node_modules/fs-xattr && npx node-gyp rebuild) || true
+      #     fi
 
-      - name: Build application (Windows)
-        if: matrix.platform == 'win32'
-        run: |
-          # Ensure 7-Zip is accessible
-          $sevenZipExe = "C:\Program Files\7-Zip\7z.exe"
-          $sevenZipAExe = "C:\Program Files\7-Zip\7za.exe"
-          
-          # Create 7za.exe if it doesn't exist (Squirrel might look for this)
-          if ((Test-Path $sevenZipExe) -and -not (Test-Path $sevenZipAExe)) {
-            Copy-Item $sevenZipExe $sevenZipAExe
-            echo "Created 7za.exe from 7z.exe"
-          }
-          
-          # Set PATH at machine level for this session (so child processes inherit it)
-          $currentPath = [Environment]::GetEnvironmentVariable("Path", "Machine")
-          $newPath = "$currentPath;C:\Program Files\7-Zip;C:\ProgramData\chocolatey\bin"
-          [Environment]::SetEnvironmentVariable("Path", $newPath, "Process")
-          $env:Path = $newPath
-          
-          # Verify 7z is accessible
-          $sevenZip = Get-Command 7z.exe -ErrorAction SilentlyContinue
-          if ($sevenZip) {
-            echo "7z.exe is accessible: $($sevenZip.Path)"
-          } else {
-            Write-Error "7z.exe not found in PATH"
-          }
-          
-          # Verify 7za is accessible
-          $sevenZipA = Get-Command 7za.exe -ErrorAction SilentlyContinue
-          if ($sevenZipA) {
-            echo "7za.exe is accessible: $($sevenZipA.Path)"
-          } else {
-            echo "7za.exe not in PATH, but exists at: $sevenZipAExe"
-          }
-          
-          # Run pnpm make with explicit PATH
-          $env:Path = $newPath
-          pnpm make
-          
-      - name: Build application (macOS)
-        if: matrix.platform == 'darwin'
-        run: pnpm make
-
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: ${{ matrix.platform }}-installer
-          path: |
-            out/make/**/*.dmg
-            out/make/**/Setup.exe
-            out/make/**/*.zip
-          retention-days: 30
-          if-no-files-found: error
-
-  release:
-    name: Create Release
-    needs: build
-    runs-on: ubuntu-latest
-    if: github.event_name == 'workflow_dispatch'
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Download all artifacts
-        uses: actions/download-artifact@v4
-        with:
-          path: artifacts
-
-      - name: Create Release
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: ${{ github.event.inputs.version }}
-          name: Release ${{ github.event.inputs.version }}
-          body: |
-            Release ${{ github.event.inputs.version }}
-            
-            ## Installers
-            - macOS DMG
-            - Windows Installer (Squirrel.Windows)
-          files: |
-            artifacts/**/*.dmg
-            artifacts/**/*.exe
-            artifacts/**/*.zip
-          draft: false
-          prerelease: false
+      - name: Build and publish application
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
+        run: pnpm publish
