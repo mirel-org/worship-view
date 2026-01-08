@@ -34,6 +34,22 @@ jobs:
         with:
           version: 10
 
+      - name: Setup 7-Zip for Squirrel (Windows only)
+        if: matrix.platform == 'win32'
+        run: |
+          # Check if 7-Zip is already installed
+          if (Test-Path "C:\Program Files\7-Zip\7z.exe") {
+            echo "7-Zip found at C:\Program Files\7-Zip"
+            echo "C:\Program Files\7-Zip" | Out-File -FilePath $env:GITHUB_PATH -Append -Encoding utf8
+          } elseif (Test-Path "C:\Program Files (x86)\7-Zip\7z.exe") {
+            echo "7-Zip found at C:\Program Files (x86)\7-Zip"
+            echo "C:\Program Files (x86)\7-Zip" | Out-File -FilePath $env:GITHUB_PATH -Append -Encoding utf8
+          } else {
+            # Install 7-Zip using winget (built into Windows)
+            winget install --id 7zip.7zip -e --accept-package-agreements --accept-source-agreements
+            echo "C:\Program Files\7-Zip" | Out-File -FilePath $env:GITHUB_PATH -Append -Encoding utf8
+          }
+
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
         
