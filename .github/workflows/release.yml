@@ -95,13 +95,30 @@ jobs:
             echo "Created 7za.exe from 7z.exe"
           }
           
-          # Add to PATH for this session
-          $env:Path += ";C:\Program Files\7-Zip"
-          $env:Path += ";C:\ProgramData\chocolatey\bin"
+          # Set PATH at machine level for this session (so child processes inherit it)
+          $currentPath = [Environment]::GetEnvironmentVariable("Path", "Machine")
+          $newPath = "$currentPath;C:\Program Files\7-Zip;C:\ProgramData\chocolatey\bin"
+          [Environment]::SetEnvironmentVariable("Path", $newPath, "Process")
+          $env:Path = $newPath
           
-          # Verify 7z is accessible (test with help output)
-          & 7z.exe 2>&1 | Select-Object -First 1
+          # Verify 7z is accessible
+          $sevenZip = Get-Command 7z.exe -ErrorAction SilentlyContinue
+          if ($sevenZip) {
+            echo "7z.exe is accessible: $($sevenZip.Path)"
+          } else {
+            Write-Error "7z.exe not found in PATH"
+          }
           
+          # Verify 7za is accessible
+          $sevenZipA = Get-Command 7za.exe -ErrorAction SilentlyContinue
+          if ($sevenZipA) {
+            echo "7za.exe is accessible: $($sevenZipA.Path)"
+          } else {
+            echo "7za.exe not in PATH, but exists at: $sevenZipAExe"
+          }
+          
+          # Run pnpm make with explicit PATH
+          $env:Path = $newPath
           pnpm make
           
       - name: Build application (macOS)
