@@ -1,21 +1,4 @@
-// Load environment variables from .env file
-import dotenv from 'dotenv';
-import path from 'path';
 import { app, BrowserWindow, protocol } from 'electron';
-
-// Load .env file from project root
-// Try multiple possible locations
-const possiblePaths = [
-  path.join(process.cwd(), '.env'), // Project root (most common)
-  path.join(__dirname, '../../.env'), // Relative to built file location
-];
-
-for (const envPath of possiblePaths) {
-  const result = dotenv.config({ path: envPath });
-  if (!result.error) {
-    break; // Successfully loaded
-  }
-}
 import { fileHandler } from './main-window/fileProtocol';
 import { createAppWindow } from './main-window/mainWindow';
 

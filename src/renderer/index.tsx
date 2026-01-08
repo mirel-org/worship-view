@@ -1,11 +1,13 @@
 import { createRoot } from 'react-dom/client';
-import React from 'react';
+import React, { useEffect } from 'react';
 import Application from './Application';
 import Modal from 'react-modal';
 import { injectFontCSS } from './lib/fonts';
 import { JazzReactProvider } from 'jazz-tools/react';
 import { WorshipViewAccount } from './lib/jazz/schema';
-import { getApiClient } from '../ipc';
+import { useAtom } from 'jotai';
+import { jazzApiKeyAtom } from '../ipc/jazz/jazz.atoms';
+import { JazzApiKeyModal } from './components/jazz/JazzApiKeyModal';
 import './index.css';
 
 // Say something
@@ -22,62 +24,85 @@ if (!container) {
   throw new Error('Root element not found');
 }
 
-// Get Jazz Cloud API key from main process via IPC
-// Set VITE_JAZZ_API_KEY in your .env file
-// Get your API key from https://dashboard.jazz.tools
-const { getApiKey } = getApiClient();
+// Root component that handles API key loading
+function AppWithJazzProvider() {
+  const [apiKey, setApiKey] = useAtom(jazzApiKeyAtom);
+  const [showApiKeyModal, setShowApiKeyModal] = React.useState(false);
+  const [apiKeyModalResolved, setApiKeyModalResolved] = React.useState(false);
 
-getApiKey()
-  .then((apiKey) => {
-    if (!apiKey) {
-      console.warn(
-        'VITE_JAZZ_API_KEY is not set. Jazz Cloud sync will not work. ' +
-        'Set VITE_JAZZ_API_KEY in your .env file or get a key from https://dashboard.jazz.tools'
-      );
+  useEffect(() => {
+    // Show modal if no API key is set and modal hasn't been resolved yet
+    if (!apiKey && !apiKeyModalResolved) {
+      setShowApiKeyModal(true);
+    } else if (apiKey) {
+      // If API key exists, mark as resolved
+      setApiKeyModalResolved(true);
     }
+  }, [apiKey, apiKeyModalResolved]);
 
-    // Application to Render with Jazz Provider
-    // Only enable sync if API key is provided
-    const app = apiKey ? (
-      <JazzReactProvider
-        sync={{
-          peer: `wss://cloud.jazz.tools/?key=${apiKey}`,
-        }}
-        AccountSchema={WorshipViewAccount}
-      >
-        <Application />
-      </JazzReactProvider>
-    ) : (
+  const handleApiKeySet = (newApiKey: string) => {
+    setApiKey(newApiKey);
+    setShowApiKeyModal(false);
+    setApiKeyModalResolved(true);
+    // Reload to reinitialize Jazz with new API key
+    window.location.reload();
+  };
+
+  const handleApiKeySkip = () => {
+    setShowApiKeyModal(false);
+    setApiKeyModalResolved(true);
+  };
+
+  // Application to Render with Jazz Provider
+  // Only enable sync if API key is provided
+  // Don't render Application until API key modal is resolved
+  // This ensures the Jazz API key modal appears before the auth modal
+  if (!apiKeyModalResolved) {
+    return (
       <JazzReactProvider
         sync={{
           when: 'never',
         }}
         AccountSchema={WorshipViewAccount}
       >
-        <Application />
+        <JazzApiKeyModal
+          open={showApiKeyModal}
+          onOpenChange={() => {
+            // Prevent closing without resolving - user must either save or skip
+          }}
+          onApiKeySet={handleApiKeySet}
+          onSkip={handleApiKeySkip}
+        />
       </JazzReactProvider>
     );
+  }
 
-    // Render application in DOM using React 18+ API
-    const root = createRoot(container);
-    root.render(app);
-  })
-  .catch((error) => {
-    console.error('Failed to get Jazz API key:', error);
-    // Render app without sync if API key retrieval fails
-    const app = (
-      <JazzReactProvider
-        sync={{
-          when: 'never',
-        }}
-        AccountSchema={WorshipViewAccount}
-      >
-        <Application />
-      </JazzReactProvider>
-    );
-    const root = createRoot(container);
-    root.render(app);
-  });
+  const app = apiKey ? (
+    <JazzReactProvider
+      sync={{
+        peer: `wss://cloud.jazz.tools/?key=${apiKey}`,
+      }}
+      AccountSchema={WorshipViewAccount}
+    >
+      <Application />
+    </JazzReactProvider>
+  ) : (
+    <JazzReactProvider
+      sync={{
+        when: 'never',
+      }}
+      AccountSchema={WorshipViewAccount}
+    >
+      <Application />
+    </JazzReactProvider>
+  );
+
+  return app;
+}
+
+// Render application in DOM using React 18+ API
+const root = createRoot(container);
+root.render(<AppWithJazzProvider />);
 
 // Hot module replacement with Vite
 if (import.meta.hot) {

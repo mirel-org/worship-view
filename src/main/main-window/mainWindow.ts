@@ -1,6 +1,5 @@
 import displayHandlers from '@ipc/display/display.handlers';
 import mediaHandlers from '@ipc/media/media.handlers';
-import jazzHandlers from '@ipc/jazz/jazz.handlers';
 import { app, BrowserWindow } from 'electron';
 import path from 'path';
 
@@ -15,6 +14,29 @@ let appWindow: BrowserWindow | null;
  * @returns {BrowserWindow} Application Window Instance
  */
 export function createAppWindow(): BrowserWindow {
+  // Resolve paths correctly for both development and production
+  const getPreloadPath = () => {
+    if (app.isPackaged) {
+      // In production, app.getAppPath() returns the path to app.asar
+      // Electron automatically handles reading files from inside asar archives
+      const appPath = app.getAppPath();
+      return path.join(appPath, '.vite/build/preload.js');
+    }
+    // In development, __dirname points to .vite/build/ where main.js is located
+    // preload.js is in the same directory
+    return path.join(__dirname, 'preload.js');
+  };
+
+  const getIndexPath = () => {
+    if (app.isPackaged) {
+      const appPath = app.getAppPath();
+      return path.join(appPath, `.vite/renderer/${APP_WINDOW_VITE_NAME}/index.html`);
+    }
+    // In development, __dirname is .vite/build/, so go up one level to .vite/
+    // then into renderer/app_window/
+    return path.join(__dirname, `../renderer/${APP_WINDOW_VITE_NAME}/index.html`);
+  };
+
   // Create new window instance
   appWindow = new BrowserWindow({
     width: 800,
@@ -26,7 +48,7 @@ export function createAppWindow(): BrowserWindow {
       contextIsolation: true,
       nodeIntegrationInWorker: false,
       nodeIntegrationInSubFrames: false,
-      preload: path.join(__dirname, 'preload.js'),
+      preload: getPreloadPath(),
     },
   });
 
@@ -34,7 +56,7 @@ export function createAppWindow(): BrowserWindow {
   if (APP_WINDOW_VITE_DEV_SERVER_URL) {
     appWindow.loadURL(APP_WINDOW_VITE_DEV_SERVER_URL);
   } else {
-    appWindow.loadFile(path.join(__dirname, `../renderer/${APP_WINDOW_VITE_NAME}/index.html`));
+    appWindow.loadFile(getIndexPath());
   }
 
   // Show window when its ready to
@@ -62,5 +84,4 @@ function registerMainIPC() {
    */
   displayHandlers();
   mediaHandlers();
-  jazzHandlers();
 }

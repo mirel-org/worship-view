@@ -31,7 +31,7 @@ export default defineConfig({
       ],
     },
     outDir: '.vite/build',
-    emptyOutDir: true,
+    emptyOutDir: false,
   },
   resolve: {
     alias: {

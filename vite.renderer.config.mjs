@@ -10,7 +10,7 @@ export default defineConfig({
   base: './',
   root: resolve(__dirname, 'src/renderer'),
   build: {
-    outDir: '.vite/renderer/app_window',
+    outDir: resolve(__dirname, '.vite/renderer/app_window'),
     emptyOutDir: true,
     rollupOptions: {
       input: resolve(__dirname, 'src/renderer/index.html'),
