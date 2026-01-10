@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { usePassphraseAuth } from 'jazz-tools/react';
 import { wordlist } from '../../lib/jazz/wordlist';
+import { usePassphraseConfirmed } from '../../hooks/usePassphraseConfirmed';
 import { Button } from '../ui/button';
 import { Label } from '../ui/label';
 import {
@@ -13,12 +14,13 @@ import {
 
 interface AuthModalProps {
   open: boolean;
-  onOpenChange: (open: boolean) => void;
+  onOpenChange?: (open: boolean) => void;
 }
 
 export function AuthModal({ open, onOpenChange }: AuthModalProps) {
   const [loginPassphrase, setLoginPassphrase] = useState('');
-  const [hasStoredPassphrase, setHasStoredPassphrase] = useState(false);
+  const [passphraseConfirmed, setPassphraseConfirmed] =
+    usePassphraseConfirmed();
 
   const auth = usePassphraseAuth({
     wordlist: wordlist,
@@ -33,7 +35,7 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
   const showingPassphrase =
     (authState === 'signingUp' || authState === 'signedIn') &&
     auth.passphrase &&
-    !hasStoredPassphrase;
+    !passphraseConfirmed;
 
   // Only hide modal if user is signed in AND we're not showing the passphrase
   if (authState === 'signedIn' && !showingPassphrase) {
@@ -68,26 +70,31 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
   };
 
   const handleConfirmStored = () => {
-    setHasStoredPassphrase(false);
-    onOpenChange(false);
+    // Mark passphrase as confirmed using Jotai atom (persisted to localStorage)
+    setPassphraseConfirmed(true);
+    onOpenChange?.(false);
   };
 
-  // Prevent closing the modal when showing the passphrase (user must confirm they saved it)
+  // Prevent closing the modal - user must authenticate
   const handleOpenChange = (newOpen: boolean) => {
-    if (!newOpen && showingPassphrase) {
-      // Don't allow closing when showing passphrase - user must confirm they saved it
+    // Don't allow closing - user must complete authentication
+    if (!newOpen) {
       return;
     }
-    onOpenChange(newOpen);
+    onOpenChange?.(newOpen);
   };
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className='sm:max-w-[500px]'>
+      <DialogContent
+        className='sm:max-w-[500px] [&>button]:hidden'
+        onInteractOutside={(e) => e.preventDefault()}
+        onEscapeKeyDown={(e) => e.preventDefault()}
+      >
         <DialogHeader>
           <DialogTitle>Authentication</DialogTitle>
           <DialogDescription>
-            {showingPassphrase && hasStoredPassphrase
+            {showingPassphrase && passphraseConfirmed
               ? 'Please save your passphrase securely. You will need it to log in.'
               : showingPassphrase
                 ? 'Save your passphrase securely! You will need it to log in.'
@@ -124,23 +131,9 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
               </div>
             </div>
 
-            {hasStoredPassphrase ? (
-              <div className='space-y-2'>
-                <p className='text-sm text-muted-foreground'>
-                  Have you saved your passphrase securely?
-                </p>
-                <Button onClick={handleConfirmStored} className='w-full'>
-                  Yes, I've saved it
-                </Button>
-              </div>
-            ) : (
-              <Button
-                onClick={() => setHasStoredPassphrase(true)}
-                className='w-full'
-              >
-                I have stored my passphrase
-              </Button>
-            )}
+            <Button onClick={handleConfirmStored} className='w-full'>
+              I have stored my passphrase
+            </Button>
           </div>
         ) : (
           <div className='space-y-4'>

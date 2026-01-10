@@ -46,9 +46,22 @@ export function JazzApiKeyModal({ open, onOpenChange, onApiKeySet, onSkip }: Jaz
     }
   };
 
+  // Prevent closing the modal - user must provide API key
+  const handleOpenChange = (newOpen: boolean) => {
+    if (!newOpen) {
+      // Prevent closing - user must save API key
+      return;
+    }
+    onOpenChange(newOpen);
+  };
+
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px]">
+    <Dialog open={open} onOpenChange={handleOpenChange}>
+      <DialogContent 
+        className="sm:max-w-[425px] [&>button]:hidden" 
+        onInteractOutside={(e) => e.preventDefault()} 
+        onEscapeKeyDown={(e) => e.preventDefault()}
+      >
         <DialogHeader>
           <DialogTitle>Jazz Cloud API Key</DialogTitle>
           <DialogDescription>
@@ -61,7 +74,7 @@ export function JazzApiKeyModal({ open, onOpenChange, onApiKeySet, onSkip }: Jaz
             >
               dashboard.jazz.tools
             </a>
-            . You can skip this and add it later in settings.
+            . This is required to use the application.
           </DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">
@@ -88,12 +101,14 @@ export function JazzApiKeyModal({ open, onOpenChange, onApiKeySet, onSkip }: Jaz
           </div>
         </div>
         <div className="flex justify-end gap-2">
-          <Button
-            variant="outline"
-            onClick={handleSkip}
-          >
-            Skip
-          </Button>
+          {onSkip && (
+            <Button
+              variant="outline"
+              onClick={handleSkip}
+            >
+              Skip
+            </Button>
+          )}
           <Button
             onClick={handleSave}
             disabled={!apiKey.trim()}

@@ -48,11 +48,6 @@ function AppWithJazzProvider() {
     window.location.reload();
   };
 
-  const handleApiKeySkip = () => {
-    setShowApiKeyModal(false);
-    setApiKeyModalResolved(true);
-  };
-
   // Application to Render with Jazz Provider
   // Only enable sync if API key is provided
   // Don't render Application until API key modal is resolved
@@ -68,10 +63,9 @@ function AppWithJazzProvider() {
         <JazzApiKeyModal
           open={showApiKeyModal}
           onOpenChange={() => {
-            // Prevent closing without resolving - user must either save or skip
+            // Prevent closing without resolving - user must save API key
           }}
           onApiKeySet={handleApiKeySet}
-          onSkip={handleApiKeySkip}
         />
       </JazzReactProvider>
     );

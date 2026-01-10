@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { useAccount, useIsAuthenticated, useLogOut } from 'jazz-tools/react';
 import { WorshipViewAccount } from '../../lib/jazz/schema';
 import { Label } from '../ui/label';
@@ -13,7 +13,13 @@ export function SettingsAccount() {
     resolve: {
       profile: true,
     },
-  }) as any; // Type assertion needed due to Jazz type resolution
+  }) as {
+    profile:
+      | {
+          name: string;
+        }
+      | undefined;
+  };
 
   if (!isAuthenticated) {
     return null;
@@ -21,20 +27,23 @@ export function SettingsAccount() {
 
   return (
     <>
-      <EditUsernameDialog open={editUsernameOpen} onOpenChange={setEditUsernameOpen} />
-      <div className="space-y-4">
+      <EditUsernameDialog
+        open={editUsernameOpen}
+        onOpenChange={setEditUsernameOpen}
+      />
+      <div className='space-y-4'>
         {/* Account Profile */}
         {me?.profile && (
-          <div className="space-y-2">
+          <div className='space-y-2'>
             <Label>Account</Label>
-            <div className="flex items-center justify-between">
-              <p className="text-sm text-muted-foreground">
+            <div className='flex items-center justify-between'>
+              <p className='text-sm text-muted-foreground'>
                 {me.profile.name || 'User'}
               </p>
               <Button
                 onClick={() => setEditUsernameOpen(true)}
-                variant="outline"
-                size="sm"
+                variant='outline'
+                size='sm'
               >
                 Edit Username
               </Button>
@@ -43,15 +52,19 @@ export function SettingsAccount() {
         )}
 
         {/* Logout Button */}
-        <div className="space-y-2 pt-4 border-t">
+        <div className='space-y-2 pt-4 border-t'>
           <Button
             onClick={() => {
-              if (confirm('Are you sure you want to log out? You will need to enter your passphrase to log back in.')) {
+              if (
+                confirm(
+                  'Are you sure you want to log out? You will need to enter your passphrase to log back in.',
+                )
+              ) {
                 logOut();
               }
             }}
-            variant="destructive"
-            className="w-full"
+            variant='destructive'
+            className='w-full'
           >
             Log Out
           </Button>
@@ -60,4 +73,3 @@ export function SettingsAccount() {
     </>
   );
 }
-
