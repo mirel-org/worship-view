@@ -1,4 +1,4 @@
-import { FC, useEffect, useRef, useMemo, useState } from 'react';
+import React, { FC, useEffect, useRef, useMemo, useState } from 'react';
 import { useAtom } from 'jotai';
 import {
   Dialog,
@@ -22,7 +22,7 @@ import bibleText from '@assets/bibles/VDC.json';
 import { settingsSongSlideSizeAtom } from '@ipc/settings/settings.song.atoms';
 import { getSongSlidesBySize } from '@ipc/song/song.utils';
 import { Music, BookOpen, ListPlus, Pencil, Trash2, Plus, Settings, X } from 'lucide-react';
-import { useCommandPaletteSearch } from '@ipc/command/command.hooks';
+import { useCommandPaletteSearch, MIN_SONG_SEARCH_LENGTH } from '@ipc/command/command.hooks';
 import { selectedTabTypeAtom } from '@ipc/tab/tab.atoms';
 import { selectedSongAtom } from '@ipc/song/song.atoms';
 import { selectedVerseReferenceAtom } from '@ipc/verse/verse.atoms';
@@ -266,7 +266,9 @@ const CommandPalette: FC = () => {
                   <div className="p-4 text-center text-muted-foreground">
                     {searchValue.length === 0 
                       ? 'Start typing to search songs, verses, or commands...'
-                      : 'No results found. Type at least 7 characters to search songs.'}
+                      : searchValue.length < MIN_SONG_SEARCH_LENGTH
+                      ? `Type at least ${MIN_SONG_SEARCH_LENGTH} characters to search songs...`
+                      : 'No results found.'}
                   </div>
                 </CommandEmpty>
                 {commandResults.length > 0 && (

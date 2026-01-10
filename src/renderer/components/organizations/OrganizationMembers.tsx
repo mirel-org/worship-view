@@ -3,13 +3,17 @@ import { Account } from 'jazz-tools';
 import { OrganizationType, WorshipViewAccount } from '../../lib/jazz/schema';
 import { useAccount } from 'jazz-tools/react';
 import { getOrganizationGroup } from '../../lib/jazz/helpers';
+import { Button } from '../ui/button';
+import { Trash2 } from 'lucide-react';
 
 interface OrganizationMembersProps {
   organization: OrganizationType | null;
+  onMemberKicked?: () => void;
 }
 
 export function OrganizationMembers({
   organization,
+  onMemberKicked,
 }: OrganizationMembersProps) {
   const me = useAccount(WorshipViewAccount, {
     resolve: { profile: true },
@@ -17,6 +21,42 @@ export function OrganizationMembers({
 
   // Get the organization's group directly (it's already available)
   const group = organization ? getOrganizationGroup(organization) : null;
+
+  // Check if current user is admin
+  const isAdmin = React.useMemo(() => {
+    if (!group || !me?.$jazz?.id) return false;
+    const role = group.getRoleOf?.(me.$jazz.id);
+    return role === 'admin';
+  }, [group, me?.$jazz?.id]);
+
+  const handleKickMember = async (member: Account) => {
+    if (!group || !member) return;
+
+    const memberId = member.$jazz.id;
+    const memberRole = group.getRoleOf?.(memberId);
+    const memberName = member.profile?.$isLoaded ? member.profile.name : 'Unknown User';
+
+    // Prevent kicking admins (except yourself)
+    if (memberRole === 'admin' && memberId !== me?.$jazz?.id) {
+      alert('Cannot remove other admins. They must leave the organization themselves.');
+      return;
+    }
+
+    // Confirm action
+    if (!confirm(`Are you sure you want to remove ${memberName} from this organization?`)) {
+      return;
+    }
+
+    try {
+      group.removeMember(member);
+      if (onMemberKicked) {
+        onMemberKicked();
+      }
+    } catch (error: any) {
+      console.error('Failed to remove member:', error);
+      alert(`Failed to remove member: ${error.message || 'Unknown error'}`);
+    }
+  };
 
   // Extract members from the group
   const members = React.useMemo(() => {
@@ -113,16 +153,18 @@ export function OrganizationMembers({
               ? member.profile.name
               : 'Unknown User';
 
+            const canKick = isAdmin && !isCurrentUser && role !== 'admin';
+
             return (
               <div
                 key={memberId}
                 className='flex items-center justify-between p-2 border rounded-md'
               >
-                <div className='flex items-center gap-2'>
+                <div className='flex items-center gap-2 flex-1'>
                   <div className='w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-xs font-semibold'>
                     {memberName.charAt(0).toUpperCase()}
                   </div>
-                  <div>
+                  <div className='flex-1'>
                     <div className='text-sm font-medium'>
                       {isCurrentUser ? `${memberName} (You)` : memberName}
                     </div>
@@ -131,13 +173,25 @@ export function OrganizationMembers({
                     </div>
                   </div>
                 </div>
-                {role && (
-                  <span
-                    className={`text-xs px-2 py-1 rounded ${getRoleColor(role)}`}
-                  >
-                    {getRoleLabel(role)}
-                  </span>
-                )}
+                <div className='flex items-center gap-2'>
+                  {role && (
+                    <span
+                      className={`text-xs px-2 py-1 rounded ${getRoleColor(role)}`}
+                    >
+                      {getRoleLabel(role)}
+                    </span>
+                  )}
+                  {canKick && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleKickMember(member)}
+                      className="h-8 w-8 p-0 text-destructive hover:text-destructive"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  )}
+                </div>
               </div>
             );
           })}

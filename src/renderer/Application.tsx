@@ -11,7 +11,6 @@ import AppTabs from './components/tabs/Tabs';
 import CommandPalette from './components/command-palette/CommandPalette';
 import { AuthModal } from './components/auth/AuthModal';
 import { AcceptInviteHandler } from './components/organizations/AcceptInviteHandler';
-import { OrganizationManager } from './components/organizations/OrganizationManager';
 import { useSetup } from '../ipc/';
 
 const queryClient = new QueryClient({
@@ -55,7 +54,6 @@ const Application: React.FC = () => {
       <div className="h-full p-4 box-border bg-background text-foreground font-sans antialiased selection:bg-primary selection:text-primary-foreground">
         <div className="h-[50px] flex items-center justify-between gap-4 mb-4">
           <div className="flex items-center gap-2 flex-1">
-            <OrganizationManager />
             <Button
               variant={areScreensEnabled ? 'default' : 'secondary'}
               onClick={() => setAreScreensEnabled(!areScreensEnabled)}

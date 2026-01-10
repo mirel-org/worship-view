@@ -14,13 +14,11 @@ import {
   getSongsArray,
   getServiceListArray,
 } from './helpers';
+import { parseSong, reconstructRawText } from '../songParser';
+import type { Song as ParsedSong } from '../../ipc/song/song.types';
 
-// Response types matching the old API for compatibility
-export interface SongResponse {
-  id: string;
-  name: string;
-  fullText: string;
-}
+// Response type matching parsed Song structure
+export type SongResponse = ParsedSong;
 
 export interface ServiceListSongResponse {
   id: string;
@@ -29,7 +27,7 @@ export interface ServiceListSongResponse {
   song: SongResponse;
 }
 
-// Convert Jazz Song to SongResponse
+// Convert Jazz Song to SongResponse (parsed structure)
 function songToResponse(
   song: SongType | null | undefined,
 ): SongResponse | null {
@@ -37,7 +35,9 @@ function songToResponse(
   return {
     id: song.id,
     name: song.name,
-    fullText: song.fullText,
+    parts: song.parts,
+    arrangement: song.arrangement,
+    fullText: song.searchText, // Use searchText as fullText for search compatibility
   };
 }
 
@@ -70,7 +70,7 @@ export function getSongs(
   return songs.map((song) => songToResponse(song)!).filter(Boolean);
 }
 
-// Get song by ID from organization
+// Get song by ID from organization (returns parsed structure)
 export function getSongById(
   organization: OrganizationType | null | undefined,
   id: string,
@@ -87,13 +87,21 @@ export function getSongById(
   return response;
 }
 
-// Get song content
+// Get song content (reconstructed raw text for editing)
 export function getSongContent(
   organization: OrganizationType | null | undefined,
   id: string,
 ): string {
-  const song = getSongById(organization, id);
-  return song.fullText;
+  const songs = getSongsFromOrg(organization);
+  const song = songs.find((s) => s.id === id);
+  if (!song) {
+    throw new Error('Song not found');
+  }
+  // Reconstruct raw text from parsed data
+  return reconstructRawText({
+    parts: song.parts,
+    arrangement: song.arrangement,
+  });
 }
 
 // Save new song to organization
@@ -108,16 +116,21 @@ export function saveSong(
 
   const id = uuidv4();
 
+  // Parse the raw content to get structured data
+  const parsed = parseSong(id, name, content);
+
   // Get the organization's owner group (for permissions)
   // Items in the organization should use the same group
   const orgGroup = getOrganizationGroup(organization);
 
-  // Create new song with organization's group as owner
+  // Create new song with parsed data
   const newSong = Song.create(
     {
       id,
       name,
-      fullText: content,
+      parts: parsed.parts,
+      arrangement: parsed.arrangement,
+      searchText: parsed.fullText, // Store normalized search text
     },
     { owner: orgGroup },
   );
@@ -153,7 +166,11 @@ export function updateSong(
     setCoMapProperty(song, 'name', updates.name);
   }
   if (updates.fullText !== undefined) {
-    setCoMapProperty(song, 'fullText', updates.fullText);
+    // Parse the raw text to get structured data
+    const parsed = parseSong(song.id, updates.name || song.name, updates.fullText);
+    setCoMapProperty(song, 'parts', parsed.parts);
+    setCoMapProperty(song, 'arrangement', parsed.arrangement);
+    setCoMapProperty(song, 'searchText', parsed.fullText); // Update normalized search text
   }
 
   return songToResponse(song)!;
@@ -216,6 +233,7 @@ export interface BatchUpsertSong {
 export interface BatchUpsertResponse {
   success: boolean;
   created: number;
+  updated: number;
   errorCount: number;
   results: SongResponse[];
   errors?: Array<{ name: string; error: string }>;
@@ -231,6 +249,8 @@ export function batchUpsertSongs(
 
   const results: SongResponse[] = [];
   const errors: Array<{ name: string; error: string }> = [];
+  let createdCount = 0;
+  let updatedCount = 0;
 
   // Ensure songs list exists
   if (!organization.songs) {
@@ -247,26 +267,34 @@ export function batchUpsertSongs(
         continue;
       }
 
+      // Parse the raw text to get structured data
+      const id = uuidv4();
+      const parsed = parseSong(id, songData.name, songData.fullText);
+
       // Check if song with same name exists
       const existingSongs = getSongsFromOrg(organization);
       const existingSong = existingSongs.find((s) => s.name === songData.name);
 
       if (existingSong) {
-        // Update existing song
-        setCoMapProperty(existingSong, 'fullText', songData.fullText);
+        // Update existing song with parsed data
+        setCoMapProperty(existingSong, 'parts', parsed.parts);
+        setCoMapProperty(existingSong, 'arrangement', parsed.arrangement);
+        setCoMapProperty(existingSong, 'searchText', parsed.fullText);
         const response = songToResponse(existingSong);
         if (response) {
           results.push(response);
+          updatedCount++;
         }
       } else {
-        // Create new song
-        const id = uuidv4();
+        // Create new song with parsed data
         const orgGroup = getOrganizationGroup(organization);
         const newSong = Song.create(
           {
             id,
             name: songData.name,
-            fullText: songData.fullText,
+            parts: parsed.parts,
+            arrangement: parsed.arrangement,
+            searchText: parsed.fullText,
           },
           { owner: orgGroup },
         );
@@ -274,6 +302,7 @@ export function batchUpsertSongs(
         const response = songToResponse(newSong);
         if (response) {
           results.push(response);
+          createdCount++;
         }
       }
     } catch (error: any) {
@@ -286,7 +315,8 @@ export function batchUpsertSongs(
 
   return {
     success: true,
-    created: results.length,
+    created: createdCount,
+    updated: updatedCount,
     errorCount: errors.length,
     results,
     errors: errors.length > 0 ? errors : undefined,

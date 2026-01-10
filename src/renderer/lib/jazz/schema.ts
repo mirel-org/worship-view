@@ -3,12 +3,24 @@ import { co, z } from 'jazz-tools';
 /**
  * Song schema - represents a worship song with lyrics
  * Uses sameAsContainer permissions so songs inherit organization's group
+ * Stores parsed song data for fast loading (no parsing needed on app startup)
  */
 export const Song = co
   .map({
     id: z.string(),
     name: z.string(),
-    fullText: z.string(),
+    parts: z.array(
+      z.object({
+        key: z.string(),
+        slides: z.array(
+          z.object({
+            lines: z.array(z.string()),
+          }),
+        ),
+      }),
+    ),
+    arrangement: z.array(z.string()),
+    searchText: z.string(), // Normalized searchable text (lowercase, diacritics removed)
   })
   .withPermissions({
     onInlineCreate: 'sameAsContainer',

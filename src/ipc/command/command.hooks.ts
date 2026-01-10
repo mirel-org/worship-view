@@ -1,5 +1,5 @@
 import { useAtom } from 'jotai';
-import { useMemo, useCallback, useEffect } from 'react';
+import { useMemo, useCallback, useEffect, useRef } from 'react';
 import {
   commandPaletteSearchAtom,
   commandPaletteResultsAtom,
@@ -10,49 +10,43 @@ import { Song } from '@ipc/song/song.types';
 import { BibleReferenceType , BibleTextType } from '@ipc/verse/verse.types';
 import bibleText from '@assets/bibles/VDC.json';
 
+// Minimum number of characters required before showing song search results
+export const MIN_SONG_SEARCH_LENGTH = 7;
+
+// Maximum number of search results to display
+export const MAX_SEARCH_RESULTS = 10;
+
 export const useCommandPaletteSearch = (searchValue?: string) => {
   const [searchAtom, setSearchAtom] = useAtom(commandPaletteSearchAtom);
-  const [, setResults] = useAtom(commandPaletteResultsAtom);
+  const [, setResultsAtom] = useAtom(commandPaletteResultsAtom);
   const { data: songs = [] } = useGetSongs();
+  
+  // Stabilize setResults to prevent infinite loops
+  const setResultsRef = useRef(setResultsAtom);
+  useEffect(() => {
+    setResultsRef.current = setResultsAtom;
+  }, [setResultsAtom]);
+  const setResults = useCallback((results: CommandPaletteResult[] | ((prev: CommandPaletteResult[]) => CommandPaletteResult[])) => {
+    setResultsRef.current(results);
+  }, []);
 
   // Use provided searchValue or fall back to atom
   const search = searchValue ?? searchAtom;
 
+  // Use refs to track songs for use in effects without causing re-renders
+  const songsRef = useRef<Song[]>(songs);
+  
+  // Calculate stable songs key based on IDs (only changes when songs actually change)
+  const songsKey = useMemo(() => songs.map(s => s.id).join(','), [songs]);
+  
+  // Update ref when songs change
+  useEffect(() => {
+    songsRef.current = songs;
+  }, [songsKey, songs]);
+
   const books = useMemo(() => {
     return Object.keys(bibleText);
   }, []);
-
-  const searchSongs = useCallback(
-    (query: string): Song[] => {
-      // Allow searching with any length, but require at least 1 character
-      if (query.trim().length === 0) return [];
-      
-      const queryLower = query.toLocaleLowerCase();
-      
-      // First try exact name match (works with any length)
-      const nameMatches = songs.filter((song: Song) =>
-        song.name.toLocaleLowerCase().includes(queryLower)
-      );
-      
-      if (nameMatches.length > 0) {
-        return nameMatches;
-      }
-      
-      // If no name matches and query is long enough, search in fullText
-      if (query.length > 6) {
-        const searchTerms = (
-          queryLower.match(/(\w+-\w+)|\w+/g) ?? []
-        ).join(' ');
-        
-        return songs.filter((song: Song) =>
-          song.fullText.includes(searchTerms)
-        );
-      }
-      
-      return [];
-    },
-    [songs]
-  );
 
   const searchVerses = useCallback(
     (query: string): BibleReferenceType[] => {
@@ -161,7 +155,7 @@ export const useCommandPaletteSearch = (searchValue?: string) => {
     [availableCommands]
   );
 
-  // Perform search whenever search term changes
+  // Perform search whenever search term or songs change
   useEffect(() => {
     const results: CommandPaletteResult[] = [];
     
@@ -171,11 +165,39 @@ export const useCommandPaletteSearch = (searchValue?: string) => {
       results.push({ type: 'command', data: cmd });
     });
     
-    // Search songs
-    const songResults = searchSongs(search);
-    songResults.forEach((song) => {
-      results.push({ type: 'song', data: song });
-    });
+    // Search songs - inline to avoid dependency issues
+    // Use songsRef.current to get the latest songs without causing re-renders
+    if (search.trim().length >= MIN_SONG_SEARCH_LENGTH) {
+      const queryLower = search.toLocaleLowerCase();
+      const currentSongs = songsRef.current;
+      
+      // Filter out any invalid songs and ensure they have required properties
+      const validSongs = currentSongs.filter((song: Song) => 
+        song && song.name && song.id && song.fullText
+      );
+      
+      // First try exact name match (works with any length)
+      const nameMatches = validSongs.filter((song: Song) =>
+        song.name.toLocaleLowerCase().includes(queryLower)
+      );
+      
+      // Process query for fullText search (tokenize like fullText is stored)
+      const searchTerms = (
+        queryLower.match(/(\w+-\w+)|\w+/g) ?? []
+      ).join(' ');
+      
+      // Search for content matches (exclude songs already found by name)
+      const nameMatchIds = new Set(nameMatches.map(song => song.id));
+      const contentMatches = validSongs.filter((song: Song) =>
+        !nameMatchIds.has(song.id) && song.fullText.includes(searchTerms)
+      );
+      
+      // Return name matches first, then content matches
+      const songResults = [...nameMatches, ...contentMatches];
+      songResults.forEach((song) => {
+        results.push({ type: 'song', data: song });
+      });
+    }
     
     // Search verses
     const verseResults = searchVerses(search);
@@ -183,8 +205,20 @@ export const useCommandPaletteSearch = (searchValue?: string) => {
       results.push({ type: 'verse', data: verse });
     });
     
-    setResults(results);
-  }, [search, searchSongs, searchVerses, searchCommands, setResults]);
+    // Limit results to MAX_SEARCH_RESULTS
+    const limitedResults = results.slice(0, MAX_SEARCH_RESULTS);
+    
+    // Only update if results actually changed to prevent infinite loops
+    setResults((prevResults) => {
+      // Compare results by stringifying (simple comparison)
+      const prevKey = JSON.stringify(prevResults);
+      const newKey = JSON.stringify(limitedResults);
+      if (prevKey === newKey) {
+        return prevResults; // Return same reference if unchanged
+      }
+      return limitedResults;
+    });
+  }, [search, songsKey, searchVerses, searchCommands, setResults]);
 
   return { search, setSearch: setSearchAtom };
 };

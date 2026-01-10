@@ -1,11 +1,11 @@
 import { useState, useEffect, useCallback } from 'react';
 import * as store from '../lib/jazz/store';
-import { parseSong } from '../lib/songParser';
 import type { Song } from '../../ipc/song/song.types';
 import type { ServiceListSongResponse } from '../lib/jazz/store';
 import { useActiveOrganization } from './useActiveOrganization';
 
 // Hook to get all songs with Jazz reactive updates
+// Songs are already parsed in the store, so no parsing needed here
 export function useGetSongs() {
   const { activeOrganization } = useActiveOrganization();
   const [songs, setSongs] = useState<Song[]>([]);
@@ -19,19 +19,17 @@ export function useGetSongs() {
       return;
     }
 
-      try {
-        setIsLoading(true);
-      const songResponses = store.getSongs(activeOrganization);
-          const parsedSongs = songResponses.map((song) =>
-            parseSong(song.id, song.name, song.fullText)
-          );
-          setSongs(parsedSongs);
-          setError(null);
+    try {
+      setIsLoading(true);
+      // Songs are already parsed in the store, use directly
+      const parsedSongs = store.getSongs(activeOrganization);
+      setSongs(parsedSongs);
+      setError(null);
       setIsLoading(false);
-      } catch (err) {
-          setError(err instanceof Error ? err : new Error('Failed to load songs'));
-          setIsLoading(false);
-        }
+    } catch (err) {
+      setError(err instanceof Error ? err : new Error('Failed to load songs'));
+      setIsLoading(false);
+    }
 
     // Jazz automatically handles reactivity, but we can re-run when organization changes
     // The organization object itself is reactive, so changes will trigger re-renders
@@ -357,6 +355,38 @@ export function useClearServiceList() {
       setIsLoading(false);
     }
   }, [activeOrganization]);
+
+  return {
+    mutateAsync: mutate,
+    mutate,
+    isLoading,
+    error,
+  };
+}
+
+// Hook to delete all songs from an organization
+export function useDeleteAllSongs() {
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
+
+  const mutate = useCallback(
+    async (organization: any) => {
+      setIsLoading(true);
+      setError(null);
+      try {
+        const result = store.deleteAllSongs(organization);
+        return result;
+      } catch (err) {
+        const error =
+          err instanceof Error ? err : new Error('Failed to delete all songs');
+        setError(error);
+        throw error;
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    []
+  );
 
   return {
     mutateAsync: mutate,

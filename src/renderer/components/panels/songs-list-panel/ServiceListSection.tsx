@@ -9,7 +9,6 @@ import {
   useReorderServiceList,
   useClearServiceList,
 } from '@renderer/hooks/useSongs';
-import { parseSong } from '@renderer/lib/songParser';
 import type { ServiceListSongResponse } from '@renderer/lib/jazz/store';
 
 const ServiceListSection = () => {
@@ -103,8 +102,8 @@ const ServiceListSection = () => {
   };
 
   const handleSongClick = (item: ServiceListSongResponse) => {
-    const song = parseSong(item.song.id, item.song.name, item.song.fullText);
-    setSelectedSong(song);
+    // Song is already parsed in the response, use it directly
+    setSelectedSong(item.song);
   };
 
   if (isLoading) {

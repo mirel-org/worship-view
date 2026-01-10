@@ -19,8 +19,15 @@ export const parseSong = (id: string, name: string, data: string): Song => {
     };
   });
 
+  // Extract all slide lines from all parts (excluding part keys) for search text
+  const allSlideLines = parts.flatMap((part) =>
+    part.slides.flatMap((slide) => slide.lines)
+  );
+  const lyricsContent = allSlideLines.join(' ');
+
+  // Create search text from song name + lyrics content only (exclude part keys)
   const fullText = (
-    (name + ' ' + data)
+    (name + ' ' + lyricsContent)
       .toLocaleLowerCase()
       .replace(
         /[ăîșțţâş]/g,
@@ -39,5 +46,23 @@ export const parseSong = (id: string, name: string, data: string): Song => {
     arrangement,
     fullText,
   };
+};
+
+/**
+ * Reconstructs raw text format from parsed song data
+ * Used for editing purposes - converts parsed structure back to the original text format
+ */
+export const reconstructRawText = (song: {
+  parts: SongPart[];
+  arrangement: SongArrangement;
+}): string => {
+  // Reconstruct each part: key\nslide1_line1\nslide1_line2\n\nslide2_line1\n\n---\n
+  const partTexts = song.parts.map((part) => {
+    const slideTexts = part.slides.map((slide) => slide.lines.join('\n'));
+    return part.key + '\n' + slideTexts.join('\n\n');
+  });
+
+  // Join parts with --- separator and add arrangement at the end
+  return partTexts.join('\n---\n') + '\n---\n' + song.arrangement.join(' ');
 };
 
