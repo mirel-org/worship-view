@@ -3,6 +3,9 @@ import { useAtom } from 'jotai';
 import {
   Dialog,
   DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
 } from '@/components/ui/dialog';
 import {
   Command,
@@ -236,6 +239,12 @@ const CommandPalette: FC = () => {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className="max-w-4xl h-[80vh] flex flex-col p-0 overflow-hidden">
+        <DialogHeader className="sr-only">
+          <DialogTitle>Command Palette</DialogTitle>
+          <DialogDescription>
+            Search for songs, verses, and commands. Use arrow keys to navigate, Enter to select.
+          </DialogDescription>
+        </DialogHeader>
         <div className="flex-1 flex overflow-hidden">
           {/* Left side: Search and Results */}
           <div className="w-1/2 flex flex-col border-r overflow-hidden">

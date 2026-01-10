@@ -3,7 +3,7 @@ import { useAtom } from 'jotai';
 import { useIsAuthenticated } from 'jazz-tools/react';
 import SettingsDisplay from './SettingsDisplay';
 import { areSettingsOpenAtom } from '../../../ipc/settings/settings.atoms';
-import { Dialog, DialogContent } from '../ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '../ui/dialog';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '../ui/tabs';
 import { SettingsJazzToken } from './SettingsJazzToken';
 import { SettingsAccount } from './SettingsAccount';
@@ -18,6 +18,12 @@ const Settings = () => {
   return (
     <Dialog open={areSettingsOpen} onOpenChange={setAreSettingsOpen}>
       <DialogContent className="max-w-4xl max-h-[90vh] p-0">
+        <DialogHeader className="sr-only">
+          <DialogTitle>Settings</DialogTitle>
+          <DialogDescription>
+            Configure application settings including display preferences, account, and organizations.
+          </DialogDescription>
+        </DialogHeader>
         <Tabs value={activeTab} onValueChange={setActiveTab} className="flex h-full">
           <div className="flex">
             {/* Vertical Tabs List */}
