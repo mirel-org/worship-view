@@ -59,16 +59,22 @@ export const useCommandPaletteSearch = (searchValue?: string) => {
         const normalizedQuery = query.replace(/:/g, ' ');
         let chunks = normalizedQuery.trim().split(/\s+/);
         
-        // Handle 4-word book names (e.g., "1 Corinthians")
-        if (chunks.length === 4) {
-          chunks = [chunks[0] + ' ' + chunks[1], chunks[2], chunks[3]];
+        // Handle numbered books (e.g., "1 corinteni" -> "1corinteni")
+        // Check if first chunk is a number and second chunk is text
+        if (chunks.length >= 3 && /^\d+$/.test(chunks[0]) && /^[a-zA-Z]/.test(chunks[1])) {
+          // Combine number and book name (remove space)
+          chunks = [chunks[0] + chunks[1], ...chunks.slice(2)];
+        } else if (chunks.length === 4) {
+          // Handle 4-word book names (e.g., "1 Corinthians")
+          chunks = [chunks[0] + chunks[1], chunks[2], chunks[3]];
         }
         
         // Try exact match first
         if (chunks.length >= 2) {
-          const bookName = chunks[0];
+          // Normalize book name by removing spaces for comparison
+          const bookName = chunks[0].replace(/\s+/g, '').toLowerCase();
           const book = books.find((b) => 
-            b.toLowerCase().startsWith(bookName.toLowerCase())
+            b.toLowerCase().startsWith(bookName)
           );
           
           if (book) {
@@ -104,7 +110,8 @@ export const useCommandPaletteSearch = (searchValue?: string) => {
         
         // Also search for partial book name matches
         if (chunks.length >= 1 && results.length === 0) {
-          const bookName = chunks[0].toLowerCase();
+          // Normalize book name by removing spaces for comparison
+          const bookName = chunks[0].replace(/\s+/g, '').toLowerCase();
           const matchingBooks = books.filter((b) =>
             b.toLowerCase().startsWith(bookName)
           );
@@ -199,11 +206,13 @@ export const useCommandPaletteSearch = (searchValue?: string) => {
       });
     }
     
-    // Search verses
-    const verseResults = searchVerses(search);
-    verseResults.forEach((verse) => {
-      results.push({ type: 'verse', data: verse });
-    });
+    // Search verses - only if search contains a number
+    if (/\d/.test(search)) {
+      const verseResults = searchVerses(search);
+      verseResults.forEach((verse) => {
+        results.push({ type: 'verse', data: verse });
+      });
+    }
     
     // Limit results to MAX_SEARCH_RESULTS
     const limitedResults = results.slice(0, MAX_SEARCH_RESULTS);
