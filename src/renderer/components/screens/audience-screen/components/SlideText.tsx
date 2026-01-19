@@ -31,14 +31,20 @@ const SlideText: FC = () => {
   return (
     <div className="z-10 relative w-full h-full">
       {currentProjectionType === 'song' && (
-        <CrossFade>
+        <CrossFade nodeKey={`song-${currentSongSlideNumber}`}>
           <div className="w-full flex justify-center absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
             <SongSlide lines={selectedSongSlide?.lines ?? []} />
           </div>
         </CrossFade>
       )}
       {currentProjectionType === 'verse' && verseProjectionEnabled && (
-        <CrossFade>
+        <CrossFade
+          nodeKey={
+            selectedVerseReference
+              ? `verse-${selectedVerseReference.book}-${selectedVerseReference.chapter}-${selectedVerseReference.verse}`
+              : null
+          }
+        >
           <div className="w-full flex justify-center absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
             <VerseSlide
               text={selectedVerseText ?? ''}

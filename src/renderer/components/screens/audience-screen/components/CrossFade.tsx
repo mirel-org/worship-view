@@ -1,53 +1,81 @@
-import React, { FC, useEffect, useMemo, useState } from 'react';
+import React, { FC, useEffect, useRef, useState } from 'react';
 
-const CrossFade: FC<{ children?: React.ReactNode }> = ({ children }) => {
-  const node = useMemo(() => {
-    const cs = React.Children.map(children, (x) => x);
-    if (cs) return cs[0];
-    else return null;
-  }, [children]);
-  const [nodesHistory, setNodesHistory] = useState<
-    { node: any; key: number }[]
-  >([]);
-  const [opacity, setOpacity] = useState(0);
+type CrossFadeProps = {
+  children?: React.ReactNode;
+  nodeKey?: string | null;
+};
 
-  const lastNode = useMemo(
-    () => nodesHistory[nodesHistory.length - 1]?.node,
-    [nodesHistory],
-  );
+type HistoryEntry = {
+  nodeKey: string | null;
+  key: number;
+};
 
+const CrossFade: FC<CrossFadeProps> = ({ children, nodeKey = null }) => {
+  const [history, setHistory] = useState<HistoryEntry[]>([]);
+  const [opacity, setOpacity] = useState(1);
+  const keyCounter = useRef(0);
+  const prevNodeKeyRef = useRef<string | null | undefined>(undefined);
+
+  // Only run when nodeKey actually changes
   useEffect(() => {
-    console.log('node', node);
-    if (!React.isValidElement(node)) return;
-    setNodesHistory((nodes) => [...nodes, { node, key: Math.random() }]);
-    setOpacity(0);
-    if (lastNode) {
-      setTimeout(() => {
-        setNodesHistory((nodes) => nodes.filter((n) => n.node !== lastNode));
-      }, 500);
+    // On first mount (undefined) or when nodeKey changes
+    const isFirstMount = prevNodeKeyRef.current === undefined;
+    const hasKeyChanged = prevNodeKeyRef.current !== nodeKey;
+
+    if (!isFirstMount && !hasKeyChanged) {
+      return;
     }
-  }, [node, setNodesHistory]);
 
-  useEffect(() => {
-    setTimeout(() => {
+    prevNodeKeyRef.current = nodeKey;
+
+    // Add new entry
+    keyCounter.current += 1;
+    const entryKey = keyCounter.current;
+
+    setHistory((prev) => [...prev, { nodeKey, key: entryKey }]);
+
+    // Skip fade animation on first mount
+    if (isFirstMount) {
+      setOpacity(1);
+      return;
+    }
+
+    setOpacity(0);
+
+    // Fade in after a frame
+    const fadeInTimer = requestAnimationFrame(() => {
       setOpacity(1);
     });
-  }, [nodesHistory]);
 
+    // Remove old entries after transition completes
+    const cleanupTimer = setTimeout(() => {
+      setHistory((prev) => prev.filter((entry) => entry.nodeKey === nodeKey));
+    }, 500);
+
+    return () => {
+      cancelAnimationFrame(fadeInTimer);
+      clearTimeout(cleanupTimer);
+    };
+  }, [nodeKey]);
+
+  // Render: always use current children for the active entry
   return (
     <>
-      {nodesHistory.map(({ node: n, key: k }) => (
-        <div
-          key={k}
-          className="w-full h-full absolute transition-opacity duration-500 left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
-          style={{
-            opacity: n === node ? opacity : 0,
-            zIndex: n === node ? 1 : 0,
-          }}
-        >
-          {n}
-        </div>
-      ))}
+      {history.map((entry) => {
+        const isActive = entry.nodeKey === nodeKey;
+        return (
+          <div
+            key={entry.key}
+            className="w-full h-full absolute transition-opacity duration-500 left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
+            style={{
+              opacity: isActive ? opacity : 0,
+              zIndex: isActive ? 1 : 0,
+            }}
+          >
+            {isActive ? children : null}
+          </div>
+        );
+      })}
     </>
   );
 };

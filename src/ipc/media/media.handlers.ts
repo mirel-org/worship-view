@@ -27,6 +27,7 @@ const mediaHandlers = () => {
           id: i,
           name: fileNames[i],
           type: mediaType,
+          path: ProjectPaths.media + fileNames[i],
         });
       }
     }

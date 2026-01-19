@@ -2,6 +2,7 @@ export type MediaItem = {
   id: number;
   name: string;
   type: MediaType;
+  path: string;
 };
 
 export type MediaType = "video" | "image";
