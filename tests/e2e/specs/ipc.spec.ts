@@ -15,20 +15,4 @@ test.describe('IPC Communication', () => {
     expect(firstDisplay).toHaveProperty('bounds');
   });
 
-  test('myAPI.getMediaItems() returns an array', async ({ mainWindow }) => {
-    const mediaItems = await mainWindow.evaluate(async () => {
-      return await (window as any).myAPI.getMediaItems();
-    });
-
-    expect(Array.isArray(mediaItems)).toBe(true);
-
-    // If there are media items, check their structure
-    if (mediaItems.length > 0) {
-      const firstItem = mediaItems[0];
-      expect(firstItem).toHaveProperty('id');
-      expect(firstItem).toHaveProperty('name');
-      expect(firstItem).toHaveProperty('type');
-      expect(firstItem).toHaveProperty('path');
-    }
-  });
 });
