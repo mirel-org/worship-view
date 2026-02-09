@@ -94,3 +94,7 @@ outside/
 
 # Plan
 plan.txt
+
+# Playwright
+test-results/
+playwright-report/

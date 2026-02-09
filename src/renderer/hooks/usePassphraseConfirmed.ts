@@ -26,4 +26,3 @@ export function usePassphraseConfirmed() {
 
   return [isConfirmed, setConfirmed] as const;
 }
-

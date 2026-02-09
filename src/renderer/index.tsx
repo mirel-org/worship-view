@@ -5,6 +5,7 @@ import Modal from 'react-modal';
 import { injectFontCSS } from './lib/fonts';
 import { JazzReactProvider } from 'jazz-tools/react';
 import { WorshipViewAccount } from './lib/jazz/schema';
+import { isTestMode, TestAppWrapper } from './lib/jazz/test-provider';
 import { useAtom } from 'jotai';
 import { jazzApiKeyAtom } from '../ipc/jazz/jazz.atoms';
 import { JazzApiKeyModal } from './components/jazz/JazzApiKeyModal';
@@ -96,7 +97,18 @@ function AppWithJazzProvider() {
 
 // Render application in DOM using React 18+ API
 const root = createRoot(container);
-root.render(<AppWithJazzProvider />);
+
+// Use test application in test mode, otherwise use normal provider
+if (isTestMode()) {
+  console.log('[ERWT] : Running in test mode');
+  root.render(
+    <TestAppWrapper>
+      <Application />
+    </TestAppWrapper>
+  );
+} else {
+  root.render(<AppWithJazzProvider />);
+}
 
 // Hot module replacement with Vite
 if (import.meta.hot) {

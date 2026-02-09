@@ -49,6 +49,7 @@ const Application: React.FC = () => {
                 variant={areScreensEnabled ? 'default' : 'secondary'}
                 onClick={() => setAreScreensEnabled(!areScreensEnabled)}
                 className="w-24"
+                data-testid="enable-button"
               >
                 {areScreensEnabled ? 'Enabled' : 'Enable'}
               </Button>
@@ -57,6 +58,8 @@ const Application: React.FC = () => {
               variant="ghost"
               size="icon"
               onClick={() => setAreSettingsOpen(true)}
+              data-testid="settings-button"
+              aria-label="Settings"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
