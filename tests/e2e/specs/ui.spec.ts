@@ -40,11 +40,6 @@ test.describe('UI Interactions', () => {
     const bibleTab = mainWindow.locator('[role="tab"]:has-text("Bible")');
     await bibleTab.click();
     await expect(bibleTab).toHaveAttribute('data-state', 'active');
-
-    // Click Prayer tab
-    const prayerTab = mainWindow.locator('[role="tab"]:has-text("Prayer")');
-    await prayerTab.click();
-    await expect(prayerTab).toHaveAttribute('data-state', 'active');
   });
 
   test('settings button is present', async ({ mainWindow }) => {

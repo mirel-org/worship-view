@@ -39,15 +39,7 @@ const useProjectionType = () => {
   }, [selectedVerseText, setCurrentProjectionType]);
 
   useEffect(() => {
-    if (selectedTabType === 'prayer') setCurrentProjectionType('prayer');
-  }, [selectedTabType, setCurrentProjectionType]);
-
-  useEffect(() => {
-    if (
-      !selectedSongSlide &&
-      !selectedVerseText &&
-      selectedTabType !== 'prayer'
-    )
+    if (!selectedSongSlide && !selectedVerseText)
       setCurrentProjectionType('none');
   }, [
     selectedSongSlide,

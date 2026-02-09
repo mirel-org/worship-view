@@ -4,12 +4,10 @@ import { Tabs, TabsList, TabsTrigger } from '../ui/tabs';
 import TabsBible from './TabsBible';
 import TabsSongs from './TabsSongs';
 import { selectedTabTypeAtom } from '../../../ipc/tab/tab.atoms';
-import TabsPrayer from './TabsPrayer';
 
 const TabsMap = {
   songs: <TabsSongs />,
   bible: <TabsBible />,
-  prayer: <TabsPrayer />,
 };
 
 export type TabType = keyof typeof TabsMap;
@@ -24,10 +22,9 @@ const AppTabs: FC = () => {
           value={selectedTabType}
           onValueChange={(value) => setSelectedTabType(value as TabType)}
         >
-          <TabsList className="grid w-full grid-cols-3 bg-muted/50">
+          <TabsList className="grid w-full grid-cols-2 bg-muted/50">
             <TabsTrigger value="songs">Songs</TabsTrigger>
             <TabsTrigger value="bible">Bible</TabsTrigger>
-            <TabsTrigger value="prayer">Prayer</TabsTrigger>
           </TabsList>
         </Tabs>
       </div>
