@@ -73,6 +73,14 @@ jobs:
           cache: 'pnpm'
       - run: pnpm install --frozen-lockfile
 
+      - name: Ensure Electron binary is installed
+        run: node node_modules/electron/install.js
+
+      - name: Build app
+        run: pnpm run build:test
+        env:
+          VITE_JAZZ_API_KEY: ${{ secrets.VITE_JAZZ_API_KEY }}
+
       - name: Install Playwright
         run: npx playwright install --with-deps
 
