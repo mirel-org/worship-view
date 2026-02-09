@@ -26,7 +26,7 @@ export function useActiveOrganization() {
 
   // Memoize organizations to prevent unnecessary re-renders
   const organizations = useMemo(
-    () => me?.root?.organizations || undefined,
+    () => me?.root?.organizations ?? [],
     [me?.root?.organizations]
   );
 

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useAccount } from 'jazz-tools/react';
 import { WorshipViewAccount, Organization } from '../../lib/jazz/schema';
 import { setCoMapProperty, pushCoListItem } from '../../lib/jazz/helpers';

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { OrganizationType } from '../../lib/jazz/schema';
 import { getOrganizationGroup } from '../../lib/jazz/helpers';
 import { Button } from '../ui/button';

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useAccount, useLogOut } from 'jazz-tools/react';
 import { WorshipViewAccount } from '../../lib/jazz/schema';
 import { Button } from '../ui/button';

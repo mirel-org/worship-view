@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { usePassphraseAuth } from 'jazz-tools/react';
 import { wordlist } from '../../lib/jazz/wordlist';
 import { usePassphraseConfirmed } from '../../hooks/usePassphraseConfirmed';
@@ -62,7 +62,7 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
     try {
       await auth.logIn(loginPassphrase);
       setLoginPassphrase('');
-      onOpenChange(false);
+      onOpenChange?.(false);
     } catch (error: any) {
       console.error('Login failed:', error);
       alert(`Failed to log in: ${error.message || 'Invalid passphrase'}`);

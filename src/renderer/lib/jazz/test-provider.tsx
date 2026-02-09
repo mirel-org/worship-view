@@ -3,6 +3,7 @@ import {
   JazzTestProvider,
   createJazzTestAccount,
 } from 'jazz-tools/react/testing';
+import { Account } from 'jazz-tools';
 import { WorshipViewAccount, Organization } from './schema';
 import { pushCoListItem } from './helpers';
 import { useAtom } from 'jotai';
@@ -45,9 +46,7 @@ function getTestFlag(key: string): boolean {
  * - `test-skip-organization` — don't create organization → Organization gate fails
  */
 export function TestAppWrapper({ children }: { children: ReactNode }) {
-  const [account, setAccount] = useState<InstanceType<
-    typeof WorshipViewAccount
-  > | null>(null);
+  const [account, setAccount] = useState<Account | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(true);
 
   useEffect(() => {

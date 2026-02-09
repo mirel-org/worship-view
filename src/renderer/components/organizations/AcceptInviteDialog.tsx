@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useAccount, useAgent } from 'jazz-tools/react';
 import { Account } from 'jazz-tools';
 import {

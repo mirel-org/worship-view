@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useAtom } from 'jotai';
 import { useAccount, useIsAuthenticated, useLogOut } from 'jazz-tools/react';
 import { WorshipViewAccount } from '../../lib/jazz/schema';

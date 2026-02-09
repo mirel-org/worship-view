@@ -2,10 +2,12 @@
   "compilerOptions": {
     "target": "ES2020",
     "module": "ESNext",
-    "moduleResolution": "node",
+    "jsx": "react-jsx",
+    "moduleResolution": "bundler",
     "strict": true,
     "strictNullChecks": true,
     "noImplicitAny": true,
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
     "esModuleInterop": true,
     "skipLibCheck": true,
     "resolveJsonModule": true,
@@ -13,12 +15,15 @@
     "baseUrl": ".",
     "allowJs": true,
     "paths": {
+      "@/*": ["./src/renderer/*"],
       "@assets/*": ["./assets/*"],
       "@common/*": ["./src/common/*"],
+      "@main/*": ["./src/main/*"],
+      "@renderer/*": ["./src/renderer/*"],
       "@ipc/*": ["./src/ipc/*"],
       "@src/*": ["./src/*"]
     }
   },
-  "include": ["src/common/**/*"],
+  "include": ["src/**/*"],
   "exclude": ["node_modules"]
 }

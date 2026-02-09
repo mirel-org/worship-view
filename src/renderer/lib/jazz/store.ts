@@ -15,7 +15,7 @@ import {
   getServiceListArray,
 } from './helpers';
 import { parseSong, reconstructRawText } from '../songParser';
-import type { Song as ParsedSong } from '../../ipc/song/song.types';
+import type { Song as ParsedSong } from '@ipc/song/song.types';
 
 // Response type matching parsed Song structure
 export type SongResponse = ParsedSong;
@@ -67,7 +67,9 @@ export function getSongs(
   organization: OrganizationType | null | undefined,
 ): SongResponse[] {
   const songs = getSongsFromOrg(organization);
-  return songs.map((song) => songToResponse(song)!).filter(Boolean);
+  return songs
+    .map((song) => songToResponse(song))
+    .filter((s): s is SongResponse => s !== null);
 }
 
 // Get song by ID from organization (returns parsed structure)
@@ -141,7 +143,9 @@ export function saveSong(
   }
   pushCoListItem(organization.songs, newSong);
 
-  return songToResponse(newSong)!;
+  const response = songToResponse(newSong);
+  if (!response) throw new Error('Failed to create song response');
+  return response;
 }
 
 // Update song in organization
@@ -173,7 +177,9 @@ export function updateSong(
     setCoMapProperty(song, 'searchText', parsed.fullText); // Update normalized search text
   }
 
-  return songToResponse(song)!;
+  const response = songToResponse(song);
+  if (!response) throw new Error('Failed to create song response');
+  return response;
 }
 
 // Rename song
@@ -445,7 +451,8 @@ export function addToServiceList(
   // Add to service list
   pushCoListItem(organization.serviceList, newItem);
 
-  const songResponse = songToResponse(song)!;
+  const songResponse = songToResponse(song);
+  if (!songResponse) throw new Error('Failed to create song response');
   return {
     id: songId,
     songId: newItem.songId,
