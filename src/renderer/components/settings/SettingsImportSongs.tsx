@@ -5,6 +5,7 @@ import { Button } from '../ui/button';
 import { useActiveOrganization } from '../../hooks/useActiveOrganization';
 import { batchUpsertSongs, BatchUpsertResponse } from '../../lib/jazz/store';
 import { Upload, FileText, CheckCircle2, XCircle, Loader2 } from 'lucide-react';
+import { isOpenSongFormat, convertOpenSong } from '../../lib/openSongParser';
 
 interface FileWithContent {
   file: File;
@@ -103,10 +104,20 @@ export function SettingsImportSongs() {
     setImportResult(null);
 
     try {
-      const songs = selectedFiles.map((file) => ({
-        name: file.name,
-        fullText: file.content,
-      }));
+      const songs: Array<{ name: string; fullText: string }> = [];
+
+      for (const file of selectedFiles) {
+        try {
+          if (isOpenSongFormat(file.content)) {
+            const converted = convertOpenSong(file.content, file.name);
+            songs.push({ name: converted.name, fullText: converted.fullText });
+          } else {
+            songs.push({ name: file.name, fullText: file.content });
+          }
+        } catch {
+          songs.push({ name: file.name, fullText: file.content });
+        }
+      }
 
       const result = batchUpsertSongs(activeOrganization, songs);
       setImportResult(result);
@@ -154,8 +165,9 @@ export function SettingsImportSongs() {
       <div className='space-y-2'>
         <Label>Import Songs</Label>
         <p className='text-sm text-muted-foreground'>
-          Drop multiple files or click to select. Each file will be processed as
-          text and imported as a song. The full filename will be used as the song name.
+          Drop multiple files or click to select. Supports plain text and
+          OpenSong XML formats. OpenSong files are auto-detected and converted.
+          The full filename will be used as the song name for plain text files.
         </p>
       </div>
 
@@ -187,7 +199,7 @@ export function SettingsImportSongs() {
               : 'Drag files here or click to select'}
           </p>
           <p className='text-xs text-muted-foreground'>
-            Any file type supported (processed as text)
+            Supports plain text and OpenSong XML formats
           </p>
         </label>
       </div>
