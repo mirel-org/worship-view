@@ -50,7 +50,7 @@ export const test = base.extend<ElectronFixtures>({
     const mainPath = path.join(__dirname, '../../../.vite/build/main.js');
 
     const electronApp = await electron.launch({
-      args: [mainPath],
+      args: [mainPath, '--no-sandbox'],
       env: {
         ...process.env,
         NODE_ENV: 'test',
