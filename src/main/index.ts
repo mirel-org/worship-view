@@ -1,8 +1,19 @@
 import { app, BrowserWindow } from 'electron';
+
+// Handle Squirrel.Windows lifecycle events (install/update/uninstall).
+// Must be at the top — exits early during Squirrel operations.
+if (require('electron-squirrel-startup')) app.quit();
+
 import { createAppWindow } from './main-window/mainWindow';
 
 // Allow autoplay without user interaction (needed for video backgrounds)
 app.commandLine.appendSwitch('autoplay-policy', 'no-user-gesture-required');
+
+// Initialize auto-updater in production only
+if (app.isPackaged) {
+  const { updateElectronApp } = require('update-electron-app');
+  updateElectronApp();
+}
 
 /**
  * This method will be called when Electron has finished

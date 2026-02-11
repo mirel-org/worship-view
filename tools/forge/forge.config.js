@@ -36,11 +36,20 @@ module.exports = {
   // Forge Makers
   makers: [
     {
-      // The Zip target builds basic .zip files containing your packaged application.
-      // There are no platform specific dependencies for using this maker and it will run on any platform.
-      // Using ZIP for Windows instead of Squirrel for better CI/CD compatibility
+      // ZIP for macOS (DMG is the primary installer, ZIP needed for update-electron-app on macOS)
       name: '@electron-forge/maker-zip',
-      platforms: ['win32', 'darwin'],
+      platforms: ['darwin'],
+    },
+    {
+      // Squirrel.Windows installer — produces Setup.exe + .nupkg for auto-updates
+      name: '@electron-forge/maker-squirrel',
+      platforms: ['win32'],
+      config: {
+        name: 'worship_view',
+        setupExe: 'WorshipViewSetup.exe',
+        setupIcon: path.resolve(rootDir, 'assets/images/appIcon.ico'),
+        noMsi: true,
+      },
     },
     {
       // The DMG target builds .dmg files for macOS distribution.
