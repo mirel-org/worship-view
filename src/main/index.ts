@@ -1,4 +1,4 @@
-import { app, BrowserWindow } from 'electron';
+import { app, autoUpdater, BrowserWindow, Menu } from 'electron';
 import started from 'electron-squirrel-startup';
 import { updateElectronApp } from 'update-electron-app';
 import { createAppWindow } from './main-window/mainWindow';
@@ -21,6 +21,38 @@ if (app.isPackaged) {
  * Some APIs can only be used after this event occurs.
  */
 app.on('ready', () => {
+  // Set up application menu with "Check for Updates"
+  const menu = Menu.buildFromTemplate([
+    {
+      label: 'Aplicație',
+      submenu: [
+        {
+          label: 'Verifică actualizări',
+          click: () => {
+            if (app.isPackaged) {
+              autoUpdater.checkForUpdates();
+            }
+          },
+        },
+        { type: 'separator' },
+        { role: 'quit', label: 'Ieșire' },
+      ],
+    },
+    {
+      label: 'Editare',
+      submenu: [
+        { role: 'undo' },
+        { role: 'redo' },
+        { type: 'separator' },
+        { role: 'cut' },
+        { role: 'copy' },
+        { role: 'paste' },
+        { role: 'selectAll' },
+      ],
+    },
+  ]);
+  Menu.setApplicationMenu(menu);
+
   createAppWindow();
 });
 

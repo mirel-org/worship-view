@@ -9,6 +9,7 @@ import { SettingsJazzToken } from './SettingsJazzToken';
 import { SettingsAccount } from './SettingsAccount';
 import { SettingsOrganizations } from './SettingsOrganizations';
 import { SettingsImportSongs } from './SettingsImportSongs';
+import { SettingsUpdate } from './SettingsUpdate';
 
 const Settings = () => {
   const [areSettingsOpen, setAreSettingsOpen] = useAtom(areSettingsOpenAtom);
@@ -64,6 +65,12 @@ const Settings = () => {
                     </TabsTrigger>
                   </>
                 )}
+                <TabsTrigger
+                  value="updates"
+                  className="w-full justify-start rounded-none border-b px-4 py-3 data-[state=active]:bg-background data-[state=active]:shadow-none"
+                >
+                  Actualizări
+                </TabsTrigger>
               </TabsList>
             </div>
 
@@ -89,6 +96,9 @@ const Settings = () => {
                     </TabsContent>
                   </>
                 )}
+                <TabsContent value="updates" className="mt-0">
+                  <SettingsUpdate />
+                </TabsContent>
               </div>
             </div>
           </div>

@@ -1,4 +1,5 @@
 import displayHandlers from '@ipc/display/display.handlers';
+import updateHandlers from '@ipc/update/update.handlers';
 import { app, BrowserWindow } from 'electron';
 import path from 'path';
 
@@ -82,4 +83,5 @@ function registerMainIPC() {
    * to Communicate asynchronously from the main process to renderer processes.
    */
   displayHandlers();
+  updateHandlers();
 }
