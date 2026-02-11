@@ -51,7 +51,7 @@ const Application: React.FC = () => {
                 className="w-24"
                 data-testid="enable-button"
               >
-                {areScreensEnabled ? 'Enabled' : 'Enable'}
+                {areScreensEnabled ? 'Activat' : 'Activează'}
               </Button>
             </div>
             <Button
@@ -59,7 +59,7 @@ const Application: React.FC = () => {
               size="icon"
               onClick={() => setAreSettingsOpen(true)}
               data-testid="settings-button"
-              aria-label="Settings"
+              aria-label="Setări"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"

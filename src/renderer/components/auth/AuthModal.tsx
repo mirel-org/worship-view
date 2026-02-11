@@ -49,13 +49,13 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
       // Don't close modal immediately - user needs to copy passphrase
     } catch (error: any) {
       console.error('Sign up failed:', error);
-      alert(`Failed to sign up: ${error.message || 'Unknown error'}`);
+      alert(`Înregistrarea a eșuat: ${error.message || 'Eroare necunoscută'}`);
     }
   };
 
   const handleLogIn = async () => {
     if (!loginPassphrase.trim()) {
-      alert('Please enter your passphrase');
+      alert('Vă rugăm să introduceți fraza de acces');
       return;
     }
 
@@ -65,7 +65,7 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
       onOpenChange?.(false);
     } catch (error: any) {
       console.error('Login failed:', error);
-      alert(`Failed to log in: ${error.message || 'Invalid passphrase'}`);
+      alert(`Autentificarea a eșuat: ${error.message || 'Frază de acces invalidă'}`);
     }
   };
 
@@ -92,23 +92,24 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
         onEscapeKeyDown={(e) => e.preventDefault()}
       >
         <DialogHeader>
-          <DialogTitle>Authentication</DialogTitle>
+          <DialogTitle>Autentificare</DialogTitle>
           <DialogDescription>
             {showingPassphrase && passphraseConfirmed
-              ? 'Please save your passphrase securely. You will need it to log in.'
+              ? 'Vă rugăm să salvați fraza de acces în siguranță. Veți avea nevoie de ea pentru a vă autentifica.'
               : showingPassphrase
-                ? 'Save your passphrase securely! You will need it to log in.'
-                : 'Log in with your passphrase'}
+                ? 'Salvați-vă fraza de acces în siguranță! Veți avea nevoie de ea pentru a vă autentifica.'
+                : 'Autentificați-vă cu fraza de acces'}
           </DialogDescription>
         </DialogHeader>
 
         {showingPassphrase && auth.passphrase ? (
           <div className='space-y-4'>
             <div className='space-y-2'>
-              <Label>Your Passphrase</Label>
+              <Label>Fraza dvs. de acces</Label>
               <p className='text-sm text-muted-foreground'>
-                Save this passphrase securely! You will need it to log in. If
-                you lose it, you cannot recover your account.
+                Salvați această frază de acces în siguranță! Veți avea nevoie de
+                ea pentru a vă autentifica. Dacă o pierdeți, nu vă puteți
+                recupera contul.
               </p>
               <textarea
                 readOnly
@@ -121,43 +122,43 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
                 <Button
                   onClick={() => {
                     navigator.clipboard.writeText(auth.passphrase);
-                    alert('Passphrase copied to clipboard!');
+                    alert('Fraza de acces a fost copiată în clipboard!');
                   }}
                   variant='outline'
                   className='flex-1'
                 >
-                  Copy Passphrase
+                  Copiază fraza de acces
                 </Button>
               </div>
             </div>
 
             <Button onClick={handleConfirmStored} className='w-full'>
-              I have stored my passphrase
+              Mi-am salvat fraza de acces
             </Button>
           </div>
         ) : (
           <div className='space-y-4'>
             <div className='space-y-2'>
-              <Label htmlFor='passphrase'>Enter your passphrase</Label>
+              <Label htmlFor='passphrase'>Introduceți fraza de acces</Label>
               <textarea
                 id='passphrase'
                 value={loginPassphrase}
                 onChange={(e) => setLoginPassphrase(e.target.value)}
-                placeholder='Enter your passphrase'
+                placeholder='Introduceți fraza de acces'
                 rows={5}
                 className='w-full p-2 border rounded-md font-mono text-sm'
               />
             </div>
             <div className='flex gap-2'>
               <Button onClick={handleLogIn} className='flex-1'>
-                Log In
+                Autentificare
               </Button>
               <Button
                 onClick={handleSignUp}
                 variant='outline'
                 className='flex-1'
               >
-                Sign Up
+                Înregistrare
               </Button>
             </div>
           </div>

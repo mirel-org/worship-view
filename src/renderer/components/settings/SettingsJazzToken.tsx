@@ -31,7 +31,7 @@ export function SettingsJazzToken() {
     <div className="space-y-4">
       {/* API Key Management */}
       <div className="space-y-2 pb-4 border-b">
-        <Label>Jazz Cloud API Key</Label>
+        <Label>Cheie API Jazz Cloud</Label>
         {apiKey ? (
           <div className="space-y-2">
             <div className="flex items-center gap-2">
@@ -46,22 +46,22 @@ export function SettingsJazzToken() {
                 size="sm"
                 onClick={() => setShowApiKey(!showApiKey)}
               >
-                {showApiKey ? 'Hide' : 'Show'}
+                {showApiKey ? 'Ascunde' : 'Arată'}
               </Button>
             </div>
             <p className="text-xs text-muted-foreground">
-              API key is saved. Enter a new key below to update it.
+              Cheia API este salvată. Introduceți o cheie nouă mai jos pentru a o actualiza.
             </p>
           </div>
         ) : (
           <p className="text-sm text-muted-foreground">
-            No API key set. Cloud sync is disabled.
+            Nicio cheie API setată. Sincronizarea cloud este dezactivată.
           </p>
         )}
         <div className="space-y-2">
           <Input
             type="password"
-            placeholder="Enter new API key"
+            placeholder="Introduceți noua cheie API"
             value={newApiKey}
             onChange={(e) => setNewApiKey(e.target.value)}
             onKeyDown={(e) => {
@@ -72,7 +72,7 @@ export function SettingsJazzToken() {
           />
           <div className="flex items-center justify-between">
             <p className="text-xs text-muted-foreground">
-              Get your API key from{' '}
+              Obțineți cheia API de la{' '}
               <a
                 href="https://dashboard.jazz.tools"
                 target="_blank"
@@ -87,7 +87,7 @@ export function SettingsJazzToken() {
               disabled={!newApiKey.trim()}
               size="sm"
             >
-              {apiKey ? 'Update' : 'Save'}
+              {apiKey ? 'Actualizează' : 'Salvează'}
             </Button>
           </div>
         </div>
@@ -95,10 +95,10 @@ export function SettingsJazzToken() {
 
       {/* Connection Status */}
       <div className="space-y-2">
-        <Label>Sync Status</Label>
+        <Label>Stare sincronizare</Label>
         <div className="flex items-center gap-2">
           <div className={`w-3 h-3 rounded-full ${apiKey ? 'bg-green-500' : 'bg-yellow-500'}`} />
-          <span>{apiKey ? 'Connected to Jazz Cloud' : 'Cloud sync disabled (no API key)'}</span>
+          <span>{apiKey ? 'Conectat la Jazz Cloud' : 'Sincronizare cloud dezactivată (lipsă cheie API)'}</span>
         </div>
       </div>
     </div>

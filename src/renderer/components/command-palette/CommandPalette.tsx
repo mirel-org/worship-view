@@ -155,7 +155,7 @@ const CommandPalette: FC = () => {
         setOpen(false);
         break;
       case 'clear-service-list':
-        if (window.confirm('Are you sure you want to clear the entire service list?')) {
+        if (window.confirm('Sigur doriți să goliți întreaga listă de melodii?')) {
           try {
             await clearServiceListMutation.mutateAsync();
             setOpen(false);
@@ -240,9 +240,10 @@ const CommandPalette: FC = () => {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className="max-w-4xl h-[80vh] flex flex-col p-0 overflow-hidden">
         <DialogHeader className="sr-only">
-          <DialogTitle>Command Palette</DialogTitle>
+          <DialogTitle>Paleta de comenzi</DialogTitle>
           <DialogDescription>
-            Search for songs, verses, and commands. Use arrow keys to navigate, Enter to select.
+            Căutați cântece, versete și comenzi. Folosiți tastele săgeți pentru
+            navigare, Enter pentru selectare.
           </DialogDescription>
         </DialogHeader>
         <div className="flex-1 flex overflow-hidden">
@@ -259,7 +260,7 @@ const CommandPalette: FC = () => {
               filter={() => 1}
             >
               <CommandInput 
-                placeholder="Search songs, verses, or commands..." 
+                placeholder="Caută cântece, versete sau comenzi..."
                 className="h-12"
                 value={searchValue}
                 onValueChange={setSearchValue}
@@ -273,15 +274,15 @@ const CommandPalette: FC = () => {
               <CommandList className="flex-1 overflow-y-auto">
                 <CommandEmpty>
                   <div className="p-4 text-center text-muted-foreground">
-                    {searchValue.length === 0 
-                      ? 'Start typing to search songs, verses, or commands...'
+                    {searchValue.length === 0
+                      ? 'Începeți să tastați pentru a căuta cântece, versete sau comenzi...'
                       : searchValue.length < MIN_SONG_SEARCH_LENGTH
-                      ? `Type at least ${MIN_SONG_SEARCH_LENGTH} characters to search songs...`
-                      : 'No results found.'}
+                      ? `Tastați cel puțin ${MIN_SONG_SEARCH_LENGTH} caractere pentru a căuta cântece...`
+                      : 'Niciun rezultat găsit.'}
                   </div>
                 </CommandEmpty>
                 {commandResults.length > 0 && (
-                  <CommandGroup heading="Commands">
+                  <CommandGroup heading="Comenzi">
                     {commandResults.map((result) => {
                       const command = result.data as { id: CommandAction; label: string; description?: string };
                       const value = `command-${command.id}`;
@@ -313,7 +314,7 @@ const CommandPalette: FC = () => {
                   </CommandGroup>
                 )}
                 {songResults.length > 0 && (
-                  <CommandGroup heading="Songs">
+                  <CommandGroup heading="Cântece">
                     {songResults.map((result) => {
                       const song = result.data as Song;
                       const value = `song-${song.id}`;
@@ -341,7 +342,7 @@ const CommandPalette: FC = () => {
                               <button
                                 onClick={(e) => handleAddToServiceList(e, song)}
                                 className="p-1 hover:bg-accent-foreground/10 rounded"
-                                aria-label={`Add ${song.name} to service list`}
+                                aria-label={`Adaugă ${song.name} la lista de melodii`}
                                 disabled={addToServiceListMutation.isLoading}
                               >
                                 <ListPlus className="h-4 w-4" />
@@ -349,14 +350,14 @@ const CommandPalette: FC = () => {
                               <button
                                 onClick={(e) => handleEditClick(e, song)}
                                 className="p-1 hover:bg-accent-foreground/10 rounded"
-                                aria-label={`Edit ${song.name}`}
+                                aria-label={`Editează ${song.name}`}
                               >
                                 <Pencil className="h-4 w-4" />
                               </button>
                               <button
                                 onClick={(e) => handleDeleteClick(e, song)}
                                 className="p-1 hover:bg-destructive/10 rounded text-destructive"
-                                aria-label={`Delete ${song.name}`}
+                                aria-label={`Șterge ${song.name}`}
                               >
                                 <Trash2 className="h-4 w-4" />
                               </button>
@@ -368,7 +369,7 @@ const CommandPalette: FC = () => {
                   </CommandGroup>
                 )}
                 {verseResults.length > 0 && (
-                  <CommandGroup heading="Bible Verses">
+                  <CommandGroup heading="Versete biblice">
                     {verseResults.map((result) => {
                       const verse = result.data as BibleReferenceType;
                       const value = `verse-${verse.book}-${verse.chapter}-${verse.verse}`;
@@ -398,12 +399,12 @@ const CommandPalette: FC = () => {
           {/* Right side: Preview */}
           <div className="w-1/2 flex flex-col overflow-hidden">
             <div className="p-4 border-b">
-              <h3 className="font-semibold">Preview</h3>
+              <h3 className="font-semibold">Previzualizare</h3>
             </div>
             <div className="flex-1 overflow-y-auto p-4">
               {!selectedResult ? (
                 <div className="text-center text-muted-foreground">
-                  Select an item to preview
+                  Selectați un element pentru previzualizare
                 </div>
               ) : selectedResult.type === 'song' && songPreview ? (
                 <div className="space-y-6">

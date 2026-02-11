@@ -34,16 +34,16 @@ export function OrganizationMembers({
 
     const memberId = member.$jazz.id;
     const memberRole = group.getRoleOf?.(memberId);
-    const memberName = member.profile?.$isLoaded ? member.profile.name : 'Unknown User';
+    const memberName = member.profile?.$isLoaded ? member.profile.name : 'Utilizator necunoscut';
 
     // Prevent kicking admins (except yourself)
     if (memberRole === 'admin' && memberId !== me?.$jazz?.id) {
-      alert('Cannot remove other admins. They must leave the organization themselves.');
+      alert('Nu puteți elimina alți administratori. Aceștia trebuie să părăsească organizația singuri.');
       return;
     }
 
     // Confirm action
-    if (!confirm(`Are you sure you want to remove ${memberName} from this organization?`)) {
+    if (!confirm(`Sigur doriți să eliminați pe ${memberName} din această organizație?`)) {
       return;
     }
 
@@ -54,7 +54,7 @@ export function OrganizationMembers({
       }
     } catch (error: any) {
       console.error('Failed to remove member:', error);
-      alert(`Failed to remove member: ${error.message || 'Unknown error'}`);
+      alert(`Eliminarea membrului a eșuat: ${error.message || 'Eroare necunoscută'}`);
     }
   };
 
@@ -94,22 +94,22 @@ export function OrganizationMembers({
 
   if (!group) {
     return (
-      <div className='text-sm text-muted-foreground'>Loading members...</div>
+      <div className='text-sm text-muted-foreground'>Se încarcă membrii...</div>
     );
   }
 
   const getRoleLabel = (role: string | undefined): string => {
     switch (role) {
       case 'admin':
-        return 'Admin';
+        return 'Administrator';
       case 'manager':
         return 'Manager';
       case 'writer':
-        return 'Writer';
+        return 'Editor';
       case 'reader':
-        return 'Reader';
+        return 'Cititor';
       default:
-        return 'Member';
+        return 'Membru';
     }
   };
 
@@ -131,17 +131,17 @@ export function OrganizationMembers({
   if (!organization) {
     return (
       <div className='text-sm text-muted-foreground'>
-        Select an organization to view members
+        Selectați o organizație pentru a vedea membrii
       </div>
     );
   }
 
   return (
     <div className='space-y-2'>
-      <h3 className='text-sm font-semibold'>Members ({members.length})</h3>
+      <h3 className='text-sm font-semibold'>Membri ({members.length})</h3>
       {members.length === 0 ? (
         <div className='text-sm text-muted-foreground py-2'>
-          No members found
+          Niciun membru găsit
         </div>
       ) : (
         <div className='space-y-2'>
@@ -151,7 +151,7 @@ export function OrganizationMembers({
             const isCurrentUser = memberId === me?.$jazz?.id;
             const memberName = member.profile?.$isLoaded
               ? member.profile.name
-              : 'Unknown User';
+              : 'Utilizator necunoscut';
 
             const canKick = isAdmin && !isCurrentUser && role !== 'admin';
 
@@ -166,7 +166,7 @@ export function OrganizationMembers({
                   </div>
                   <div className='flex-1'>
                     <div className='text-sm font-medium'>
-                      {isCurrentUser ? `${memberName} (You)` : memberName}
+                      {isCurrentUser ? `${memberName} (Tu)` : memberName}
                     </div>
                     <div className='text-xs text-muted-foreground font-mono'>
                       {memberId.slice(0, 8)}...

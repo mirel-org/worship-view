@@ -33,12 +33,12 @@ export function RenameOrganizationDialog({
 
   const handleRename = async () => {
     if (!name.trim()) {
-      setError('Please enter an organization name');
+      setError('Vă rugăm să introduceți numele organizației');
       return;
     }
 
     if (!organization) {
-      setError('No organization selected');
+      setError('Nicio organizație selectată');
       return;
     }
 
@@ -50,7 +50,7 @@ export function RenameOrganizationDialog({
       onOpenChange(false);
     } catch (error: any) {
       console.error('Failed to rename organization:', error);
-      setError(error.message || 'Failed to rename organization');
+      setError(error.message || 'Redenumirea organizației a eșuat');
     } finally {
       setIsRenaming(false);
     }
@@ -60,15 +60,16 @@ export function RenameOrganizationDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[400px]">
         <DialogHeader>
-          <DialogTitle>Rename Organization</DialogTitle>
+          <DialogTitle>Redenumește organizația</DialogTitle>
           <DialogDescription>
-            Change the name of this organization. All members will see the updated name.
+            Schimbă numele acestei organizații. Toți membrii vor vedea numele
+            actualizat.
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="org-name">Organization Name</Label>
+            <Label htmlFor="org-name">Numele organizației</Label>
             <Input
               id="org-name"
               value={name}
@@ -76,7 +77,7 @@ export function RenameOrganizationDialog({
                 setName(e.target.value);
                 setError(null);
               }}
-              placeholder="Enter organization name"
+              placeholder="Introduceți numele organizației"
               disabled={isRenaming}
               onKeyDown={(e) => {
                 if (e.key === 'Enter') {
@@ -94,10 +95,10 @@ export function RenameOrganizationDialog({
 
           <DialogFooter>
             <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isRenaming}>
-              Cancel
+              Anulează
             </Button>
             <Button onClick={handleRename} disabled={isRenaming || !name.trim()}>
-              {isRenaming ? 'Renaming...' : 'Rename'}
+              {isRenaming ? 'Se redenumește...' : 'Redenumește'}
             </Button>
           </DialogFooter>
         </div>

@@ -147,7 +147,7 @@ export function SettingsImportSongs() {
   if (!isAuthenticated) {
     return (
       <div className='text-sm text-muted-foreground'>
-        Please authenticate to import songs.
+        Vă rugăm să vă autentificați pentru a importa cântece.
       </div>
     );
   }
@@ -155,7 +155,7 @@ export function SettingsImportSongs() {
   if (!activeOrganization) {
     return (
       <div className='text-sm text-muted-foreground'>
-        Please select an active organization to import songs.
+        Vă rugăm să selectați o organizație activă pentru a importa cântece.
       </div>
     );
   }
@@ -163,11 +163,12 @@ export function SettingsImportSongs() {
   return (
     <div className='space-y-4'>
       <div className='space-y-2'>
-        <Label>Import Songs</Label>
+        <Label>Importă cântece</Label>
         <p className='text-sm text-muted-foreground'>
-          Drop multiple files or click to select. Supports plain text and
-          OpenSong XML formats. OpenSong files are auto-detected and converted.
-          The full filename will be used as the song name for plain text files.
+          Trageți mai multe fișiere sau faceți clic pentru a selecta. Suportă
+          formate text simplu și OpenSong XML. Fișierele OpenSong sunt detectate
+          automat și convertite. Numele complet al fișierului va fi folosit ca
+          nume al cântecului pentru fișierele text.
         </p>
       </div>
 
@@ -195,11 +196,11 @@ export function SettingsImportSongs() {
           <Upload className='mx-auto h-12 w-12 text-muted-foreground mb-4' />
           <p className='text-sm font-medium mb-2'>
             {isDragging
-              ? 'Drop files here'
-              : 'Drag files here or click to select'}
+              ? 'Eliberați fișierele aici'
+              : 'Trageți fișierele aici sau faceți clic pentru a selecta'}
           </p>
           <p className='text-xs text-muted-foreground'>
-            Supports plain text and OpenSong XML formats
+            Suportă formate text simplu și OpenSong XML
           </p>
         </label>
       </div>
@@ -207,7 +208,7 @@ export function SettingsImportSongs() {
       {/* Selected Files List */}
       {selectedFiles.length > 0 && (
         <div className='space-y-2'>
-          <Label>Selected Files ({selectedFiles.length})</Label>
+          <Label>Fișiere selectate ({selectedFiles.length})</Label>
           <div className='border rounded-lg p-4 space-y-2 max-h-48 overflow-y-auto'>
             {selectedFiles.map((file, index) => (
               <div key={index} className='flex items-center gap-2 text-sm'>
@@ -228,10 +229,10 @@ export function SettingsImportSongs() {
               {isImporting ? (
                 <>
                   <Loader2 className='mr-2 h-4 w-4 animate-spin' />
-                  Importing...
+                  Se importă...
                 </>
               ) : (
-                'Import Songs'
+                'Importă cântece'
               )}
             </Button>
             <Button
@@ -239,7 +240,7 @@ export function SettingsImportSongs() {
               variant='outline'
               disabled={isImporting}
             >
-              Clear
+              Golește
             </Button>
           </div>
         </div>
@@ -248,7 +249,7 @@ export function SettingsImportSongs() {
       {/* Import Results */}
       {importResult && (
         <div className='space-y-2'>
-          <Label>Import Results</Label>
+          <Label>Rezultate import</Label>
           <div className='border rounded-lg p-4 space-y-2'>
             <div className='flex items-center gap-2'>
               {importResult.success ? (
@@ -257,31 +258,29 @@ export function SettingsImportSongs() {
                 <XCircle className='h-5 w-5 text-red-500' />
               )}
               <span className='font-medium'>
-                {importResult.created + (importResult.updated || 0)} song
-                {importResult.created + (importResult.updated || 0) !== 1 ? 's' : ''} processed
+                {importResult.created + (importResult.updated || 0)} cântece procesate
               </span>
             </div>
             <div className='text-sm text-muted-foreground space-y-1'>
               {importResult.created > 0 && (
                 <div>
-                  {importResult.created} new song{importResult.created !== 1 ? 's' : ''} created
+                  {importResult.created} cântece noi create
                 </div>
               )}
               {importResult.updated > 0 && (
                 <div>
-                  {importResult.updated} existing song{importResult.updated !== 1 ? 's' : ''} updated
+                  {importResult.updated} cântece existente actualizate
                 </div>
               )}
             </div>
             {importResult.errorCount > 0 && (
               <div className='text-sm text-muted-foreground'>
-                {importResult.errorCount} error
-                {importResult.errorCount !== 1 ? 's' : ''} occurred
+                {importResult.errorCount} erori apărute
               </div>
             )}
             {importResult.errors && importResult.errors.length > 0 && (
               <div className='mt-4 space-y-1'>
-                <Label className='text-sm'>Errors:</Label>
+                <Label className='text-sm'>Erori:</Label>
                 {importResult.errors.map((error, index) => (
                   <div
                     key={index}

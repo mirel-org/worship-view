@@ -17,7 +17,7 @@ const TabsSongs: FC = () => {
           >
             <div className="h-full flex flex-col border-b border-border">
               <div className="flex items-center justify-between px-2 py-1 bg-muted/50 border-b border-border flex-shrink-0">
-                <span className="text-sm font-semibold">Service List</span>
+                <span className="text-sm font-semibold">Listă de melodii</span>
               </div>
               <div className="flex-1 overflow-hidden">
                 <ServiceListSection />
@@ -34,7 +34,7 @@ const TabsSongs: FC = () => {
           >
             <div className="h-full flex flex-col">
               <div className="flex items-center justify-between px-2 py-1 bg-muted/50 border-b border-border flex-shrink-0">
-                <span className="text-sm font-semibold">Media</span>
+                <span className="text-sm font-semibold">Fundal</span>
               </div>
               <div className="flex-1 overflow-hidden">
                 <MediaPanel />

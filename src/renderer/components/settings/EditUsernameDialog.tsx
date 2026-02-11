@@ -38,12 +38,12 @@ export function EditUsernameDialog({ open, onOpenChange }: EditUsernameDialogPro
 
   const handleSave = async () => {
     if (!username.trim()) {
-      setError('Username cannot be empty');
+      setError('Numele de utilizator nu poate fi gol');
       return;
     }
 
     if (!me || !me.profile) {
-      setError('Profile not available');
+      setError('Profilul nu este disponibil');
       return;
     }
 
@@ -56,7 +56,7 @@ export function EditUsernameDialog({ open, onOpenChange }: EditUsernameDialogPro
       onOpenChange(false);
     } catch (err: any) {
       console.error('Failed to update username:', err);
-      setError(err.message || 'Failed to update username');
+      setError(err.message || 'Actualizarea numelui de utilizator a eșuat');
     } finally {
       setIsLoading(false);
     }
@@ -66,15 +66,16 @@ export function EditUsernameDialog({ open, onOpenChange }: EditUsernameDialogPro
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[400px]">
         <DialogHeader>
-          <DialogTitle>Edit Username</DialogTitle>
+          <DialogTitle>Editează numele de utilizator</DialogTitle>
           <DialogDescription>
-            Change your display name. This name will be visible to other members of your organizations.
+            Schimbați numele afișat. Acest nume va fi vizibil pentru ceilalți
+            membri ai organizațiilor dvs.
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="username">Username</Label>
+            <Label htmlFor="username">Nume de utilizator</Label>
             <Input
               id="username"
               value={username}
@@ -82,7 +83,7 @@ export function EditUsernameDialog({ open, onOpenChange }: EditUsernameDialogPro
                 setUsername(e.target.value);
                 setError(null);
               }}
-              placeholder="Enter your username"
+              placeholder="Introduceți numele de utilizator"
               disabled={isLoading}
               onKeyDown={(e) => {
                 if (e.key === 'Enter') {
@@ -100,10 +101,10 @@ export function EditUsernameDialog({ open, onOpenChange }: EditUsernameDialogPro
 
           <div className="flex gap-2 justify-end">
             <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isLoading}>
-              Cancel
+              Anulează
             </Button>
             <Button onClick={handleSave} disabled={isLoading || !username.trim()}>
-              {isLoading ? 'Saving...' : 'Save'}
+              {isLoading ? 'Se salvează...' : 'Salvează'}
             </Button>
           </div>
         </div>

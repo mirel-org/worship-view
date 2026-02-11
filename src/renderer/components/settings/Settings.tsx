@@ -19,9 +19,10 @@ const Settings = () => {
     <Dialog open={areSettingsOpen} onOpenChange={setAreSettingsOpen}>
       <DialogContent className="max-w-4xl max-h-[90vh] p-0">
         <DialogHeader className="sr-only">
-          <DialogTitle>Settings</DialogTitle>
+          <DialogTitle>Setări</DialogTitle>
           <DialogDescription>
-            Configure application settings including display preferences, account, and organizations.
+            Configurați setările aplicației, inclusiv preferințele de afișare,
+            contul și organizațiile.
           </DialogDescription>
         </DialogHeader>
         <Tabs value={activeTab} onValueChange={setActiveTab} className="flex h-full">
@@ -33,7 +34,7 @@ const Settings = () => {
                   value="display"
                   className="w-full justify-start rounded-none border-b px-4 py-3 data-[state=active]:bg-background data-[state=active]:shadow-none"
                 >
-                  Display
+                  Afișare
                 </TabsTrigger>
                 {isAuthenticated && (
                   <>
@@ -41,25 +42,25 @@ const Settings = () => {
                       value="jazz-token"
                       className="w-full justify-start rounded-none border-b px-4 py-3 data-[state=active]:bg-background data-[state=active]:shadow-none"
                     >
-                      Jazz Token
+                      Token Jazz
                     </TabsTrigger>
                     <TabsTrigger
                       value="account"
                       className="w-full justify-start rounded-none border-b px-4 py-3 data-[state=active]:bg-background data-[state=active]:shadow-none"
                     >
-                      Account
+                      Cont
                     </TabsTrigger>
                     <TabsTrigger
                       value="organizations"
                       className="w-full justify-start rounded-none border-b px-4 py-3 data-[state=active]:bg-background data-[state=active]:shadow-none"
                     >
-                      Organizations
+                      Organizații
                     </TabsTrigger>
                     <TabsTrigger
                       value="import-songs"
                       className="w-full justify-start rounded-none border-b px-4 py-3 data-[state=active]:bg-background data-[state=active]:shadow-none"
                     >
-                      Import Songs
+                      Importă cântece
                     </TabsTrigger>
                   </>
                 )}

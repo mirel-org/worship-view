@@ -89,7 +89,7 @@ const ServiceListSection = () => {
   const handleClear = async () => {
     if (
       !window.confirm(
-        'Are you sure you want to clear the entire service list?',
+        'Sigur doriți să goliți întreaga listă de melodii?',
       )
     ) {
       return;
@@ -109,7 +109,7 @@ const ServiceListSection = () => {
   if (isLoading) {
     return (
       <div className="p-2">
-        <p className="text-sm text-muted-foreground">Loading service list...</p>
+        <p className="text-sm text-muted-foreground">Se încarcă lista de melodii...</p>
       </div>
     );
   }
@@ -125,13 +125,13 @@ const ServiceListSection = () => {
             disabled={clearMutation.isLoading}
             className="h-6 px-2 text-xs"
           >
-            Clear
+            Golește
           </Button>
         )}
       </div>
       {serviceList.length === 0 ? (
         <div className="p-2 text-sm text-muted-foreground text-center">
-          No songs in service list
+          Niciun cântec în lista de melodii
         </div>
       ) : (
         <ul className="space-y-1">
@@ -152,7 +152,7 @@ const ServiceListSection = () => {
                 onDragStart={(e) => handleDragStart(e, index)}
                 onDragEnd={handleDragEnd}
                 className="cursor-move flex-shrink-0 touch-none"
-                aria-label="Drag to reorder"
+                aria-label="Trageți pentru a reordona"
                 style={{ userSelect: 'none' }}
               >
                 <GripVertical className="h-4 w-4 text-muted-foreground pointer-events-none" />
@@ -166,7 +166,7 @@ const ServiceListSection = () => {
               <button
                 onClick={(e) => handleRemove(item.songId, e)}
                 className="opacity-0 group-hover:opacity-100 p-1 hover:bg-destructive/10 rounded text-destructive transition-opacity"
-                aria-label={`Remove ${item.song.name} from service list`}
+                aria-label={`Elimină ${item.song.name} din lista de melodii`}
                 disabled={removeMutation.isLoading}
               >
                 <X className="h-4 w-4" />

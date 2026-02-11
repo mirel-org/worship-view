@@ -59,10 +59,10 @@ export function Onboarding({ children }: OnboardingProps) {
     return (
       <div className='h-full flex items-center justify-center p-4 box-border bg-background text-foreground font-sans antialiased'>
         <div className='text-center space-y-4 max-w-md'>
-          <h1 className='text-2xl font-semibold'>Setup Required</h1>
+          <h1 className='text-2xl font-semibold'>Configurare necesară</h1>
           <p className='text-muted-foreground'>
-            Please set up your Jazz Cloud API key in the settings to use this
-            application.
+            Vă rugăm să configurați cheia API Jazz Cloud în setări pentru a
+            utiliza această aplicație.
           </p>
         </div>
       </div>
@@ -76,16 +76,17 @@ export function Onboarding({ children }: OnboardingProps) {
         <AuthModal open={authModalOpen} />
         <div className='h-full flex items-center justify-center p-4 box-border bg-background text-foreground font-sans antialiased'>
           <div className='text-center space-y-4 max-w-md'>
-            <h1 className='text-2xl font-semibold'>Setup Required</h1>
+            <h1 className='text-2xl font-semibold'>Configurare necesară</h1>
             {!isAuthenticated && (
               <p className='text-muted-foreground'>
-                Please authenticate to use this application. The authentication
-                dialog should open automatically.
+                Vă rugăm să vă autentificați pentru a utiliza această aplicație.
+                Dialogul de autentificare ar trebui să se deschidă automat.
               </p>
             )}
             {needsPassphraseConfirmation && (
               <p className='text-muted-foreground'>
-                Please confirm that you have saved your passphrase securely.
+                Vă rugăm să confirmați că v-ați salvat fraza de acces în
+                siguranță.
               </p>
             )}
           </div>
@@ -101,10 +102,11 @@ export function Onboarding({ children }: OnboardingProps) {
         <OrganizationSetupModal open={organizationSetupModalOpen ?? false} />
         <div className='h-full flex items-center justify-center p-4 box-border bg-background text-foreground font-sans antialiased'>
           <div className='text-center space-y-4 max-w-md'>
-            <h1 className='text-2xl font-semibold'>Organization Required</h1>
+            <h1 className='text-2xl font-semibold'>Organizație necesară</h1>
             <p className='text-muted-foreground'>
-              You need to be part of an organization to use this application.
-              The setup dialog should open automatically.
+              Trebuie să faceți parte dintr-o organizație pentru a utiliza
+              această aplicație. Dialogul de configurare ar trebui să se
+              deschidă automat.
             </p>
           </div>
         </div>

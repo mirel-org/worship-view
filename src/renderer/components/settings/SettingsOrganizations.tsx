@@ -70,7 +70,7 @@ export function SettingsOrganizations() {
     if (!selectedOrganization || !me) return;
 
     const orgName = selectedOrganization.name;
-    if (!confirm(`Are you sure you want to delete "${orgName}"? This action cannot be undone and will remove all songs and data associated with this organization.`)) {
+    if (!confirm(`Sigur doriți să ștergeți „${orgName}"? Această acțiune nu poate fi anulată și va elimina toate cântecele și datele asociate cu această organizație.`)) {
       return;
     }
 
@@ -92,7 +92,7 @@ export function SettingsOrganizations() {
       setSelectedOrgId(null);
     } catch (error: any) {
       console.error('Failed to delete organization:', error);
-      alert(`Failed to delete organization: ${error.message || 'Unknown error'}`);
+      alert(`Ștergerea organizației a eșuat: ${error.message || 'Eroare necunoscută'}`);
     }
   };
 
@@ -100,8 +100,8 @@ export function SettingsOrganizations() {
     if (!selectedOrganization) return;
 
     const confirmMessage = songCount > 0
-      ? `Are you sure you want to delete all ${songCount} song${songCount !== 1 ? 's' : ''} from "${selectedOrganization.name}"? This action cannot be undone and will also clear the service list.`
-      : `Are you sure you want to delete all songs from "${selectedOrganization.name}"? This action cannot be undone.`;
+      ? `Sigur doriți să ștergeți toate cele ${songCount} cântece din „${selectedOrganization.name}"? Această acțiune nu poate fi anulată și va goli și lista de melodii.`
+      : `Sigur doriți să ștergeți toate cântecele din „${selectedOrganization.name}"? Această acțiune nu poate fi anulată.`;
 
     if (!confirm(confirmMessage)) {
       return;
@@ -109,10 +109,10 @@ export function SettingsOrganizations() {
 
     try {
       await deleteAllSongsMutation.mutateAsync(selectedOrganization);
-      alert(`Successfully deleted all songs from "${selectedOrganization.name}"`);
+      alert(`Toate cântecele din „${selectedOrganization.name}" au fost șterse cu succes`);
     } catch (error: any) {
       console.error('Failed to delete all songs:', error);
-      alert(`Failed to delete all songs: ${error.message || 'Unknown error'}`);
+      alert(`Ștergerea tuturor cântecelor a eșuat: ${error.message || 'Eroare necunoscută'}`);
     }
   };
 
@@ -132,7 +132,7 @@ export function SettingsOrganizations() {
       <div className="flex h-full gap-4">
         {/* Left Sidebar - Organization List */}
         <div className="w-64 border-r pr-4 flex flex-col">
-          <Label className="mb-2">Organizations</Label>
+          <Label className="mb-2">Organizații</Label>
           <div className="flex-1 overflow-y-auto space-y-1">
             {organizations.map((org: any) => {
               if (!org) return null;
@@ -165,7 +165,7 @@ export function SettingsOrganizations() {
             variant="outline"
             className="w-full mt-4"
           >
-            New Organization
+            Organizație nouă
           </Button>
         </div>
 
@@ -180,14 +180,14 @@ export function SettingsOrganizations() {
                     <h3 className="text-lg font-semibold">{selectedOrganization.name}</h3>
                     {selectedOrganization.$jazz.id === activeOrgId && (
                       <p className="text-sm text-muted-foreground mt-1">
-                        Currently active organization
+                        Organizația activă curentă
                       </p>
                     )}
                   </div>
                   <div className="flex items-center gap-2">
                     {selectedOrganization.$jazz.id !== activeOrgId && (
                       <Button onClick={handleMakeActive}>
-                        Make Active
+                        Activează
                       </Button>
                     )}
                     {isAdmin && (
@@ -198,7 +198,7 @@ export function SettingsOrganizations() {
                           onClick={() => setRenameDialogOpen(true)}
                         >
                           <Pencil className="h-4 w-4 mr-2" />
-                          Rename
+                          Redenumește
                         </Button>
                         <Button
                           variant="destructive"
@@ -206,7 +206,7 @@ export function SettingsOrganizations() {
                           onClick={handleDeleteOrganization}
                         >
                           <Trash2 className="h-4 w-4 mr-2" />
-                          Delete
+                          Șterge
                         </Button>
                       </>
                     )}
@@ -221,14 +221,14 @@ export function SettingsOrganizations() {
 
               {/* Invite Button */}
               <div className="space-y-2 pt-4 border-t">
-                <Label>Invite Members</Label>
+                <Label>Invită membri</Label>
                 <InviteButton organization={selectedOrganization} />
               </div>
 
               {/* Delete All Songs Button (Admin only) */}
               {isAdmin && (
                 <div className="space-y-2 pt-4 border-t">
-                  <Label>Danger Zone</Label>
+                  <Label>Zonă periculoasă</Label>
                   <Button
                     variant="destructive"
                     onClick={handleDeleteAllSongs}
@@ -237,26 +237,26 @@ export function SettingsOrganizations() {
                   >
                     <Bomb className="h-4 w-4 mr-2" />
                     {deleteAllSongsMutation.isLoading
-                      ? 'Deleting...'
-                      : `Delete All Songs${songCount > 0 ? ` (${songCount})` : ''}`}
+                      ? 'Se șterg...'
+                      : `Șterge toate cântecele${songCount > 0 ? ` (${songCount})` : ''}`}
                   </Button>
                   <p className="text-xs text-muted-foreground">
-                    This will permanently delete all songs and clear the service list for this organization.
+                    Aceasta va șterge permanent toate cântecele și va goli lista de melodii pentru această organizație.
                   </p>
                 </div>
               )}
             </>
           ) : (
             <div className="text-sm text-muted-foreground">
-              Select an organization to view details
+              Selectați o organizație pentru a vedea detaliile
             </div>
           )}
 
           {/* Accept Invite Button */}
           <div className="space-y-2 pt-4 border-t">
-            <Label>Accept Invite</Label>
+            <Label>Acceptă invitația</Label>
             <Button onClick={() => setAcceptInviteOpen(true)} variant="outline" className="w-full">
-              Accept Invite by ID
+              Acceptă invitația după ID
             </Button>
           </div>
         </div>

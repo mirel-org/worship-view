@@ -37,12 +37,12 @@ export function CreateOrganizationDialog({
 
   const handleCreate = async () => {
     if (!name.trim()) {
-      alert('Please enter an organization name');
+      alert('Vă rugăm să introduceți numele organizației');
       return;
     }
 
     if (!me) {
-      alert('You must be logged in to create an organization');
+      alert('Trebuie să fiți autentificat pentru a crea o organizație');
       return;
     }
 
@@ -77,7 +77,7 @@ export function CreateOrganizationDialog({
       onOpenChange(false);
     } catch (error: any) {
       console.error('Failed to create organization:', error);
-      alert(`Failed to create organization: ${error.message || 'Unknown error'}`);
+      alert(`Crearea organizației a eșuat: ${error.message || 'Eroare necunoscută'}`);
     } finally {
       setIsCreating(false);
     }
@@ -87,20 +87,21 @@ export function CreateOrganizationDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle>Create Organization</DialogTitle>
+          <DialogTitle>Creează organizație</DialogTitle>
           <DialogDescription>
-            Create a new organization to manage songs and service lists.
+            Creează o organizație nouă pentru a gestiona cântecele și listele de
+            serviciu.
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="org-name">Organization Name</Label>
+            <Label htmlFor="org-name">Numele organizației</Label>
             <Input
               id="org-name"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="Enter organization name"
+              placeholder="Introduceți numele organizației"
               onKeyDown={(e) => {
                 if (e.key === 'Enter') {
                   handleCreate();
@@ -111,10 +112,10 @@ export function CreateOrganizationDialog({
 
           <div className="flex gap-2 justify-end">
             <Button variant="outline" onClick={() => onOpenChange(false)}>
-              Cancel
+              Anulează
             </Button>
             <Button onClick={handleCreate} disabled={isCreating || !name.trim()}>
-              {isCreating ? 'Creating...' : 'Create'}
+              {isCreating ? 'Se creează...' : 'Creează'}
             </Button>
           </div>
         </div>

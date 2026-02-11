@@ -41,12 +41,12 @@ const SongAddDialog = ({
 
   const handleSave = async () => {
     if (!songName.trim()) {
-      setError('Song name cannot be empty');
+      setError('Numele cântecului nu poate fi gol');
       return;
     }
 
     if (!content.trim()) {
-      setError('Song content cannot be empty');
+      setError('Conținutul cântecului nu poate fi gol');
       return;
     }
 
@@ -68,7 +68,7 @@ const SongAddDialog = ({
       onSave();
       onOpenChange(false);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to save song');
+      setError(err instanceof Error ? err.message : 'Salvarea cântecului a eșuat');
     }
   };
   
@@ -82,32 +82,32 @@ const SongAddDialog = ({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-3xl max-h-[90vh] flex flex-col">
         <DialogHeader>
-          <DialogTitle>Add New Song</DialogTitle>
+          <DialogTitle>Adaugă cântec nou</DialogTitle>
           <DialogDescription>
-            Enter the song name and content. Parts are separated by &quot;---&quot; and
-            the last line contains the arrangement.
+            Introduceți numele și conținutul cântecului. Părțile sunt separate
+            prin &quot;---&quot; iar ultima linie conține aranjamentul.
           </DialogDescription>
         </DialogHeader>
         <div className="flex-1 overflow-hidden flex flex-col space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="song-name">Song Name</Label>
+            <Label htmlFor="song-name">Numele cântecului</Label>
             <Input
               id="song-name"
               value={songName}
               onChange={(e) => { setSongName(e.target.value); setError(null); }}
               disabled={saving}
-              placeholder="Enter song name"
+              placeholder="Introduceți numele cântecului"
             />
           </div>
           <div className="flex-1 overflow-hidden flex flex-col space-y-2">
-            <Label htmlFor="song-content">Song Content</Label>
+            <Label htmlFor="song-content">Conținut cântec</Label>
             <textarea
               id="song-content"
               className="flex min-h-[400px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 font-mono resize-none"
               value={content}
               onChange={(e) => { setContent(e.target.value); setError(null); }}
               disabled={saving}
-              placeholder="Enter song content..."
+              placeholder="Introduceți conținutul cântecului..."
             />
             {error && (
               <p className="text-sm text-destructive" data-testid="song-validation-error">{error}</p>
@@ -138,13 +138,13 @@ const SongAddDialog = ({
             onClick={handleCancel}
             disabled={saving}
           >
-            Cancel
+            Anulează
           </Button>
           <Button
             onClick={handleSave}
             disabled={saving || !songName.trim() || !content.trim()}
           >
-            {saving ? 'Saving...' : 'Add Song'}
+            {saving ? 'Se salvează...' : 'Adaugă cântec'}
           </Button>
         </DialogFooter>
       </DialogContent>

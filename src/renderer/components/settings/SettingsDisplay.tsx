@@ -36,7 +36,7 @@ const SettingsDisplay = () => {
     <div className="space-y-6">
       {/* Display Settings */}
       <div>
-        <h3 className="text-lg font-semibold mb-4">Displays</h3>
+        <h3 className="text-lg font-semibold mb-4">Ecrane</h3>
         {availableDisplays.map((display) => {
           const key = display.id.toString();
           const inputs = displayScreenSelection[key];
@@ -56,9 +56,9 @@ const SettingsDisplay = () => {
 
       {/* Song Settings */}
       <div>
-        <h3 className="text-lg font-semibold mb-4">Songs</h3>
+        <h3 className="text-lg font-semibold mb-4">Cântece</h3>
         <div className="space-y-2">
-          <Label htmlFor="song-slide-size">Song slide size</Label>
+          <Label htmlFor="song-slide-size">Dimensiune slide cântec</Label>
           <Select
             value={String(settingsSongSlideSize)}
             onValueChange={handleSongSlideSizeChange}
@@ -67,11 +67,11 @@ const SettingsDisplay = () => {
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="1">1 line</SelectItem>
-              <SelectItem value="2">2 lines</SelectItem>
-              <SelectItem value="4">4 lines</SelectItem>
-              <SelectItem value="8">8 lines</SelectItem>
-              <SelectItem value="full">Entire verse</SelectItem>
+              <SelectItem value="1">1 linie</SelectItem>
+              <SelectItem value="2">2 linii</SelectItem>
+              <SelectItem value="4">4 linii</SelectItem>
+              <SelectItem value="8">8 linii</SelectItem>
+              <SelectItem value="full">Strofa întreagă</SelectItem>
             </SelectContent>
           </Select>
         </div>

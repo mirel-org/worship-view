@@ -23,8 +23,8 @@ const AppTabs: FC = () => {
           onValueChange={(value) => setSelectedTabType(value as TabType)}
         >
           <TabsList className="grid w-full grid-cols-2 bg-muted/50">
-            <TabsTrigger value="songs">Songs</TabsTrigger>
-            <TabsTrigger value="bible">Bible</TabsTrigger>
+            <TabsTrigger value="songs">Cântece</TabsTrigger>
+            <TabsTrigger value="bible">Biblie</TabsTrigger>
           </TabsList>
         </Tabs>
       </div>

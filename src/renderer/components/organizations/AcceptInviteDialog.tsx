@@ -52,18 +52,18 @@ export function AcceptInviteDialog({
       setInviteId(parts[0].trim());
       setInviteSecret(parts[1].trim());
     } else {
-      setError('Invalid format. Expected: OrganizationID:InviteSecret');
+      setError('Format invalid. Format așteptat: IDOrganizație:SecretInvitație');
     }
   };
 
   const handleAccept = async () => {
     if (!inviteId.trim() || !inviteSecret.trim()) {
-      setError('Please provide both Organization ID and Invite Secret');
+      setError('Vă rugăm să furnizați atât ID-ul organizației, cât și secretul invitației');
       return;
     }
 
     if (!me || !agent) {
-      setError('You must be signed in to accept an invite');
+      setError('Trebuie să fiți autentificat pentru a accepta o invitație');
       return;
     }
 
@@ -118,7 +118,7 @@ export function AcceptInviteDialog({
       console.error('Failed to accept invite:', err);
       setError(
         err.message ||
-          'Failed to accept invite. Please check the ID and secret.',
+          'Acceptarea invitației a eșuat. Verificați ID-ul și secretul.',
       );
     } finally {
       setIsLoading(false);
@@ -129,16 +129,17 @@ export function AcceptInviteDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className='sm:max-w-[500px]'>
         <DialogHeader>
-          <DialogTitle>Accept Invite</DialogTitle>
+          <DialogTitle>Acceptă invitația</DialogTitle>
           <DialogDescription>
-            Enter the Organization ID and Invite Secret to join an organization.
+            Introduceți ID-ul organizației și secretul invitației pentru a vă
+            alătura unei organizații.
           </DialogDescription>
         </DialogHeader>
 
         <div className='space-y-4'>
           {/* Combined input for pasting */}
           <div className='space-y-2'>
-            <Label>Paste Invite (ID:Secret format)</Label>
+            <Label>Lipește invitația (format ID:Secret)</Label>
             <div className='flex gap-2'>
               <Input
                 value={combinedInput}
@@ -152,32 +153,32 @@ export function AcceptInviteDialog({
                 }}
               />
               <Button onClick={handlePasteCombined} variant='outline' size='sm'>
-                Parse
+                Parsează
               </Button>
             </div>
           </div>
 
-          <div className='text-center text-sm text-muted-foreground'>OR</div>
+          <div className='text-center text-sm text-muted-foreground'>SAU</div>
 
           {/* Separate inputs */}
           <div className='space-y-2'>
-            <Label htmlFor='invite-id'>Organization ID</Label>
+            <Label htmlFor='invite-id'>ID organizație</Label>
             <Input
               id='invite-id'
               value={inviteId}
               onChange={(e) => setInviteId(e.target.value)}
-              placeholder='Enter organization ID'
+              placeholder='Introduceți ID-ul organizației'
               className='font-mono text-sm'
             />
           </div>
 
           <div className='space-y-2'>
-            <Label htmlFor='invite-secret'>Invite Secret</Label>
+            <Label htmlFor='invite-secret'>Secret invitație</Label>
             <Input
               id='invite-secret'
               value={inviteSecret}
               onChange={(e) => setInviteSecret(e.target.value)}
-              placeholder='Enter invite secret'
+              placeholder='Introduceți secretul invitației'
               className='font-mono text-sm'
             />
           </div>
@@ -190,13 +191,13 @@ export function AcceptInviteDialog({
 
           <div className='flex gap-2 justify-end'>
             <Button variant='outline' onClick={() => onOpenChange(false)}>
-              Cancel
+              Anulează
             </Button>
             <Button
               onClick={handleAccept}
               disabled={isLoading || !inviteId.trim() || !inviteSecret.trim()}
             >
-              {isLoading ? 'Accepting...' : 'Accept Invite'}
+              {isLoading ? 'Se acceptă...' : 'Acceptă invitația'}
             </Button>
           </div>
         </div>

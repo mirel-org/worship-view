@@ -50,12 +50,12 @@ export function SettingsJazz() {
       <AcceptInviteDialog open={acceptInviteOpen} onOpenChange={setAcceptInviteOpen} />
       <EditUsernameDialog open={editUsernameOpen} onOpenChange={setEditUsernameOpen} />
       <div className="space-y-4">
-        <h2 className="text-2xl font-semibold my-4">Jazz Cloud Sync</h2>
+        <h2 className="text-2xl font-semibold my-4">Sincronizare Jazz Cloud</h2>
 
       <div className="space-y-4">
         {/* API Key Management */}
         <div className="space-y-2 pb-4 border-b">
-          <Label>Jazz Cloud API Key</Label>
+          <Label>Cheie API Jazz Cloud</Label>
           {apiKey ? (
             <div className="space-y-2">
               <div className="flex items-center gap-2">
@@ -70,22 +70,22 @@ export function SettingsJazz() {
                   size="sm"
                   onClick={() => setShowApiKey(!showApiKey)}
                 >
-                  {showApiKey ? 'Hide' : 'Show'}
+                  {showApiKey ? 'Ascunde' : 'Arată'}
                 </Button>
               </div>
               <p className="text-xs text-muted-foreground">
-                API key is saved. Enter a new key below to update it.
+                Cheia API este salvată. Introduceți o cheie nouă mai jos pentru a o actualiza.
               </p>
             </div>
           ) : (
             <p className="text-sm text-muted-foreground">
-              No API key set. Cloud sync is disabled.
+              Nicio cheie API setată. Sincronizarea cloud este dezactivată.
             </p>
           )}
           <div className="space-y-2">
             <Input
               type="password"
-              placeholder="Enter new API key"
+              placeholder="Introduceți noua cheie API"
               value={newApiKey}
               onChange={(e) => setNewApiKey(e.target.value)}
               onKeyDown={(e) => {
@@ -96,7 +96,7 @@ export function SettingsJazz() {
             />
             <div className="flex items-center justify-between">
               <p className="text-xs text-muted-foreground">
-                Get your API key from{' '}
+                Obțineți cheia API de la{' '}
                 <a
                   href="https://dashboard.jazz.tools"
                   target="_blank"
@@ -111,7 +111,7 @@ export function SettingsJazz() {
                 disabled={!newApiKey.trim()}
                 size="sm"
               >
-                {apiKey ? 'Update' : 'Save'}
+                {apiKey ? 'Actualizează' : 'Salvează'}
               </Button>
             </div>
           </div>
@@ -119,27 +119,27 @@ export function SettingsJazz() {
 
         {/* Connection Status */}
         <div className="space-y-2">
-          <Label>Sync Status</Label>
+          <Label>Stare sincronizare</Label>
           <div className="flex items-center gap-2">
             <div className={`w-3 h-3 rounded-full ${apiKey ? 'bg-green-500' : 'bg-yellow-500'}`} />
-            <span>{apiKey ? 'Connected to Jazz Cloud' : 'Cloud sync disabled (no API key)'}</span>
+            <span>{apiKey ? 'Conectat la Jazz Cloud' : 'Sincronizare cloud dezactivată (lipsă cheie API)'}</span>
           </div>
         </div>
 
         {/* Account Profile */}
         {me?.profile && (
           <div className="space-y-2">
-            <Label>Account</Label>
+            <Label>Cont</Label>
             <div className="flex items-center justify-between">
               <p className="text-sm text-muted-foreground">
-                {me.profile.name || 'User'}
+                {me.profile.name || 'Utilizator'}
               </p>
               <Button
                 onClick={() => setEditUsernameOpen(true)}
                 variant="outline"
                 size="sm"
               >
-                Edit Username
+                Editează numele
               </Button>
             </div>
           </div>
@@ -148,7 +148,7 @@ export function SettingsJazz() {
         {/* Active Organization */}
         {activeOrganization && (
           <div className="space-y-2">
-            <Label>Active Organization</Label>
+            <Label>Organizație activă</Label>
             <p className="text-sm text-muted-foreground">
               {activeOrganization.name}
             </p>
@@ -158,10 +158,9 @@ export function SettingsJazz() {
         {/* Organizations Count */}
         {me?.root?.organizations && (
           <div className="space-y-2">
-            <Label>Organizations</Label>
+            <Label>Organizații</Label>
             <p className="text-sm text-muted-foreground">
-              {me.root.organizations.length} organization
-              {me.root.organizations.length !== 1 ? 's' : ''}
+              {me.root.organizations.length} organizații
             </p>
           </div>
         )}
@@ -176,16 +175,16 @@ export function SettingsJazz() {
         {/* Invite Button */}
         {activeOrganization && (
           <div className="space-y-2">
-            <Label>Invite Members</Label>
+            <Label>Invită membri</Label>
             <InviteButton organization={activeOrganization} />
           </div>
         )}
 
         {/* Accept Invite Button */}
         <div className="space-y-2">
-          <Label>Accept Invite</Label>
+          <Label>Acceptă invitația</Label>
           <Button onClick={() => setAcceptInviteOpen(true)} variant="outline" className="w-full">
-            Accept Invite by ID
+            Acceptă invitația după ID
           </Button>
         </div>
 
@@ -193,14 +192,14 @@ export function SettingsJazz() {
         <div className="space-y-2 pt-4 border-t">
           <Button
             onClick={() => {
-              if (confirm('Are you sure you want to log out? You will need to enter your passphrase to log back in.')) {
+              if (confirm('Sigur doriți să vă deconectați? Va trebui să introduceți fraza de acces pentru a vă reconecta.')) {
                 logOut();
               }
             }}
             variant="destructive"
             className="w-full"
           >
-            Log Out
+            Deconectare
           </Button>
         </div>
       </div>

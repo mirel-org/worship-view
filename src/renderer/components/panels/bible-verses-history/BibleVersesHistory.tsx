@@ -9,7 +9,7 @@ export function BibleVersesHistory() {
   const [, setSelectedVerseReference] = useAtom(selectedVerseReferenceAtom);
   return (
     <div className="pl-2">
-      <h2 className="text-2xl font-semibold mb-4">Verses History</h2>
+      <h2 className="text-2xl font-semibold mb-4">Istoric versete</h2>
       <ul className="space-y-1">
         {versesHistory.map((verseReference, index) => (
           <li

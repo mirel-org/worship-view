@@ -62,7 +62,7 @@ const MediaPanel: FC = () => {
           disabled={uploadMedia.isLoading}
         >
           <Upload className="h-4 w-4 mr-1" />
-          Upload
+          Încarcă
         </Button>
         {selectedMediaItem && (
           <Button
@@ -71,7 +71,7 @@ const MediaPanel: FC = () => {
             onClick={() => setSelectedMediaItem(null)}
           >
             <X className="h-4 w-4 mr-1" />
-            Clear Background
+            Șterge fundal
           </Button>
         )}
       </div>
@@ -88,7 +88,7 @@ const MediaPanel: FC = () => {
         <div className="mb-3">
           <Progress value={uploadMedia.progress * 100} className="h-2" />
           <span className="text-xs text-muted-foreground">
-            Uploading... {Math.round(uploadMedia.progress * 100)}%
+            Se încarcă... {Math.round(uploadMedia.progress * 100)}%
           </span>
         </div>
       )}

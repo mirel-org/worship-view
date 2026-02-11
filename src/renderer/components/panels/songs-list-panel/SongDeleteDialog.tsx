@@ -45,7 +45,7 @@ const SongDeleteDialog = ({
       onDelete();
       onOpenChange(false);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to delete song');
+      setError(err instanceof Error ? err.message : 'Ștergerea cântecului a eșuat');
       setDeleting(false);
     }
   };
@@ -58,10 +58,10 @@ const SongDeleteDialog = ({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Delete Song</DialogTitle>
+          <DialogTitle>Șterge cântec</DialogTitle>
           <DialogDescription>
-            Are you sure you want to delete &quot;{song?.name}&quot;? This action cannot
-            be undone.
+            Sigur doriți să ștergeți &quot;{song?.name}&quot;? Această acțiune nu poate
+            fi anulată.
           </DialogDescription>
         </DialogHeader>
         {error && (
@@ -75,14 +75,14 @@ const SongDeleteDialog = ({
             onClick={handleCancel}
             disabled={deleting}
           >
-            Cancel
+            Anulează
           </Button>
           <Button
             variant="destructive"
             onClick={handleDelete}
             disabled={deleting}
           >
-            {deleting ? 'Deleting...' : 'Delete'}
+            {deleting ? 'Se șterge...' : 'Șterge'}
           </Button>
         </DialogFooter>
       </DialogContent>

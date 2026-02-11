@@ -21,9 +21,9 @@ export function SettingsSong() {
   };
   return (
     <div>
-      <h2 className="text-2xl font-semibold my-4">Songs</h2>
+      <h2 className="text-2xl font-semibold my-4">Cântece</h2>
       <div className="space-y-2">
-        <Label htmlFor="song-slide-size">Song slide size</Label>
+        <Label htmlFor="song-slide-size">Dimensiune slide cântec</Label>
         <Select
           value={String(settingsSongSlideSize)}
           onValueChange={handleChange}
@@ -32,11 +32,11 @@ export function SettingsSong() {
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="1">1 line</SelectItem>
-            <SelectItem value="2">2 lines</SelectItem>
-            <SelectItem value="4">4 lines</SelectItem>
-            <SelectItem value="8">8 lines</SelectItem>
-            <SelectItem value="full">Entire verse</SelectItem>
+            <SelectItem value="1">1 linie</SelectItem>
+            <SelectItem value="2">2 linii</SelectItem>
+            <SelectItem value="4">4 linii</SelectItem>
+            <SelectItem value="8">8 linii</SelectItem>
+            <SelectItem value="full">Strofa întreagă</SelectItem>
           </SelectContent>
         </Select>
       </div>

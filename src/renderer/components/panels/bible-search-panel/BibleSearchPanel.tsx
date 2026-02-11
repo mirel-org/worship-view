@@ -16,10 +16,10 @@ const BibleSearch: FC = () => {
   return (
     <div className="flex items-center justify-center p-4">
       <div className="space-y-2 w-full max-w-md">
-        <Label htmlFor="search-verse">Search verse</Label>
+        <Label htmlFor="search-verse">Caută verset</Label>
         <Input
           id="search-verse"
-          placeholder="Search verse"
+          placeholder="Caută verset"
           onBlur={focusProps.onBlur}
           onFocus={focusProps.onFocus}
           ref={focusProps.ref}

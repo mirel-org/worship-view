@@ -68,12 +68,12 @@ const SongEditorDialog = ({
     if (!song) return;
 
     if (!songName.trim()) {
-      setError('Song name cannot be empty');
+      setError('Numele cântecului nu poate fi gol');
       return;
     }
 
     if (!content.trim()) {
-      setError('Song content cannot be empty');
+      setError('Conținutul cântecului nu poate fi gol');
       return;
     }
 
@@ -109,7 +109,7 @@ const SongEditorDialog = ({
       onSave(nameChanged ? songName.trim() : undefined);
       onOpenChange(false);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to save song');
+      setError(err instanceof Error ? err.message : 'Salvarea cântecului a eșuat');
     }
   };
   
@@ -123,15 +123,15 @@ const SongEditorDialog = ({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-3xl max-h-[95vh] flex flex-col">
         <DialogHeader>
-          <DialogTitle>Edit Song</DialogTitle>
+          <DialogTitle>Editează cântec</DialogTitle>
           <DialogDescription>
-            Edit the song name and content. Parts are separated by &quot;---&quot; and
-            the last line contains the arrangement.
+            Editați numele și conținutul cântecului. Părțile sunt separate prin
+            &quot;---&quot; iar ultima linie conține aranjamentul.
           </DialogDescription>
         </DialogHeader>
         <div className="flex-1 overflow-hidden flex flex-col space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="song-name">Song Name</Label>
+            <Label htmlFor="song-name">Numele cântecului</Label>
             <Input
               id="song-name"
               value={songName}
@@ -140,10 +140,10 @@ const SongEditorDialog = ({
             />
           </div>
           <div className="flex-1 overflow-auto flex flex-col space-y-2">
-            <Label htmlFor="song-content">Song Content</Label>
+            <Label htmlFor="song-content">Conținut cântec</Label>
             {loading ? (
               <div className="flex items-center justify-center h-64">
-                <p className="text-muted-foreground">Loading...</p>
+                <p className="text-muted-foreground">Se încarcă...</p>
               </div>
             ) : (
               <textarea
@@ -183,13 +183,13 @@ const SongEditorDialog = ({
             onClick={handleCancel}
             disabled={loading || saving}
           >
-            Cancel
+            Anulează
           </Button>
           <Button
             onClick={handleSave}
             disabled={loading || saving || !songName.trim() || !content.trim()}
           >
-            {saving ? 'Saving...' : 'Save'}
+            {saving ? 'Se salvează...' : 'Salvează'}
           </Button>
         </DialogFooter>
       </DialogContent>

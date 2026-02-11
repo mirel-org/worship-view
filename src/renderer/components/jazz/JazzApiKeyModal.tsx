@@ -26,7 +26,7 @@ export function JazzApiKeyModal({ open, onOpenChange, onApiKeySet, onSkip }: Jaz
 
   const handleSave = () => {
     if (!apiKey.trim()) {
-      setError('Please enter your Jazz API key');
+      setError('Vă rugăm să introduceți cheia API Jazz');
       return;
     }
 
@@ -63,9 +63,10 @@ export function JazzApiKeyModal({ open, onOpenChange, onApiKeySet, onSkip }: Jaz
         onEscapeKeyDown={(e) => e.preventDefault()}
       >
         <DialogHeader>
-          <DialogTitle>Jazz Cloud API Key</DialogTitle>
+          <DialogTitle>Cheie API Jazz Cloud</DialogTitle>
           <DialogDescription>
-            Enter your Jazz Cloud API key to enable cloud sync. You can get your API key from{' '}
+            Introduceți cheia API Jazz Cloud pentru a activa sincronizarea cloud.
+            Puteți obține cheia API de la{' '}
             <a
               href="https://dashboard.jazz.tools"
               target="_blank"
@@ -74,16 +75,16 @@ export function JazzApiKeyModal({ open, onOpenChange, onApiKeySet, onSkip }: Jaz
             >
               dashboard.jazz.tools
             </a>
-            . This is required to use the application.
+            . Aceasta este necesară pentru a utiliza aplicația.
           </DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">
           <div className="grid gap-2">
-            <Label htmlFor="api-key">API Key</Label>
+            <Label htmlFor="api-key">Cheie API</Label>
             <Input
               id="api-key"
               type="password"
-              placeholder="Enter your Jazz API key"
+              placeholder="Introduceți cheia API Jazz"
               value={apiKey}
               onChange={(e) => {
                 setApiKey(e.target.value);
@@ -106,14 +107,14 @@ export function JazzApiKeyModal({ open, onOpenChange, onApiKeySet, onSkip }: Jaz
               variant="outline"
               onClick={handleSkip}
             >
-              Skip
+              Omite
             </Button>
           )}
           <Button
             onClick={handleSave}
             disabled={!apiKey.trim()}
           >
-            Save
+            Salvează
           </Button>
         </div>
       </DialogContent>

@@ -35,17 +35,17 @@ export function SettingsAccount() {
         {/* Account Profile */}
         {me?.profile && (
           <div className='space-y-2'>
-            <Label>Account</Label>
+            <Label>Cont</Label>
             <div className='flex items-center justify-between'>
               <p className='text-sm text-muted-foreground'>
-                {me.profile.name || 'User'}
+                {me.profile.name || 'Utilizator'}
               </p>
               <Button
                 onClick={() => setEditUsernameOpen(true)}
                 variant='outline'
                 size='sm'
               >
-                Edit Username
+                Editează numele
               </Button>
             </div>
           </div>
@@ -57,7 +57,7 @@ export function SettingsAccount() {
             onClick={() => {
               if (
                 confirm(
-                  'Are you sure you want to log out? You will need to enter your passphrase to log back in.',
+                  'Sigur doriți să vă deconectați? Va trebui să introduceți fraza de acces pentru a vă reconecta.',
                 )
               ) {
                 logOut();
@@ -66,7 +66,7 @@ export function SettingsAccount() {
             variant='destructive'
             className='w-full'
           >
-            Log Out
+            Deconectare
           </Button>
         </div>
       </div>

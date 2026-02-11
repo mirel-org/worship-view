@@ -43,7 +43,7 @@ const MediaDeleteDialog = ({
       onDelete();
       onOpenChange(false);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to delete media');
+      setError(err instanceof Error ? err.message : 'Ștergerea media a eșuat');
       setDeleting(false);
     }
   };
@@ -52,10 +52,10 @@ const MediaDeleteDialog = ({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Delete Media</DialogTitle>
+          <DialogTitle>Șterge media</DialogTitle>
           <DialogDescription>
-            Are you sure you want to delete &quot;{mediaItem?.name}&quot;? This action cannot
-            be undone.
+            Sigur doriți să ștergeți &quot;{mediaItem?.name}&quot;? Această acțiune nu
+            poate fi anulată.
           </DialogDescription>
         </DialogHeader>
         {error && (
@@ -69,14 +69,14 @@ const MediaDeleteDialog = ({
             onClick={() => onOpenChange(false)}
             disabled={deleting}
           >
-            Cancel
+            Anulează
           </Button>
           <Button
             variant="destructive"
             onClick={handleDelete}
             disabled={deleting}
           >
-            {deleting ? 'Deleting...' : 'Delete'}
+            {deleting ? 'Se șterge...' : 'Șterge'}
           </Button>
         </DialogFooter>
       </DialogContent>

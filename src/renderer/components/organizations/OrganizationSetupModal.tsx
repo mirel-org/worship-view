@@ -64,7 +64,7 @@ export function OrganizationSetupModal({
   const handleLogOut = () => {
     if (
       confirm(
-        'Are you sure you want to log out? You will need to enter your passphrase to log back in.',
+        'Sigur doriți să vă deconectați? Va trebui să introduceți fraza de acces pentru a vă reconecta.',
       )
     ) {
       logOut();
@@ -80,18 +80,18 @@ export function OrganizationSetupModal({
           onEscapeKeyDown={(e) => e.preventDefault()}
         >
           <DialogHeader>
-            <DialogTitle>Organization Required</DialogTitle>
+            <DialogTitle>Organizație necesară</DialogTitle>
             <DialogDescription>
-              You need to be part of an organization to use this application.
-              You can either create a new organization or accept an invite to
-              join an existing one.
+              Trebuie să faceți parte dintr-o organizație pentru a utiliza
+              această aplicație. Puteți crea o organizație nouă sau accepta o
+              invitație pentru a vă alătura uneia existente.
             </DialogDescription>
           </DialogHeader>
 
           <div className='space-y-4 py-4'>
             <div className='flex flex-col gap-3'>
               <Button onClick={handleCreateClick} className='w-full' size='lg'>
-                Create New Organization
+                Creează organizație nouă
               </Button>
               <Button
                 onClick={handleAcceptClick}
@@ -99,7 +99,7 @@ export function OrganizationSetupModal({
                 className='w-full'
                 size='lg'
               >
-                Accept Invite
+                Acceptă invitația
               </Button>
             </div>
             <div className='pt-4 border-t'>
@@ -109,7 +109,7 @@ export function OrganizationSetupModal({
                 className='w-full'
                 size='sm'
               >
-                Log Out
+                Deconectare
               </Button>
             </div>
           </div>
