@@ -1,3 +1,8 @@
+declare module 'electron-squirrel-startup' {
+  const started: boolean;
+  export default started;
+}
+
 // Electron v28+ provides Fetch API globals in the main process.
 // @types/node@16 doesn't declare them, so we add minimal declarations here.
 interface Request {
