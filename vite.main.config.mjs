@@ -12,6 +12,8 @@ export default defineConfig({
       // They will be loaded from node_modules at runtime
       external: [
         'electron',
+        'electron-squirrel-startup',
+        'update-electron-app',
         'googleapis',
         'fs',
         'path',
