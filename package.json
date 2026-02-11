@@ -41,6 +41,14 @@
   },
   "license": "MIT",
   "private": true,
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "@swc/core",
+      "electron",
+      "electron-winstaller",
+      "esbuild"
+    ]
+  },
   "config": {
     "forge": "./tools/forge/forge.config.js"
   },
