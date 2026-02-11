@@ -28,7 +28,8 @@ const SettingsDisplay = () => {
   );
 
   const handleSongSlideSizeChange = (value: string) => {
-    setSettingsSongSlideSize(Number(value) as SongSlideSize);
+    const parsed = value === 'full' ? 'full' : Number(value);
+    setSettingsSongSlideSize(parsed as SongSlideSize);
   };
 
   return (
@@ -66,9 +67,11 @@ const SettingsDisplay = () => {
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="1">1</SelectItem>
-              <SelectItem value="2">2</SelectItem>
-              <SelectItem value="4">4</SelectItem>
+              <SelectItem value="1">1 line</SelectItem>
+              <SelectItem value="2">2 lines</SelectItem>
+              <SelectItem value="4">4 lines</SelectItem>
+              <SelectItem value="8">8 lines</SelectItem>
+              <SelectItem value="full">Entire verse</SelectItem>
             </SelectContent>
           </Select>
         </div>

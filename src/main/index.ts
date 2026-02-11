@@ -1,21 +1,8 @@
-import { app, BrowserWindow, protocol } from 'electron';
-import { fileHandler } from './main-window/fileProtocol';
+import { app, BrowserWindow } from 'electron';
 import { createAppWindow } from './main-window/mainWindow';
 
 // Allow autoplay without user interaction (needed for video backgrounds)
 app.commandLine.appendSwitch('autoplay-policy', 'no-user-gesture-required');
-
-protocol.registerSchemesAsPrivileged([
-  {
-    scheme: 'local-files',
-    privileges: {
-      standard: true,
-      secure: true,
-      supportFetchAPI: true,
-      stream: true,
-    },
-  },
-]);
 
 /**
  * This method will be called when Electron has finished
@@ -23,7 +10,6 @@ protocol.registerSchemesAsPrivileged([
  * Some APIs can only be used after this event occurs.
  */
 app.on('ready', () => {
-  protocol.handle('local-files', fileHandler);
   createAppWindow();
 });
 

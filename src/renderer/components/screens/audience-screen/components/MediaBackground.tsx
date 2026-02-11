@@ -8,7 +8,7 @@ const MediaBackground: FC = () => {
   const [mediaItem] = useAtom(selectedBackgroundMediaItemAtom);
   return (
     <div className="absolute z-0 h-full w-full">
-      <CrossFade nodeKey={mediaItem?.name ?? null}>
+      <CrossFade nodeKey={mediaItem?.id ?? null}>
         {mediaItem && <MediaBox mediaItem={mediaItem} />}
       </CrossFade>
     </div>

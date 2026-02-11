@@ -21,7 +21,7 @@ const StageScreen: FC = () => {
   const [selectedVerseReference] = useAtom(selectedVerseReferenceAtom);
   const [verseProjectionEnabled] = useAtom(verseProjectionEnabledAtom);
   const [settingsSongSlideSize] = useAtom(settingsSongSlideSizeAtom);
-  if (settingsSongSlideSize === 4)
+  if (settingsSongSlideSize === 4 || settingsSongSlideSize === 8 || settingsSongSlideSize === 'full')
     return (
       <div className="grid grid-rows-[50%_50%] h-full w-full bg-black p-8 box-border"></div>
     );

@@ -89,6 +89,7 @@ export function TestAppWrapper({ children }: { children: ReactNode }) {
           name: 'Test Organization',
           songs: [],
           serviceList: [],
+          media: [],
         });
         pushCoListItem(testAccount.root.organizations, org);
         // Pre-set the active org ID so useActiveOrganization resolves immediately

@@ -40,7 +40,24 @@ export const ServiceListItem = co
   });
 
 /**
- * Organization schema - contains songs and service lists for a worship organization
+ * MediaItem schema - represents a media file (image or video) stored via Jazz FileStream
+ * Uses sameAsContainer permissions so media items inherit organization's group
+ */
+export const MediaItem = co
+  .map({
+    id: z.string(),
+    name: z.string(),
+    mediaType: z.enum(['video', 'image']),
+    mimeType: z.string(),
+    sizeBytes: z.number(),
+    file: co.fileStream(),
+  })
+  .withPermissions({
+    onInlineCreate: 'sameAsContainer',
+  });
+
+/**
+ * Organization schema - contains songs, service lists, and media for a worship organization
  * Uses newGroup permissions so each organization gets its own group for access control
  */
 export const Organization = co
@@ -50,6 +67,9 @@ export const Organization = co
       onInlineCreate: 'sameAsContainer',
     }),
     serviceList: co.list(ServiceListItem).withPermissions({
+      onInlineCreate: 'sameAsContainer',
+    }),
+    media: co.list(MediaItem).withPermissions({
       onInlineCreate: 'sameAsContainer',
     }),
   })
@@ -99,6 +119,7 @@ export const WorshipViewAccount = co
 // Export types for use throughout the application
 export type SongType = co.loaded<typeof Song>;
 export type ServiceListItemType = co.loaded<typeof ServiceListItem>;
+export type MediaItemType = co.loaded<typeof MediaItem>;
 export type OrganizationType = co.loaded<typeof Organization>;
 export type WorshipViewAccountType = co.loaded<typeof WorshipViewAccount>;
 

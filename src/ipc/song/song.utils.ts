@@ -25,6 +25,26 @@ export const getSongSlidesBySize = (
         newSongSlides.push({ lines: newLines });
       }
       break;
+    case 8:
+      for (let i = 0; i < twoLinesSlides.length; i += 4) {
+        const newLines: string[] = [];
+        for (let j = 0; j < 4; j++) {
+          if (twoLinesSlides[i + j]) {
+            newLines.push(...twoLinesSlides[i + j].lines);
+          }
+        }
+        newSongSlides.push({ lines: newLines });
+      }
+      break;
+    case 'full':
+      {
+        const allLines: string[] = [];
+        twoLinesSlides.forEach((slide) => {
+          allLines.push(...slide.lines);
+        });
+        newSongSlides.push({ lines: allLines });
+      }
+      break;
     default:
       break;
   }

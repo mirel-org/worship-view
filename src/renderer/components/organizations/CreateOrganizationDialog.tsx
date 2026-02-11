@@ -62,6 +62,7 @@ export function CreateOrganizationDialog({
           name: name.trim(),
           songs: [],
           serviceList: [],
+          media: [],
         },
       );
 

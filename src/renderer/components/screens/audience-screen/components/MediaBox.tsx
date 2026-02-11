@@ -1,12 +1,13 @@
-import { MediaItem } from '@ipc/media/media.types';
+import type { MediaItemResponse } from '@renderer/lib/jazz/media-store';
+import { useMediaBlobUrl } from '@renderer/hooks/useMedia';
 import { FC, useRef, useEffect } from 'react';
 
 type MediaBoxProps = {
-  mediaItem: MediaItem;
+  mediaItem: MediaItemResponse;
 };
 
 const MediaBox: FC<MediaBoxProps> = ({ mediaItem }) => {
-  const fileUrl = `local-files://media/${mediaItem.name}`;
+  const { blobUrl } = useMediaBlobUrl(mediaItem.fileStreamId);
   const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
@@ -32,15 +33,17 @@ const MediaBox: FC<MediaBoxProps> = ({ mediaItem }) => {
     };
   }, []);
 
+  if (!blobUrl) return null;
+
   return (
     <div className='w-full h-full'>
-      {mediaItem.type === 'image' && (
-        <img src={fileUrl} className='w-full h-auto' alt={mediaItem.name} />
+      {mediaItem.mediaType === 'image' && (
+        <img src={blobUrl} className='w-full h-auto' alt={mediaItem.name} />
       )}
-      {mediaItem.type === 'video' && (
+      {mediaItem.mediaType === 'video' && (
         <video
           ref={videoRef}
-          src={fileUrl}
+          src={blobUrl}
           autoPlay
           muted
           playsInline

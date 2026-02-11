@@ -11,6 +11,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useState, useEffect } from 'react';
 import { useSaveSong } from '@renderer/hooks/useSongs';
+import { useSongValidation } from '@renderer/hooks/useSongValidation';
+import { validateSongContent } from '@renderer/lib/songParser';
 
 type SongAddDialogProps = {
   open: boolean;
@@ -27,6 +29,7 @@ const SongAddDialog = ({
   const [content, setContent] = useState('');
   const [error, setError] = useState<string | null>(null);
   const saveSongMutation = useSaveSong();
+  const liveValidation = useSongValidation(content);
 
   useEffect(() => {
     if (open) {
@@ -44,6 +47,13 @@ const SongAddDialog = ({
 
     if (!content.trim()) {
       setError('Song content cannot be empty');
+      return;
+    }
+
+    // Run synchronous validation on save
+    const validation = validateSongContent(content);
+    if (!validation.isValid) {
+      setError(validation.errors.map((e) => e.message).join('; '));
       return;
     }
 
@@ -84,7 +94,7 @@ const SongAddDialog = ({
             <Input
               id="song-name"
               value={songName}
-              onChange={(e) => setSongName(e.target.value)}
+              onChange={(e) => { setSongName(e.target.value); setError(null); }}
               disabled={saving}
               placeholder="Enter song name"
             />
@@ -95,12 +105,30 @@ const SongAddDialog = ({
               id="song-content"
               className="flex min-h-[400px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 font-mono resize-none"
               value={content}
-              onChange={(e) => setContent(e.target.value)}
+              onChange={(e) => { setContent(e.target.value); setError(null); }}
               disabled={saving}
               placeholder="Enter song content..."
             />
             {error && (
-              <p className="text-sm text-destructive">{error}</p>
+              <p className="text-sm text-destructive" data-testid="song-validation-error">{error}</p>
+            )}
+            {liveValidation && liveValidation.errors.length > 0 && !error && (
+              <div className="space-y-1" data-testid="song-validation-errors">
+                {liveValidation.errors.map((e, i) => (
+                  <p key={i} className="text-sm text-destructive">
+                    {e.line ? `Line ${e.line}: ` : ''}{e.message}
+                  </p>
+                ))}
+              </div>
+            )}
+            {liveValidation && liveValidation.warnings.length > 0 && (
+              <div className="space-y-1" data-testid="song-validation-warnings">
+                {liveValidation.warnings.map((w, i) => (
+                  <p key={i} className="text-sm text-yellow-600 dark:text-yellow-500">
+                    {w.line ? `Line ${w.line}: ` : ''}{w.message}
+                  </p>
+                ))}
+              </div>
             )}
           </div>
         </div>
