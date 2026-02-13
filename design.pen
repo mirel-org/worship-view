@@ -18736,6 +18736,292 @@
           ]
         }
       ]
+    },
+    {
+      "type": "frame",
+      "id": "8Pvv4",
+      "x": 4600,
+      "y": 3332,
+      "name": "Settings - Updates",
+      "theme": {
+        "Mode": "Dark"
+      },
+      "width": 900,
+      "height": 420,
+      "fill": "$--background",
+      "cornerRadius": 12,
+      "stroke": {
+        "align": "inside",
+        "thickness": 1,
+        "fill": "$--border"
+      },
+      "children": [
+        {
+          "type": "frame",
+          "id": "V1nnN",
+          "name": "Tabs Sidebar",
+          "width": 192,
+          "height": "fill_container",
+          "fill": "$--muted",
+          "stroke": {
+            "align": "inside",
+            "thickness": {
+              "right": 1
+            },
+            "fill": "$--border"
+          },
+          "layout": "vertical",
+          "children": [
+            {
+              "type": "frame",
+              "id": "o7cBP",
+              "name": "tabDisplay",
+              "width": "fill_container",
+              "height": 48,
+              "stroke": {
+                "align": "inside",
+                "thickness": {
+                  "bottom": 1
+                },
+                "fill": "$--border"
+              },
+              "padding": [
+                0,
+                16
+              ],
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "BMhG6",
+                  "name": "suTabDisplayText",
+                  "fill": "$--foreground",
+                  "content": "Afișaj",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "500"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "U89Bt",
+              "name": "tabJazz",
+              "width": "fill_container",
+              "height": 48,
+              "stroke": {
+                "align": "inside",
+                "thickness": {
+                  "bottom": 1
+                },
+                "fill": "$--border"
+              },
+              "padding": [
+                0,
+                16
+              ],
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "eNXwU",
+                  "name": "suTabJazzText",
+                  "fill": "$--foreground",
+                  "content": "Token Jazz",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "500"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "n0w53",
+              "name": "tabAccount",
+              "width": "fill_container",
+              "height": 48,
+              "stroke": {
+                "align": "inside",
+                "thickness": {
+                  "bottom": 1
+                },
+                "fill": "$--border"
+              },
+              "padding": [
+                0,
+                16
+              ],
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "KOVQq",
+                  "name": "suTabAccountText",
+                  "fill": "$--foreground",
+                  "content": "Cont",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "500"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "lEi4D",
+              "name": "tabOrganizations",
+              "width": "fill_container",
+              "height": 48,
+              "stroke": {
+                "align": "inside",
+                "thickness": {
+                  "bottom": 1
+                },
+                "fill": "$--border"
+              },
+              "padding": [
+                0,
+                16
+              ],
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "Cy2b3",
+                  "name": "suTabOrgsText",
+                  "fill": "$--foreground",
+                  "content": "Organizații",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "500"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "ZWjj6",
+              "name": "tabImportSongs",
+              "width": "fill_container",
+              "height": 48,
+              "stroke": {
+                "align": "inside",
+                "thickness": {
+                  "bottom": 1
+                },
+                "fill": "$--border"
+              },
+              "padding": [
+                0,
+                16
+              ],
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "dgFjO",
+                  "name": "suTabImportText",
+                  "fill": "$--foreground",
+                  "content": "Importă cântece",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "500"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "CNjfg",
+              "name": "tabUpdates",
+              "width": "fill_container",
+              "height": 48,
+              "fill": "$--background",
+              "stroke": {
+                "align": "inside",
+                "thickness": {
+                  "bottom": 1
+                },
+                "fill": "$--border"
+              },
+              "padding": [
+                0,
+                16
+              ],
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "Q0Zmi",
+                  "name": "suTabUpdatesText",
+                  "fill": "$--foreground",
+                  "content": "Actualizări",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "500"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "4sFmf",
+          "name": "Content Area",
+          "width": "fill_container",
+          "height": "fill_container",
+          "layout": "vertical",
+          "gap": 12,
+          "padding": 24,
+          "children": [
+            {
+              "type": "text",
+              "id": "AoXTk",
+              "name": "settingsUpdatesTitle",
+              "fill": "$--foreground",
+              "content": "Actualizări",
+              "fontFamily": "Inter",
+              "fontSize": 24,
+              "fontWeight": "600"
+            },
+            {
+              "type": "text",
+              "id": "RKNEt",
+              "name": "settingsUpdatesDesc",
+              "fill": "$--muted-foreground",
+              "textGrowth": "fixed-width",
+              "width": "fill_container",
+              "content": "Aplicația verifică automat actualizările la fiecare 10 minute. Poți verifica manual apăsând butonul de mai jos.",
+              "lineHeight": 1.4,
+              "fontFamily": "Inter",
+              "fontSize": 14,
+              "fontWeight": "normal"
+            },
+            {
+              "type": "frame",
+              "id": "h7pBd",
+              "name": "Check Updates Button",
+              "fill": "$--primary",
+              "cornerRadius": 8,
+              "padding": [
+                10,
+                16
+              ],
+              "justifyContent": "center",
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "UQTS6",
+                  "name": "settingsUpdatesBtnText",
+                  "fill": "$--primary-foreground",
+                  "content": "Verifică actualizări",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "500"
+                }
+              ]
+            }
+          ]
+        }
+      ]
     }
   ],
   "themes": {
