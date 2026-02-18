@@ -20,6 +20,15 @@ function getContentSlides(page: import('@playwright/test').Page) {
   return page.locator('[data-testid="song-slide-item"]').filter({ hasText: /\S+/ });
 }
 
+async function focusAppWindow(page: import('@playwright/test').Page) {
+  await page.evaluate(() => {
+    const activeEl = document.activeElement as HTMLElement | null;
+    activeEl?.blur?.();
+    window.focus();
+  });
+  await page.waitForTimeout(200);
+}
+
 test.describe('Audience Screen', () => {
   test('enable/disable button toggles', async ({ mainWindow }) => {
     const enableBtn = mainWindow.locator('[data-testid="enable-button"]');
@@ -111,9 +120,8 @@ test.describe('Audience Screen', () => {
     await selectVerseFromPalette(mainWindow, 'ioan 3 16', 'IOAN 3:16');
     await mainWindow.waitForTimeout(500);
 
-    // Click body to ensure focus
-    await mainWindow.locator('body').click({ position: { x: 10, y: 10 } });
-    await mainWindow.waitForTimeout(200);
+    // Ensure keyboard focus without clicking top-left controls.
+    await focusAppWindow(mainWindow);
 
     // Press Enter to enable verse projection
     await mainWindow.keyboard.press('Enter');
@@ -136,8 +144,7 @@ test.describe('Audience Screen', () => {
     await selectVerseFromPalette(mainWindow, 'ioan 3 16', 'IOAN 3:16');
     await mainWindow.waitForTimeout(500);
 
-    await mainWindow.locator('body').click({ position: { x: 10, y: 10 } });
-    await mainWindow.waitForTimeout(200);
+    await focusAppWindow(mainWindow);
 
     // Enable verse projection
     await mainWindow.keyboard.press('Enter');
@@ -169,8 +176,7 @@ test.describe('Audience Screen', () => {
     await selectVerseFromPalette(mainWindow, 'ioan 3 16', 'IOAN 3:16');
     await mainWindow.waitForTimeout(500);
 
-    await mainWindow.locator('body').click({ position: { x: 10, y: 10 } });
-    await mainWindow.waitForTimeout(200);
+    await focusAppWindow(mainWindow);
 
     // Enable verse projection
     await mainWindow.keyboard.press('Enter');

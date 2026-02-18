@@ -18,6 +18,15 @@ async function selectVerseFromPalette(page: import('@playwright/test').Page, que
   await expect(page.locator('[cmdk-input]')).not.toBeVisible({ timeout: 5000 });
 }
 
+async function focusAppWindow(page: import('@playwright/test').Page) {
+  await page.evaluate(() => {
+    const activeEl = document.activeElement as HTMLElement | null;
+    activeEl?.blur?.();
+    window.focus();
+  });
+  await page.waitForTimeout(200);
+}
+
 test.describe('Bible Verses', () => {
   test('selecting a verse from palette shows Bible tab', async ({ mainWindow }) => {
     await selectVerseFromPalette(mainWindow, 'ioan 3 16', 'IOAN 3:16');
@@ -55,9 +64,7 @@ test.describe('Bible Verses', () => {
     const selectedVerse = mainWindow.locator('[data-testid="verse-card"][data-selected="true"]');
     await expect(selectedVerse.first()).toBeVisible({ timeout: 5000 });
 
-    // Click on the app body first to ensure focus is right
-    await mainWindow.locator('body').click({ position: { x: 10, y: 10 } });
-    await mainWindow.waitForTimeout(200);
+    await focusAppWindow(mainWindow);
 
     // Press 's' to navigate to verse 17
     await mainWindow.keyboard.press('s');
@@ -80,9 +87,7 @@ test.describe('Bible Verses', () => {
     await selectVerseFromPalette(mainWindow, 'ioan 3 16', 'IOAN 3:16');
     await mainWindow.waitForTimeout(500);
 
-    // Click on the app body to ensure no input is focused
-    await mainWindow.locator('body').click({ position: { x: 10, y: 10 } });
-    await mainWindow.waitForTimeout(200);
+    await focusAppWindow(mainWindow);
 
     // Verse 16 should be selected initially
     // Press 's' to move to verse 17
@@ -99,9 +104,7 @@ test.describe('Bible Verses', () => {
     await selectVerseFromPalette(mainWindow, 'ioan 3 16', 'IOAN 3:16');
     await mainWindow.waitForTimeout(500);
 
-    // Click on the app body to ensure no input is focused
-    await mainWindow.locator('body').click({ position: { x: 10, y: 10 } });
-    await mainWindow.waitForTimeout(200);
+    await focusAppWindow(mainWindow);
 
     // Press 'w' to move to verse 15
     await mainWindow.keyboard.press('w');
@@ -116,9 +119,7 @@ test.describe('Bible Verses', () => {
     await selectVerseFromPalette(mainWindow, 'ioan 3 16', 'IOAN 3:16');
     await mainWindow.waitForTimeout(500);
 
-    // Click on the app body to ensure no input is focused
-    await mainWindow.locator('body').click({ position: { x: 10, y: 10 } });
-    await mainWindow.waitForTimeout(200);
+    await focusAppWindow(mainWindow);
 
     // ArrowDown should move to next verse
     await mainWindow.keyboard.press('ArrowDown');
@@ -138,9 +139,7 @@ test.describe('Bible Verses', () => {
     await selectVerseFromPalette(mainWindow, 'ioan 3 16', 'IOAN 3:16');
     await mainWindow.waitForTimeout(500);
 
-    // Click on the app body to ensure no input is focused
-    await mainWindow.locator('body').click({ position: { x: 10, y: 10 } });
-    await mainWindow.waitForTimeout(200);
+    await focusAppWindow(mainWindow);
 
     // Verse remains selected before projection toggles
     const selectedBefore = mainWindow.locator('[data-testid="verse-card"][data-selected="true"]');
@@ -158,9 +157,7 @@ test.describe('Bible Verses', () => {
     await selectVerseFromPalette(mainWindow, 'ioan 3 16', 'IOAN 3:16');
     await mainWindow.waitForTimeout(500);
 
-    // Click on the app body to ensure no input is focused
-    await mainWindow.locator('body').click({ position: { x: 10, y: 10 } });
-    await mainWindow.waitForTimeout(200);
+    await focusAppWindow(mainWindow);
 
     // Enable projection first
     await mainWindow.keyboard.press('Enter');
