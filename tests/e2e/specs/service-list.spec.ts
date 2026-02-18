@@ -28,7 +28,7 @@ test.describe('Service List', () => {
 
     // Hover to reveal the add-to-service-list button
     await songItem.hover();
-    await mainWindow.locator(`button[aria-label="Add ${SONG_NAME} to service list"]`).click();
+    await mainWindow.locator(`button[aria-label="Adaugă ${SONG_NAME} la lista de melodii"]`).click();
     await mainWindow.waitForTimeout(500);
 
     // Close the command palette
@@ -46,7 +46,7 @@ test.describe('Service List', () => {
     await searchSongInPalette(mainWindow, 'service list test');
     const songItem = mainWindow.locator('[cmdk-item]').filter({ hasText: SONG_NAME });
     await songItem.hover();
-    await mainWindow.locator(`button[aria-label="Add ${SONG_NAME} to service list"]`).click();
+    await mainWindow.locator(`button[aria-label="Adaugă ${SONG_NAME} la lista de melodii"]`).click();
     await mainWindow.waitForTimeout(500);
     await closeCommandPalette(mainWindow);
 
@@ -57,9 +57,7 @@ test.describe('Service List', () => {
 
     // Slides panel should now show slides for this song
     // Filter for content slides (non-empty text) since the app adds empty boundary slides
-    const slides = mainWindow.locator('.bg-black').filter({ hasText: /.+/ }).filter({
-      has: mainWindow.locator('.font-montserrat'),
-    });
+    const slides = mainWindow.locator('[data-testid="song-slide-item"]').filter({ hasText: /\S+/ });
     await expect(slides.first()).toBeVisible({ timeout: 10000 });
   });
 
@@ -70,7 +68,7 @@ test.describe('Service List', () => {
     await searchSongInPalette(mainWindow, 'service list test');
     const songItem = mainWindow.locator('[cmdk-item]').filter({ hasText: SONG_NAME });
     await songItem.hover();
-    await mainWindow.locator(`button[aria-label="Add ${SONG_NAME} to service list"]`).click();
+    await mainWindow.locator(`button[aria-label="Adaugă ${SONG_NAME} la lista de melodii"]`).click();
     await mainWindow.waitForTimeout(500);
     await closeCommandPalette(mainWindow);
 
@@ -80,7 +78,7 @@ test.describe('Service List', () => {
 
     // Hover the service list item and click the remove button
     await serviceListItem.hover();
-    await mainWindow.locator(`button[aria-label="Remove ${SONG_NAME} from service list"]`).click();
+    await mainWindow.locator(`button[aria-label="Elimină ${SONG_NAME} din lista de melodii"]`).click();
     await mainWindow.waitForTimeout(500);
 
     // Song should be gone from service list
@@ -97,7 +95,7 @@ test.describe('Service List', () => {
     await searchSongInPalette(mainWindow, 'service list test');
     const songItem = mainWindow.locator('[cmdk-item]').filter({ hasText: SONG_NAME });
     await songItem.hover();
-    await mainWindow.locator(`button[aria-label="Add ${SONG_NAME} to service list"]`).click();
+    await mainWindow.locator(`button[aria-label="Adaugă ${SONG_NAME} la lista de melodii"]`).click();
     await mainWindow.waitForTimeout(500);
     await closeCommandPalette(mainWindow);
 

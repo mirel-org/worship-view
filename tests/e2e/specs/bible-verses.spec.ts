@@ -36,10 +36,10 @@ test.describe('Bible Verses', () => {
     // Wait for verse cards to appear
     await mainWindow.waitForTimeout(500);
 
-    // Verse cards should have verse numbers (CardTitle) — the chapter has 36 verses
-    // Verse 16 should be visible (selected verse scrolls into view)
-    const verse16Card = mainWindow.locator('[data-testid="verse-card"]').filter({ hasText: /^16\b/ });
-    await expect(verse16Card.first()).toBeVisible({ timeout: 5000 });
+    // Verse 16 should be selected/visible after picking IOAN 3:16 from palette
+    const selectedVerseCard = mainWindow.locator('[data-testid="verse-card"][data-selected="true"]').first();
+    await expect(selectedVerseCard).toBeVisible({ timeout: 5000 });
+    await expect(selectedVerseCard.locator('p').first()).toHaveText('16');
 
     // The verse text should contain Romanian text from VDC.json
     // "Fiindcă atât de mult a iubit Dumnezeu lumea..."

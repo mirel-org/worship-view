@@ -26,7 +26,7 @@ export async function uploadMediaFile(
   file: { name: string; mimeType: string; buffer: Buffer },
 ) {
   // Click the Upload button to ensure the panel is active
-  const uploadButton = page.locator('button:has-text("Upload")');
+  const uploadButton = page.locator('button:has-text("Încarcă")');
   await expect(uploadButton).toBeVisible({ timeout: 5000 });
 
   // Set the file on the hidden input
@@ -69,7 +69,7 @@ export function createTestMp4Buffer(): Buffer {
  * Wait for a media item to appear in the list by name.
  */
 export async function waitForMediaItem(page: Page, name: string, timeout = 10000) {
-  const item = page.locator('li').filter({ hasText: name });
+  const item = page.locator('button').filter({ hasText: name });
   await expect(item).toBeVisible({ timeout });
   return item;
 }
@@ -89,12 +89,12 @@ export async function deleteMediaItem(page: Page, name: string) {
   const item = await waitForMediaItem(page, name);
   await item.hover();
   // Click the trash button within the item to open confirmation dialog
-  await item.locator('button').click();
+  await page.locator(`[aria-label="Șterge ${name}"]`).click();
 
   // Confirm deletion in the dialog
-  await expect(page.locator('text=Delete Media')).toBeVisible({ timeout: 5000 });
-  await page.locator('button:has-text("Delete")').last().click();
+  await expect(page.locator('text=Șterge media')).toBeVisible({ timeout: 5000 });
+  await page.locator('button:has-text("Șterge")').last().click();
 
   // Wait for dialog to close
-  await expect(page.locator('text=Delete Media')).not.toBeVisible({ timeout: 5000 });
+  await expect(page.locator('text=Șterge media')).not.toBeVisible({ timeout: 5000 });
 }

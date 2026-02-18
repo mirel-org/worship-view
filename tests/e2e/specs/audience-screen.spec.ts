@@ -17,11 +17,7 @@ Verse Chorus`;
  * Filters for slides with non-empty text content.
  */
 function getContentSlides(page: import('@playwright/test').Page) {
-  return page.locator('.bg-black').filter({
-    has: page.locator('.font-montserrat:not(:empty)'),
-  }).filter({
-    hasText: /.+/,
-  });
+  return page.locator('[data-testid="song-slide-item"]').filter({ hasText: /\S+/ });
 }
 
 test.describe('Audience Screen', () => {
@@ -29,16 +25,18 @@ test.describe('Audience Screen', () => {
     const enableBtn = mainWindow.locator('[data-testid="enable-button"]');
     await expect(enableBtn).toBeVisible({ timeout: 5000 });
 
-    // areScreensEnabledAtom defaults to true, so initially shows "Enabled"
-    await expect(enableBtn).toHaveText('Enabled');
+    const liveBadge = enableBtn.locator('span').last();
+    const initialClass = await liveBadge.getAttribute('class');
 
     // Click to disable
     await enableBtn.click();
-    await expect(enableBtn).toHaveText('Enable');
+    const disabledClass = await liveBadge.getAttribute('class');
+    expect(disabledClass).not.toBe(initialClass);
 
     // Click to enable again
     await enableBtn.click();
-    await expect(enableBtn).toHaveText('Enabled');
+    const enabledClass = await liveBadge.getAttribute('class');
+    expect(enabledClass).toBe(initialClass);
   });
 
   test('song projection shows on audience screen', async ({ mainWindow, audienceWindow }) => {

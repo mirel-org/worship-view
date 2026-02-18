@@ -8,7 +8,7 @@ async function fillAndSave(mainWindow: any, content: string) {
   await openCreateSongDialog(mainWindow);
   await mainWindow.locator('#song-name').fill('Test Song');
   await mainWindow.locator('#song-content').fill(content);
-  await mainWindow.locator('button:has-text("Add Song")').click();
+  await mainWindow.locator('button:has-text("Adaugă cântec")').click();
   return mainWindow.locator('[data-testid="song-validation-error"]');
 }
 
@@ -27,25 +27,25 @@ test.describe('Song Content Validation — Errors', () => {
   test('missing separator blocks save', async ({ mainWindow }) => {
     const error = await fillAndSave(mainWindow, 'Verse\nSome lyrics here');
     await expect(error).toBeVisible({ timeout: 5000 });
-    await expect(error).toContainText('Missing separator');
-    await expect(mainWindow.locator('text=Add New Song')).toBeVisible();
-    await mainWindow.locator('button:has-text("Cancel")').click();
+    await expect(error).toContainText('Lipseste separatorul');
+    await expect(mainWindow.locator('text=Adaugă cântec nou')).toBeVisible();
+    await mainWindow.locator('button:has-text("Anulează")').click();
   });
 
   test('missing arrangement blocks save', async ({ mainWindow }) => {
     const error = await fillAndSave(mainWindow, 'Verse\nSome lyrics\n---\n');
     await expect(error).toBeVisible({ timeout: 5000 });
-    await expect(error).toContainText('Missing arrangement');
-    await expect(mainWindow.locator('text=Add New Song')).toBeVisible();
-    await mainWindow.locator('button:has-text("Cancel")').click();
+    await expect(error).toContainText('Lipseste aranjamentul');
+    await expect(mainWindow.locator('text=Adaugă cântec nou')).toBeVisible();
+    await mainWindow.locator('button:has-text("Anulează")').click();
   });
 
   test('empty part key blocks save', async ({ mainWindow }) => {
     const error = await fillAndSave(mainWindow, '\nSome lyrics\n---\nVerse');
     await expect(error).toBeVisible({ timeout: 5000 });
-    await expect(error).toContainText('Empty part key');
-    await expect(mainWindow.locator('text=Add New Song')).toBeVisible();
-    await mainWindow.locator('button:has-text("Cancel")').click();
+    await expect(error).toContainText('Cheie de parte goala');
+    await expect(mainWindow.locator('text=Adaugă cântec nou')).toBeVisible();
+    await mainWindow.locator('button:has-text("Anulează")').click();
   });
 
   test('space in part key blocks save', async ({ mainWindow }) => {
@@ -54,9 +54,9 @@ test.describe('Song Content Validation — Errors', () => {
       'Verse One\nSome lyrics here\n---\nVerse One',
     );
     await expect(error).toBeVisible({ timeout: 5000 });
-    await expect(error).toContainText('contains spaces');
-    await expect(mainWindow.locator('text=Add New Song')).toBeVisible();
-    await mainWindow.locator('button:has-text("Cancel")').click();
+    await expect(error).toContainText('contine spatii');
+    await expect(mainWindow.locator('text=Adaugă cântec nou')).toBeVisible();
+    await mainWindow.locator('button:has-text("Anulează")').click();
   });
 
   test('trailing whitespace on part key blocks save', async ({
@@ -67,9 +67,9 @@ test.describe('Song Content Validation — Errors', () => {
       'Verse \nSome lyrics here\n---\nVerse',
     );
     await expect(error).toBeVisible({ timeout: 5000 });
-    await expect(error).toContainText('trailing or leading whitespace');
-    await expect(mainWindow.locator('text=Add New Song')).toBeVisible();
-    await mainWindow.locator('button:has-text("Cancel")').click();
+    await expect(error).toContainText('spatii la inceput sau la sfarsit');
+    await expect(mainWindow.locator('text=Adaugă cântec nou')).toBeVisible();
+    await mainWindow.locator('button:has-text("Anulează")').click();
   });
 
   test('undefined arrangement key blocks save', async ({ mainWindow }) => {
@@ -78,17 +78,17 @@ test.describe('Song Content Validation — Errors', () => {
       'Verse\nSome lyrics here\n---\nVerse Chorus',
     );
     await expect(error).toBeVisible({ timeout: 5000 });
-    await expect(error).toContainText('undefined part "Chorus"');
-    await expect(mainWindow.locator('text=Add New Song')).toBeVisible();
-    await mainWindow.locator('button:has-text("Cancel")').click();
+    await expect(error).toContainText('parte nedefinita "Chorus"');
+    await expect(mainWindow.locator('text=Adaugă cântec nou')).toBeVisible();
+    await mainWindow.locator('button:has-text("Anulează")').click();
   });
 
   test('empty part content blocks save', async ({ mainWindow }) => {
     const error = await fillAndSave(mainWindow, 'Verse\n\n---\nVerse');
     await expect(error).toBeVisible({ timeout: 5000 });
-    await expect(error).toContainText('has no lyrics content');
-    await expect(mainWindow.locator('text=Add New Song')).toBeVisible();
-    await mainWindow.locator('button:has-text("Cancel")').click();
+    await expect(error).toContainText('nu are continut de versuri');
+    await expect(mainWindow.locator('text=Adaugă cântec nou')).toBeVisible();
+    await mainWindow.locator('button:has-text("Anulează")').click();
   });
 
   test('duplicate part keys blocks save', async ({ mainWindow }) => {
@@ -97,9 +97,9 @@ test.describe('Song Content Validation — Errors', () => {
       'Verse\nFirst lyrics\n---\nVerse\nSecond lyrics\n---\nVerse',
     );
     await expect(error).toBeVisible({ timeout: 5000 });
-    await expect(error).toContainText('Duplicate part key "Verse"');
-    await expect(mainWindow.locator('text=Add New Song')).toBeVisible();
-    await mainWindow.locator('button:has-text("Cancel")').click();
+    await expect(error).toContainText('Cheie de parte duplicata "Verse"');
+    await expect(mainWindow.locator('text=Adaugă cântec nou')).toBeVisible();
+    await mainWindow.locator('button:has-text("Anulează")').click();
   });
 
   test('slide with more than 2 lines blocks save', async ({ mainWindow }) => {
@@ -108,9 +108,9 @@ test.describe('Song Content Validation — Errors', () => {
       'Verse\nLine one\nLine two\nLine three\n---\nVerse',
     );
     await expect(error).toBeVisible({ timeout: 5000 });
-    await expect(error).toContainText('more than 2 lines');
-    await expect(mainWindow.locator('text=Add New Song')).toBeVisible();
-    await mainWindow.locator('button:has-text("Cancel")').click();
+    await expect(error).toContainText('mai mult de 2 linii');
+    await expect(mainWindow.locator('text=Adaugă cântec nou')).toBeVisible();
+    await mainWindow.locator('button:has-text("Anulează")').click();
   });
 
   test('arrangement with trailing whitespace blocks save', async ({
@@ -122,10 +122,10 @@ test.describe('Song Content Validation — Errors', () => {
     );
     await expect(error).toBeVisible({ timeout: 5000 });
     await expect(error).toContainText(
-      'Arrangement has trailing or leading whitespace',
+      'Aranjamentul are spatii sau linii noi la inceput/sfarsit',
     );
-    await expect(mainWindow.locator('text=Add New Song')).toBeVisible();
-    await mainWindow.locator('button:has-text("Cancel")').click();
+    await expect(mainWindow.locator('text=Adaugă cântec nou')).toBeVisible();
+    await mainWindow.locator('button:has-text("Anulează")').click();
   });
 
   test('arrangement with trailing newline blocks save', async ({
@@ -137,10 +137,10 @@ test.describe('Song Content Validation — Errors', () => {
     );
     await expect(error).toBeVisible({ timeout: 5000 });
     await expect(error).toContainText(
-      'Arrangement has trailing or leading whitespace',
+      'Aranjamentul are spatii sau linii noi la inceput/sfarsit',
     );
-    await expect(mainWindow.locator('text=Add New Song')).toBeVisible();
-    await mainWindow.locator('button:has-text("Cancel")').click();
+    await expect(mainWindow.locator('text=Adaugă cântec nou')).toBeVisible();
+    await mainWindow.locator('button:has-text("Anulează")').click();
   });
 });
 
@@ -159,8 +159,8 @@ test.describe('Song Content Validation — Warnings', () => {
     ).not.toBeVisible();
 
     // Save should succeed
-    await mainWindow.locator('button:has-text("Add Song")').click();
-    await expect(mainWindow.locator('text=Add New Song')).not.toBeVisible({
+    await mainWindow.locator('button:has-text("Adaugă cântec")').click();
+    await expect(mainWindow.locator('text=Adaugă cântec nou')).not.toBeVisible({
       timeout: 10000,
     });
   });
@@ -175,9 +175,9 @@ test.describe('Song Content Validation — Warnings', () => {
       '[data-testid="song-validation-warnings"]',
     );
     await expect(warnings).toBeVisible({ timeout: 3000 });
-    await expect(warnings).toContainText('Malformed separator');
+    await expect(warnings).toContainText('Separator invalid');
 
-    await mainWindow.locator('button:has-text("Cancel")').click();
+    await mainWindow.locator('button:has-text("Anulează")').click();
   });
 
   test('leading/trailing whitespace on lyrics shows warning', async ({
@@ -192,9 +192,9 @@ test.describe('Song Content Validation — Warnings', () => {
       '[data-testid="song-validation-warnings"]',
     );
     await expect(warnings).toBeVisible({ timeout: 3000 });
-    await expect(warnings).toContainText('leading/trailing whitespace');
+    await expect(warnings).toContainText('spatii la inceput/sfarsit');
 
-    await mainWindow.locator('button:has-text("Cancel")').click();
+    await mainWindow.locator('button:has-text("Anulează")').click();
   });
 
   test('extra consecutive blank lines shows warning', async ({
@@ -209,9 +209,9 @@ test.describe('Song Content Validation — Warnings', () => {
       '[data-testid="song-validation-warnings"]',
     );
     await expect(warnings).toBeVisible({ timeout: 3000 });
-    await expect(warnings).toContainText('Extra consecutive blank line');
+    await expect(warnings).toContainText('Linie goala consecutiva in plus');
 
-    await mainWindow.locator('button:has-text("Cancel")').click();
+    await mainWindow.locator('button:has-text("Anulează")').click();
   });
 
   test('leading/trailing blank lines in part content shows warning', async ({
@@ -226,9 +226,9 @@ test.describe('Song Content Validation — Warnings', () => {
       '[data-testid="song-validation-warnings"]',
     );
     await expect(warnings).toBeVisible({ timeout: 3000 });
-    await expect(warnings).toContainText('leading blank line');
+    await expect(warnings).toContainText('linii goale la inceputul continutului');
 
-    await mainWindow.locator('button:has-text("Cancel")').click();
+    await mainWindow.locator('button:has-text("Anulează")').click();
   });
 });
 
@@ -256,7 +256,7 @@ test.describe('Song Content Validation — UX', () => {
       mainWindow.locator('[data-testid="song-validation-errors"]'),
     ).not.toBeVisible({ timeout: 3000 });
 
-    await mainWindow.locator('button:has-text("Cancel")').click();
+    await mainWindow.locator('button:has-text("Anulează")').click();
   });
 
   test('save error clears on content edit', async ({ mainWindow }) => {
@@ -270,7 +270,7 @@ test.describe('Song Content Validation — UX', () => {
     );
     await expect(error).not.toBeVisible();
 
-    await mainWindow.locator('button:has-text("Cancel")').click();
+    await mainWindow.locator('button:has-text("Anulează")').click();
   });
 
   test('valid content with 2-line slides saves successfully', async ({
@@ -282,8 +282,8 @@ test.describe('Song Content Validation — UX', () => {
       'Verse\nLine one\nLine two\n\nLine three\nLine four\n---\nVerse',
     );
 
-    await mainWindow.locator('button:has-text("Add Song")').click();
-    await expect(mainWindow.locator('text=Add New Song')).not.toBeVisible({
+    await mainWindow.locator('button:has-text("Adaugă cântec")').click();
+    await expect(mainWindow.locator('text=Adaugă cântec nou')).not.toBeVisible({
       timeout: 10000,
     });
   });

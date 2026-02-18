@@ -46,11 +46,11 @@ test.describe('Song CRUD', () => {
     await mainWindow.locator('#song-content').fill(TEST_SONG_CONTENT);
 
     // The Add Song button should be disabled when name is empty
-    const addButton = mainWindow.locator('button:has-text("Add Song")');
+    const addButton = mainWindow.locator('button:has-text("Adaugă cântec")');
     await expect(addButton).toBeDisabled();
 
     // Cancel
-    await mainWindow.locator('button:has-text("Cancel")').click();
+    await mainWindow.locator('button:has-text("Anulează")').click();
   });
 
   test('validates empty song content', async ({ mainWindow }) => {
@@ -60,11 +60,11 @@ test.describe('Song CRUD', () => {
     await mainWindow.locator('#song-name').fill('Some Song');
 
     // The Add Song button should be disabled when content is empty
-    const addButton = mainWindow.locator('button:has-text("Add Song")');
+    const addButton = mainWindow.locator('button:has-text("Adaugă cântec")');
     await expect(addButton).toBeDisabled();
 
     // Cancel
-    await mainWindow.locator('button:has-text("Cancel")').click();
+    await mainWindow.locator('button:has-text("Anulează")').click();
   });
 
   test('can edit a song name', async ({ mainWindow }) => {
@@ -78,10 +78,10 @@ test.describe('Song CRUD', () => {
 
     // Hover to reveal action buttons, then click edit
     await songItem.hover();
-    await mainWindow.locator(`button[aria-label="Edit ${TEST_SONG_NAME}"]`).click();
+    await mainWindow.locator(`button[aria-label="Editează ${TEST_SONG_NAME}"]`).click();
 
     // Wait for edit dialog
-    await expect(mainWindow.locator('text=Edit Song')).toBeVisible({ timeout: 5000 });
+    await expect(mainWindow.locator('text=Editează cântec')).toBeVisible({ timeout: 5000 });
 
     // Change the name
     const nameInput = mainWindow.locator('#song-name');
@@ -89,8 +89,8 @@ test.describe('Song CRUD', () => {
     await nameInput.fill('Updated Grace Song');
 
     // Save
-    await mainWindow.locator('button:has-text("Save")').click();
-    await expect(mainWindow.locator('text=Edit Song')).not.toBeVisible({ timeout: 10000 });
+    await mainWindow.locator('button:has-text("Salvează")').click();
+    await expect(mainWindow.locator('text=Editează cântec')).not.toBeVisible({ timeout: 10000 });
 
     // Search for the updated name in the command palette
     await searchSongInPalette(mainWindow, 'updated grace');
@@ -119,17 +119,17 @@ Verse`;
 
     // Hover and click delete
     await songItem.hover();
-    await mainWindow.locator(`button[aria-label="Delete ${songName}"]`).click();
+    await mainWindow.locator(`button[aria-label="Șterge ${songName}"]`).click();
 
     // Confirm deletion in the dialog
-    await expect(mainWindow.locator('text=Delete Song')).toBeVisible({ timeout: 5000 });
+    await expect(mainWindow.locator('text=Șterge cântec')).toBeVisible({ timeout: 5000 });
     await expect(
-      mainWindow.locator(`text=Are you sure you want to delete "${songName}"?`),
+      mainWindow.locator(`text=Sigur doriți să ștergeți "${songName}"?`),
     ).toBeVisible();
-    await mainWindow.locator('button:has-text("Delete")').last().click();
+    await mainWindow.locator('button:has-text("Șterge")').last().click();
 
     // Wait for dialog to close
-    await expect(mainWindow.locator('text=Delete Song')).not.toBeVisible({ timeout: 5000 });
+    await expect(mainWindow.locator('text=Șterge cântec')).not.toBeVisible({ timeout: 5000 });
 
     // Search again — song should no longer appear
     await searchSongInPalette(mainWindow, 'song to delete');
@@ -148,8 +148,8 @@ Verse`;
     await mainWindow.locator('#song-content').fill(`Verse\nSome test lyrics here\n---\nVerse`);
 
     // Cancel instead of saving
-    await mainWindow.locator('button:has-text("Cancel")').click();
-    await expect(mainWindow.locator('text=Add New Song')).not.toBeVisible();
+    await mainWindow.locator('button:has-text("Anulează")').click();
+    await expect(mainWindow.locator('text=Adaugă cântec nou')).not.toBeVisible();
 
     // Verify the song was NOT added
     await searchSongInPalette(mainWindow, 'cancelled song');
@@ -179,12 +179,12 @@ Verse`;
 
     // Open delete dialog
     await songItem.hover();
-    await mainWindow.locator(`button[aria-label="Delete ${songName}"]`).click();
-    await expect(mainWindow.locator('text=Delete Song')).toBeVisible({ timeout: 5000 });
+    await mainWindow.locator(`button[aria-label="Șterge ${songName}"]`).click();
+    await expect(mainWindow.locator('text=Șterge cântec')).toBeVisible({ timeout: 5000 });
 
     // Cancel
-    await mainWindow.locator('button:has-text("Cancel")').click();
-    await expect(mainWindow.locator('text=Delete Song')).not.toBeVisible();
+    await mainWindow.locator('button:has-text("Anulează")').click();
+    await expect(mainWindow.locator('text=Șterge cântec')).not.toBeVisible();
 
     // Song should still be findable
     await searchSongInPalette(mainWindow, 'song cancel delete');
@@ -202,7 +202,7 @@ Verse`;
     await mainWindow.locator('#song-content').fill('Temporary content');
 
     // Cancel
-    await mainWindow.locator('button:has-text("Cancel")').click();
+    await mainWindow.locator('button:has-text("Anulează")').click();
 
     // Reopen the dialog
     await openCreateSongDialog(mainWindow);
@@ -212,6 +212,6 @@ Verse`;
     await expect(mainWindow.locator('#song-content')).toHaveValue('');
 
     // Cancel
-    await mainWindow.locator('button:has-text("Cancel")').click();
+    await mainWindow.locator('button:has-text("Anulează")').click();
   });
 });

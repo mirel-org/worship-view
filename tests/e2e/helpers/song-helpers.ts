@@ -18,13 +18,13 @@ export async function closeCommandPalette(page: Page) {
 }
 
 /**
- * Helper: open the "Create new song" dialog via the command palette.
+ * Helper: open the "Adaugă cântec nou" dialog via the command palette.
  */
 export async function openCreateSongDialog(page: Page) {
   await openCommandPalette(page);
-  const createCmd = page.locator('[cmdk-item]').filter({ hasText: 'Create new song' });
+  const createCmd = page.locator('[cmdk-item]').filter({ hasText: 'Creează cântec nou' });
   await createCmd.click();
-  await expect(page.locator('text=Add New Song')).toBeVisible({ timeout: 5000 });
+  await expect(page.locator('text=Adaugă cântec nou')).toBeVisible({ timeout: 5000 });
 }
 
 /**
@@ -36,9 +36,9 @@ export async function addSong(page: Page, name: string, content: string) {
   await page.locator('#song-name').fill(name);
   await page.locator('#song-content').fill(content);
 
-  await page.locator('button:has-text("Add Song")').click();
+  await page.locator('button:has-text("Adaugă cântec")').click();
 
-  await expect(page.locator('text=Add New Song')).not.toBeVisible({ timeout: 10000 });
+  await expect(page.locator('text=Adaugă cântec nou')).not.toBeVisible({ timeout: 10000 });
 }
 
 /**

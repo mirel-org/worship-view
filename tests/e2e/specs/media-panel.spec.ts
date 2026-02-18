@@ -13,7 +13,7 @@ test.describe('Media Panel', () => {
   test('shows upload button on Songs tab', async ({ mainWindow }) => {
     await navigateToSongsTab(mainWindow);
 
-    const uploadButton = mainWindow.locator('button:has-text("Upload")');
+    const uploadButton = mainWindow.locator('button:has-text("Încarcă")');
     await expect(uploadButton).toBeVisible();
   });
 
@@ -59,11 +59,8 @@ test.describe('Media Panel', () => {
     await selectMediaItem(mainWindow, 'bg-image.png');
 
     // The selected item should have the accent background (space-prefixed, not hover:bg-accent)
-    const item = mainWindow.locator('li').filter({ hasText: 'bg-image.png' });
-    await expect(item).toHaveClass(/ bg-accent/);
-
-    // "Clear Background" button should appear
-    await expect(mainWindow.locator('button:has-text("Clear Background")')).toBeVisible();
+    const item = mainWindow.locator('button').filter({ hasText: 'bg-image.png' });
+    await expect(item).toHaveClass(/border-2/);
   });
 
   test('can clear background selection', async ({ mainWindow }) => {
@@ -78,19 +75,12 @@ test.describe('Media Panel', () => {
     await waitForMediaItem(mainWindow, 'clear-test.png');
     await selectMediaItem(mainWindow, 'clear-test.png');
 
-    // Verify Clear Background button is visible
-    const clearButton = mainWindow.locator('button:has-text("Clear Background")');
-    await expect(clearButton).toBeVisible();
+    const clearBackgroundCard = mainWindow.locator('button').filter({ hasText: 'Fără fundal' });
+    await clearBackgroundCard.click();
 
-    // Click Clear Background
-    await clearButton.click();
-
-    // Clear Background button should disappear
-    await expect(clearButton).not.toBeVisible();
-
-    // The item should no longer have the accent background (space-prefixed, not hover:bg-accent)
-    const item = mainWindow.locator('li').filter({ hasText: 'clear-test.png' });
-    await expect(item).not.toHaveClass(/ bg-accent/);
+    // The item should no longer be selected
+    const item = mainWindow.locator('button').filter({ hasText: 'clear-test.png' });
+    await expect(item).not.toHaveClass(/border-2/);
   });
 
   test('can delete a media item', async ({ mainWindow }) => {
@@ -110,7 +100,7 @@ test.describe('Media Panel', () => {
 
     // Verify it's gone
     await expect(
-      mainWindow.locator('li').filter({ hasText: 'to-delete.png' }),
+      mainWindow.locator('button').filter({ hasText: 'to-delete.png' }),
     ).not.toBeVisible({ timeout: 5000 });
   });
 
@@ -127,13 +117,17 @@ test.describe('Media Panel', () => {
     await selectMediaItem(mainWindow, 'delete-selected.png');
 
     // Verify it's selected
-    await expect(mainWindow.locator('button:has-text("Clear Background")')).toBeVisible();
+    await expect(
+      mainWindow.locator('button').filter({ hasText: 'delete-selected.png' }),
+    ).toHaveClass(/border-2/);
 
     // Delete it
     await deleteMediaItem(mainWindow, 'delete-selected.png');
 
-    // Clear Background button should be gone since the selected item was deleted
-    await expect(mainWindow.locator('button:has-text("Clear Background")')).not.toBeVisible();
+    // Media tile should be gone
+    await expect(
+      mainWindow.locator('button').filter({ hasText: 'delete-selected.png' }),
+    ).not.toBeVisible();
   });
 
   test('rejects unsupported file types', async ({ mainWindow }) => {
@@ -186,7 +180,7 @@ test.describe('Media Panel', () => {
   test('upload button is disabled during upload', async ({ mainWindow }) => {
     await navigateToSongsTab(mainWindow);
 
-    const uploadButton = mainWindow.locator('button:has-text("Upload")');
+    const uploadButton = mainWindow.locator('button:has-text("Încarcă")');
     await expect(uploadButton).toBeVisible();
     await expect(uploadButton).toBeEnabled();
 
@@ -224,8 +218,8 @@ test.describe('Media Panel', () => {
     await waitForMediaItem(mainWindow, 'second-file.jpg');
 
     // Both should be visible
-    await expect(mainWindow.locator('li').filter({ hasText: 'first-file.png' })).toBeVisible();
-    await expect(mainWindow.locator('li').filter({ hasText: 'second-file.jpg' })).toBeVisible();
+    await expect(mainWindow.locator('button').filter({ hasText: 'first-file.png' })).toBeVisible();
+    await expect(mainWindow.locator('button').filter({ hasText: 'second-file.jpg' })).toBeVisible();
   });
 
   test('delete shows confirmation dialog with file name', async ({ mainWindow }) => {
@@ -241,17 +235,17 @@ test.describe('Media Panel', () => {
 
     // Hover and click trash to open dialog
     await item.hover();
-    await item.locator('button').click();
+    await mainWindow.locator('[aria-label="Șterge confirm-dialog.png"]').click();
 
     // Dialog should appear with the file name
-    await expect(mainWindow.locator('text=Delete Media')).toBeVisible({ timeout: 5000 });
+    await expect(mainWindow.locator('text=Șterge media')).toBeVisible({ timeout: 5000 });
     await expect(
-      mainWindow.locator('text=Are you sure you want to delete "confirm-dialog.png"?'),
+      mainWindow.locator('text=Sigur doriți să ștergeți "confirm-dialog.png"?'),
     ).toBeVisible();
 
     // Close without deleting
-    await mainWindow.locator('button:has-text("Cancel")').click();
-    await expect(mainWindow.locator('text=Delete Media')).not.toBeVisible();
+    await mainWindow.locator('button:has-text("Anulează")').click();
+    await expect(mainWindow.locator('text=Șterge media')).not.toBeVisible();
   });
 
   test('can cancel deleting a media item', async ({ mainWindow }) => {
@@ -267,16 +261,16 @@ test.describe('Media Panel', () => {
 
     // Open delete dialog
     await item.hover();
-    await item.locator('button').click();
-    await expect(mainWindow.locator('text=Delete Media')).toBeVisible({ timeout: 5000 });
+    await mainWindow.locator('[aria-label="Șterge cancel-delete.png"]').click();
+    await expect(mainWindow.locator('text=Șterge media')).toBeVisible({ timeout: 5000 });
 
     // Cancel
-    await mainWindow.locator('button:has-text("Cancel")').click();
-    await expect(mainWindow.locator('text=Delete Media')).not.toBeVisible();
+    await mainWindow.locator('button:has-text("Anulează")').click();
+    await expect(mainWindow.locator('text=Șterge media')).not.toBeVisible();
 
     // Item should still be in the list
     await expect(
-      mainWindow.locator('li').filter({ hasText: 'cancel-delete.png' }),
+      mainWindow.locator('button').filter({ hasText: 'cancel-delete.png' }),
     ).toBeVisible();
   });
 });

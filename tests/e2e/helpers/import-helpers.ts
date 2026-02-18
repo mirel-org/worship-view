@@ -13,7 +13,7 @@ export async function importFiles(
 ) {
   // Open settings
   await page.locator('[data-testid="settings-button"]').click();
-  await expect(page.locator('text=Import Songs')).toBeVisible({ timeout: 5000 });
+  await expect(page.locator('text=Importă cântece')).toBeVisible({ timeout: 5000 });
 
   // Click the Import Songs tab
   await page.locator('[role="tab"]:has-text("Importă cântece")').click();
@@ -29,14 +29,14 @@ export async function importFiles(
 
   // Wait for files to appear in the selected list
   await expect(
-    page.locator('text=Selected Files'),
+    page.locator('text=Fișiere selectate'),
   ).toBeVisible({ timeout: 5000 });
 
   // Click the Import Songs action button (not the tab trigger which has role="tab")
   await page.locator('button:not([role="tab"]):has-text("Importă cântece")').click();
 
   // Wait for results to appear
-  await page.locator('text=processed').waitFor({ timeout: 10000 });
+  await page.locator('text=cântece procesate').waitFor({ timeout: 10000 });
 
   // Close settings dialog
   await page.keyboard.press('Escape');
