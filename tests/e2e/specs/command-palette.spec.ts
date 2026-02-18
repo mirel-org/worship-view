@@ -38,9 +38,9 @@ test.describe('Command Palette', () => {
     await openCommandPalette(mainWindow);
 
     // Default commands should be visible when search is empty
-    await expect(mainWindow.locator('[cmdk-item]').filter({ hasText: 'Create new song' })).toBeVisible();
-    await expect(mainWindow.locator('[cmdk-item]').filter({ hasText: 'Clear service list' })).toBeVisible();
-    await expect(mainWindow.locator('[cmdk-item]').filter({ hasText: 'Open settings' })).toBeVisible();
+    await expect(mainWindow.locator('[cmdk-item]').filter({ hasText: 'Creează cântec nou' })).toBeVisible();
+    await expect(mainWindow.locator('[cmdk-item]').filter({ hasText: 'Golește lista de melodii' })).toBeVisible();
+    await expect(mainWindow.locator('[cmdk-item]').filter({ hasText: 'Deschide setările' })).toBeVisible();
 
     await closeCommandPalette(mainWindow);
   });
@@ -74,7 +74,7 @@ test.describe('Command Palette', () => {
     await mainWindow.waitForTimeout(500);
 
     // A verse result should appear
-    const verseItem = mainWindow.locator('[cmdk-item]').filter({ hasText: 'ioan 3:16' });
+    const verseItem = mainWindow.locator('[cmdk-item]').filter({ hasText: 'IOAN 3:16' });
     await expect(verseItem).toBeVisible({ timeout: 5000 });
 
     await closeCommandPalette(mainWindow);
@@ -84,9 +84,9 @@ test.describe('Command Palette', () => {
     await addSong(mainWindow, SONG_NAME, SONG_CONTENT);
 
     // Switch to Bible tab first
-    await mainWindow.locator('[role="tab"]').filter({ hasText: 'Bible' }).click();
+    await mainWindow.locator('[role="tab"]').filter({ hasText: 'Biblie' }).click();
     await mainWindow.waitForTimeout(300);
-    await expect(mainWindow.locator('[role="tab"]').filter({ hasText: 'Bible' })).toHaveAttribute('data-state', 'active');
+    await expect(mainWindow.locator('[role="tab"]').filter({ hasText: 'Biblie' })).toHaveAttribute('data-state', 'active');
 
     // Now search and select the song via Enter key (more reliable than click for cmdk)
     await searchSongInPalette(mainWindow, 'palette search');
@@ -100,19 +100,19 @@ test.describe('Command Palette', () => {
     await expect(mainWindow.locator('[cmdk-input]')).not.toBeVisible({ timeout: 5000 });
 
     // Songs tab should now be active
-    await expect(mainWindow.locator('[role="tab"]').filter({ hasText: 'Songs' })).toHaveAttribute('data-state', 'active', { timeout: 5000 });
+    await expect(mainWindow.locator('[role="tab"]').filter({ hasText: 'Melodii' })).toHaveAttribute('data-state', 'active', { timeout: 5000 });
   });
 
   test('selecting a verse switches to Bible tab', async ({ mainWindow }) => {
     // Start on Songs tab (default)
-    await expect(mainWindow.locator('[role="tab"]').filter({ hasText: 'Songs' })).toHaveAttribute('data-state', 'active');
+    await expect(mainWindow.locator('[role="tab"]').filter({ hasText: 'Melodii' })).toHaveAttribute('data-state', 'active');
 
     // Search for a verse and select it
     await openCommandPalette(mainWindow);
     await mainWindow.locator('[cmdk-input]').fill('ioan 3 16');
     await mainWindow.waitForTimeout(500);
 
-    const verseItem = mainWindow.locator('[cmdk-item]').filter({ hasText: 'ioan 3:16' });
+    const verseItem = mainWindow.locator('[cmdk-item]').filter({ hasText: 'IOAN 3:16' });
     await expect(verseItem).toBeVisible({ timeout: 5000 });
     await verseItem.click();
 
@@ -120,7 +120,7 @@ test.describe('Command Palette', () => {
     await expect(mainWindow.locator('[cmdk-input]')).not.toBeVisible({ timeout: 5000 });
 
     // Bible tab should now be active
-    await expect(mainWindow.locator('[role="tab"]').filter({ hasText: 'Bible' })).toHaveAttribute('data-state', 'active');
+    await expect(mainWindow.locator('[role="tab"]').filter({ hasText: 'Biblie' })).toHaveAttribute('data-state', 'active');
   });
 
   test('command palette preview shows song content', async ({ mainWindow }) => {
@@ -140,8 +140,8 @@ test.describe('Command Palette', () => {
     const previewName = mainWindow.locator('h4').filter({ hasText: SONG_NAME });
     await expect(previewName).toBeVisible({ timeout: 5000 });
 
-    // Preview should show song slide content in bg-black containers
-    const previewSlides = mainWindow.locator('.bg-black.text-white.p-4');
+    // Preview should show song slide content
+    const previewSlides = mainWindow.locator('[data-testid="command-preview-slide"]');
     await expect(previewSlides.first()).toBeVisible({ timeout: 5000 });
 
     await closeCommandPalette(mainWindow);

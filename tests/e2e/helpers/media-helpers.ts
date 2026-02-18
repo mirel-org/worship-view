@@ -5,7 +5,7 @@ import { expect } from '../fixtures/electron-fixture';
  * Navigate to the Songs tab where the Media panel is visible.
  */
 export async function navigateToSongsTab(page: Page) {
-  const songsTab = page.locator('[role="tab"]').filter({ hasText: 'Songs' });
+  const songsTab = page.locator('[role="tab"]').filter({ hasText: 'Melodii' });
   await songsTab.click();
   await expect(songsTab).toHaveAttribute('data-state', 'active');
 }

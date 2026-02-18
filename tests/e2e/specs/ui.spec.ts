@@ -14,15 +14,16 @@ test.describe('UI Interactions', () => {
     const enableButton = mainWindow.locator('[data-testid="enable-button"]');
     await expect(enableButton).toBeVisible();
 
-    // Get initial state
-    const initialText = await enableButton.textContent();
+    // The LIVE badge changes class on toggle (bg-muted when off, bg-destructive when on)
+    const liveBadge = enableButton.locator('span').last();
+    const initialClass = await liveBadge.getAttribute('class');
 
     // Click to toggle
     await enableButton.click();
 
-    // Verify state changed
-    const newText = await enableButton.textContent();
-    expect(newText).not.toBe(initialText);
+    // Verify style changed
+    const newClass = await liveBadge.getAttribute('class');
+    expect(newClass).not.toBe(initialClass);
   });
 
   test('tab navigation works', async ({ mainWindow }) => {
@@ -31,13 +32,13 @@ test.describe('UI Interactions', () => {
     const tabCount = await tabs.count();
     expect(tabCount).toBeGreaterThan(0);
 
-    // Click Songs tab
-    const songsTab = mainWindow.locator('[role="tab"]:has-text("Songs")');
+    // Click Melodii (Songs) tab
+    const songsTab = mainWindow.locator('[role="tab"]:has-text("Melodii")');
     await songsTab.click();
     await expect(songsTab).toHaveAttribute('data-state', 'active');
 
-    // Click Bible tab
-    const bibleTab = mainWindow.locator('[role="tab"]:has-text("Bible")');
+    // Click Biblie (Bible) tab
+    const bibleTab = mainWindow.locator('[role="tab"]:has-text("Biblie")');
     await bibleTab.click();
     await expect(bibleTab).toHaveAttribute('data-state', 'active');
   });
@@ -45,6 +46,6 @@ test.describe('UI Interactions', () => {
   test('settings button is present', async ({ mainWindow }) => {
     const settingsButton = mainWindow.locator('[data-testid="settings-button"]');
     await expect(settingsButton).toBeVisible();
-    await expect(settingsButton).toHaveAttribute('aria-label', 'Settings');
+    await expect(settingsButton).toHaveAttribute('aria-label', 'Setări');
   });
 });

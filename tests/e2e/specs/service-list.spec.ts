@@ -87,7 +87,7 @@ test.describe('Service List', () => {
     await expect(serviceListItem).not.toBeVisible({ timeout: 5000 });
 
     // Empty state text should appear
-    await expect(mainWindow.locator('text=No songs in service list')).toBeVisible();
+    await expect(mainWindow.locator('text=Niciun cântec în lista de melodii')).toBeVisible();
   });
 
   test('service list persists after tab switch', async ({ mainWindow }) => {
@@ -105,11 +105,11 @@ test.describe('Service List', () => {
     await expect(mainWindow.locator('li').filter({ hasText: SONG_NAME })).toBeVisible({ timeout: 5000 });
 
     // Switch to Bible tab
-    await mainWindow.locator('[role="tab"]').filter({ hasText: 'Bible' }).click();
+    await mainWindow.locator('[role="tab"]').filter({ hasText: 'Biblie' }).click();
     await mainWindow.waitForTimeout(500);
 
     // Switch back to Songs tab
-    await mainWindow.locator('[role="tab"]').filter({ hasText: 'Songs' }).click();
+    await mainWindow.locator('[role="tab"]').filter({ hasText: 'Melodii' }).click();
     await mainWindow.waitForTimeout(500);
 
     // Song should still be in the service list
@@ -118,6 +118,6 @@ test.describe('Service List', () => {
 
   test('empty state shows when no songs in service list', async ({ mainWindow }) => {
     // Initially, service list should be empty
-    await expect(mainWindow.locator('text=No songs in service list')).toBeVisible({ timeout: 5000 });
+    await expect(mainWindow.locator('text=Niciun cântec în lista de melodii')).toBeVisible({ timeout: 5000 });
   });
 });

@@ -18,21 +18,16 @@ Verse Chorus`;
  * Slides are bg-black divs containing font-montserrat text divs.
  */
 function getContentSlides(page: import('@playwright/test').Page) {
-  // Match bg-black items that have actual text content in their font-montserrat children
-  return page.locator('.bg-black').filter({
-    has: page.locator('.font-montserrat:not(:empty)'),
-  }).filter({
-    hasText: /.+/,
-  });
+  return page
+    .locator('[data-testid="song-slide-item"]')
+    .filter({ hasText: /\S+/ });
 }
 
 /**
  * Get a locator for ALL slide items (including empty ones).
  */
 function getAllSlides(page: import('@playwright/test').Page) {
-  return page.locator('.bg-black').filter({
-    has: page.locator('.font-montserrat'),
-  });
+  return page.locator('[data-testid="song-slide-item"]');
 }
 
 test.describe('Song Slides', () => {
@@ -63,16 +58,16 @@ test.describe('Song Slides', () => {
     // Click the first content slide
     await slides.first().click();
     await mainWindow.waitForTimeout(300);
-    await expect(slides.first()).toHaveClass(/ring-primary/);
+    await expect(slides.first()).toHaveAttribute('data-selected', 'true');
 
     // Click the second content slide (if available)
     const slideCount = await slides.count();
     if (slideCount >= 2) {
       await slides.nth(1).click();
       await mainWindow.waitForTimeout(300);
-      await expect(slides.nth(1)).toHaveClass(/ring-primary/);
+      await expect(slides.nth(1)).toHaveAttribute('data-selected', 'true');
       // First content slide should no longer be selected
-      await expect(slides.first()).not.toHaveClass(/ring-primary/);
+      await expect(slides.first()).toHaveAttribute('data-selected', 'false');
     }
   });
 
@@ -86,7 +81,7 @@ test.describe('Song Slides', () => {
     // Click the first content slide to select it
     await contentSlides.first().click();
     await mainWindow.waitForTimeout(300);
-    await expect(contentSlides.first()).toHaveClass(/ring-primary/);
+    await expect(contentSlides.first()).toHaveAttribute('data-selected', 'true');
 
     // Press 's' to move to next slide
     await mainWindow.keyboard.press('s');
@@ -95,7 +90,9 @@ test.describe('Song Slides', () => {
     // Second content slide should now be selected
     const slideCount = await contentSlides.count();
     if (slideCount >= 2) {
-      await expect(contentSlides.nth(1)).toHaveClass(/ring-primary/, { timeout: 5000 });
+      await expect(contentSlides.nth(1)).toHaveAttribute('data-selected', 'true', {
+        timeout: 5000,
+      });
     }
   });
 
@@ -115,13 +112,17 @@ test.describe('Song Slides', () => {
 
     const slideCount = await contentSlides.count();
     if (slideCount >= 2) {
-      await expect(contentSlides.nth(1)).toHaveClass(/ring-primary/, { timeout: 5000 });
+      await expect(contentSlides.nth(1)).toHaveAttribute('data-selected', 'true', {
+        timeout: 5000,
+      });
 
       // Press 'w' to go back
       await mainWindow.keyboard.press('w');
       await mainWindow.waitForTimeout(300);
 
-      await expect(contentSlides.first()).toHaveClass(/ring-primary/, { timeout: 5000 });
+      await expect(contentSlides.first()).toHaveAttribute('data-selected', 'true', {
+        timeout: 5000,
+      });
     }
   });
 
@@ -142,13 +143,17 @@ test.describe('Song Slides', () => {
 
     const slideCount = await contentSlides.count();
     if (slideCount >= 2) {
-      await expect(contentSlides.nth(1)).toHaveClass(/ring-primary/, { timeout: 5000 });
+      await expect(contentSlides.nth(1)).toHaveAttribute('data-selected', 'true', {
+        timeout: 5000,
+      });
 
       // ArrowUp should go back
       await mainWindow.keyboard.press('ArrowUp');
       await mainWindow.waitForTimeout(300);
 
-      await expect(contentSlides.first()).toHaveClass(/ring-primary/, { timeout: 5000 });
+      await expect(contentSlides.first()).toHaveAttribute('data-selected', 'true', {
+        timeout: 5000,
+      });
     }
   });
 
@@ -175,7 +180,11 @@ test.describe('Song Slides', () => {
     }
 
     // The last content slide should be selected
-    await expect(contentSlides.nth(contentCount - 1)).toHaveClass(/ring-primary/, { timeout: 5000 });
+    await expect(contentSlides.nth(contentCount - 1)).toHaveAttribute(
+      'data-selected',
+      'true',
+      { timeout: 5000 },
+    );
   });
 
   test('Escape clears song selection', async ({ mainWindow }) => {
@@ -191,6 +200,6 @@ test.describe('Song Slides', () => {
     await mainWindow.waitForTimeout(500);
 
     // Slides should disappear (no song selected means no slides)
-    await expect(contentSlides.first()).not.toBeVisible({ timeout: 5000 });
+    await expect(contentSlides).toHaveCount(0, { timeout: 5000 });
   });
 });

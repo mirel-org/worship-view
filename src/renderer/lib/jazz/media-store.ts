@@ -124,6 +124,30 @@ export async function uploadMediaItem(
   return response;
 }
 
+export function renameMediaItem(
+  organization: OrganizationType | null | undefined,
+  id: string,
+  newName: string,
+): { success: boolean } {
+  if (!organization) {
+    throw new Error('No active organization');
+  }
+
+  const trimmed = newName.trim();
+  if (!trimmed) {
+    throw new Error('Media name cannot be empty');
+  }
+
+  const items = getMediaFromOrg(organization);
+  const item = items.find((i) => i.id === id);
+  if (!item) {
+    throw new Error('Media item not found');
+  }
+
+  setCoMapProperty(item as any, 'name', trimmed);
+  return { success: true };
+}
+
 export function deleteMediaItem(
   organization: OrganizationType | null | undefined,
   id: string,

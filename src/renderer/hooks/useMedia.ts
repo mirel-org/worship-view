@@ -74,6 +74,37 @@ export function useUploadMediaItem() {
   };
 }
 
+export function useRenameMediaItem() {
+  const { activeOrganization } = useActiveOrganization();
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
+
+  const mutate = useCallback(
+    async ({ id, newName }: { id: string; newName: string }) => {
+      setIsLoading(true);
+      setError(null);
+      try {
+        const result = mediaStore.renameMediaItem(activeOrganization, id, newName);
+        return result;
+      } catch (err) {
+        const error = err instanceof Error ? err : new Error('Failed to rename media');
+        setError(error);
+        throw error;
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [activeOrganization],
+  );
+
+  return {
+    mutate,
+    mutateAsync: mutate,
+    isLoading,
+    error,
+  };
+}
+
 export function useDeleteMediaItem() {
   const { activeOrganization } = useActiveOrganization();
   const [isLoading, setIsLoading] = useState(false);

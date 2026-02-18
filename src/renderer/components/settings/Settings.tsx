@@ -3,7 +3,13 @@ import { useAtom } from 'jotai';
 import { useIsAuthenticated } from 'jazz-tools/react';
 import SettingsDisplay from './SettingsDisplay';
 import { areSettingsOpenAtom } from '../../../ipc/settings/settings.atoms';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '../ui/dialog';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from '../ui/dialog';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '../ui/tabs';
 import { SettingsJazzToken } from './SettingsJazzToken';
 import { SettingsAccount } from './SettingsAccount';
@@ -18,7 +24,7 @@ const Settings = () => {
 
   return (
     <Dialog open={areSettingsOpen} onOpenChange={setAreSettingsOpen}>
-      <DialogContent className="max-w-4xl max-h-[90vh] p-0">
+      <DialogContent className="w-[900px] max-w-[900px] h-[600px] max-h-[90vh] p-0 overflow-hidden">
         <DialogHeader className="sr-only">
           <DialogTitle>Setări</DialogTitle>
           <DialogDescription>
@@ -27,8 +33,7 @@ const Settings = () => {
           </DialogDescription>
         </DialogHeader>
         <Tabs value={activeTab} onValueChange={setActiveTab} className="flex h-full">
-          <div className="flex">
-            {/* Vertical Tabs List */}
+          <div className="flex h-full w-full">
             <div className="w-48 border-r bg-muted/30">
               <TabsList className="flex flex-col h-full w-full rounded-none border-0 bg-transparent p-0">
                 <TabsTrigger
@@ -74,7 +79,6 @@ const Settings = () => {
               </TabsList>
             </div>
 
-            {/* Content Area */}
             <div className="flex-1 overflow-y-auto">
               <div className="p-6">
                 <TabsContent value="display" className="mt-0">

@@ -110,7 +110,7 @@ test.describe('Audience Screen', () => {
   });
 
   test('verse projection shows on audience screen after Enter', async ({ mainWindow, audienceWindow }) => {
-    await selectVerseFromPalette(mainWindow, 'ioan 3 16', 'ioan 3:16');
+    await selectVerseFromPalette(mainWindow, 'ioan 3 16', 'IOAN 3:16');
     await mainWindow.waitForTimeout(500);
 
     // Click body to ensure focus
@@ -123,11 +123,11 @@ test.describe('Audience Screen', () => {
 
     // Audience window should contain verse text and reference
     await expect(audienceWindow.locator('body')).toContainText('Dumnezeu', { timeout: 5000 });
-    await expect(audienceWindow.locator('body')).toContainText('ioan 3:16', { timeout: 5000 });
+    await expect(audienceWindow.locator('body')).toContainText('IOAN 3:16', { timeout: 5000 });
   });
 
   test('verse not shown on audience screen without Enter', async ({ mainWindow, audienceWindow }) => {
-    await selectVerseFromPalette(mainWindow, 'ioan 3 16', 'ioan 3:16');
+    await selectVerseFromPalette(mainWindow, 'ioan 3 16', 'IOAN 3:16');
     await mainWindow.waitForTimeout(500);
 
     // Without pressing Enter, verse projection is disabled
@@ -135,7 +135,7 @@ test.describe('Audience Screen', () => {
   });
 
   test('Escape clears verse from audience screen', async ({ mainWindow, audienceWindow }) => {
-    await selectVerseFromPalette(mainWindow, 'ioan 3 16', 'ioan 3:16');
+    await selectVerseFromPalette(mainWindow, 'ioan 3 16', 'IOAN 3:16');
     await mainWindow.waitForTimeout(500);
 
     await mainWindow.locator('body').click({ position: { x: 10, y: 10 } });
@@ -168,7 +168,7 @@ test.describe('Audience Screen', () => {
     await expect(audienceWindow.locator('body')).toContainText(/amazing grace/i, { timeout: 5000 });
 
     // Now select a verse — this should switch projection type
-    await selectVerseFromPalette(mainWindow, 'ioan 3 16', 'ioan 3:16');
+    await selectVerseFromPalette(mainWindow, 'ioan 3 16', 'IOAN 3:16');
     await mainWindow.waitForTimeout(500);
 
     await mainWindow.locator('body').click({ position: { x: 10, y: 10 } });

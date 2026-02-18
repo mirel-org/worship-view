@@ -16,6 +16,7 @@ import {
   selectedVerseReferenceAtom,
   selectedVerseTextAtom,
 } from '@ipc/verse/verse.atoms';
+import { formatBibleReference } from '@ipc/verse/verse.utils';
 import { PrayerSlide } from './PrayerSlide';
 import { prayerRequestsAtom } from '@ipc/prayer/prayer.atoms';
 
@@ -50,7 +51,7 @@ const SlideText: FC = () => {
               text={selectedVerseText ?? ''}
               reference={
                 selectedVerseReference
-                  ? `${selectedVerseReference.book} ${selectedVerseReference.chapter}:${selectedVerseReference.verse}`
+                  ? formatBibleReference(selectedVerseReference)
                   : ''
               }
             />

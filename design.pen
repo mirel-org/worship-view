@@ -3538,7 +3538,7 @@
                   "type": "ref",
                   "ref": "C3KOZ",
                   "x": 24,
-                  "y": 24.019943701668048,
+                  "y": 24.01994370166805,
                   "width": "fill_container",
                   "descendants": {
                     "NEMHS": {
@@ -7408,24 +7408,6 @@
               "alignItems": "center",
               "children": [
                 {
-                  "id": "nqslb",
-                  "type": "ref",
-                  "ref": "3f2VW",
-                  "padding": 8,
-                  "name": "settingsBtn",
-                  "descendants": {
-                    "AeXMI": {
-                      "enabled": false
-                    },
-                    "HWNdN": {
-                      "iconFontName": "settings"
-                    },
-                    "UZfKV": {
-                      "enabled": false
-                    }
-                  }
-                },
-                {
                   "id": "j7EIK",
                   "type": "ref",
                   "ref": "PbofX",
@@ -10541,7 +10523,7 @@
                               "enabled": true
                             },
                             "UZfKV": {
-                              "content": "Clear",
+                              "content": "Golește",
                               "fontSize": 12,
                               "enabled": true
                             }
@@ -10733,7 +10715,7 @@
                               "y": 1
                             },
                             "Tr3Fv": {
-                              "content": "Upload",
+                              "content": "Încarcǎ",
                               "fontSize": 12
                             }
                           }
@@ -14838,6 +14820,37 @@
                           "fontFamily": "Inter",
                           "fontSize": 14,
                           "fontWeight": "600"
+                        },
+                        {
+                          "id": "LrQ1W",
+                          "type": "ref",
+                          "ref": "Sx6Z0",
+                          "name": "clearHistoryBtn",
+                          "height": 28,
+                          "padding": [
+                            4,
+                            10
+                          ],
+                          "descendants": {
+                            "AeXMI": {
+                              "height": 16,
+                              "width": 16,
+                              "enabled": true
+                            },
+                            "HWNdN": {
+                              "iconFontName": "x",
+                              "height": 14,
+                              "width": 14,
+                              "x": 1,
+                              "y": 1,
+                              "enabled": true
+                            },
+                            "UZfKV": {
+                              "content": "Golește",
+                              "fontSize": 12,
+                              "enabled": true
+                            }
+                          }
                         }
                       ]
                     },
@@ -18688,7 +18701,47 @@
                               "width": "fill_container",
                               "descendants": {
                                 "Iz1nT": {
-                                  "content": "16"
+                                  "type": "frame",
+                                  "id": "NaOqI",
+                                  "name": "verseHeader",
+                                  "width": "fill_container",
+                                  "justifyContent": "space_between",
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "0ZyML",
+                                      "name": "verseNum",
+                                      "fill": "#a3a3a3",
+                                      "content": "16",
+                                      "fontFamily": "Inter",
+                                      "fontSize": 11,
+                                      "fontWeight": "600",
+                                      "letterSpacing": 0.5
+                                    },
+                                    {
+                                      "type": "frame",
+                                      "id": "iQgAB",
+                                      "name": "Live Badge",
+                                      "fill": "#ff666999",
+                                      "cornerRadius": 16,
+                                      "padding": [
+                                        2,
+                                        8
+                                      ],
+                                      "children": [
+                                        {
+                                          "type": "text",
+                                          "id": "0CgNa",
+                                          "fill": "#ffffffff",
+                                          "content": "LIVE",
+                                          "fontFamily": "Inter",
+                                          "fontSize": 12,
+                                          "fontWeight": "600"
+                                        }
+                                      ]
+                                    }
+                                  ]
                                 },
                                 "9fOYC": {
                                   "content": "FOR GOD SO LOVED THE WORLD THAT HE GAVE HIS ONE AND ONLY SON, THAT WHOEVER BELIEVES IN HIM SHALL NOT PERISH BUT HAVE ETERNAL LIFE."

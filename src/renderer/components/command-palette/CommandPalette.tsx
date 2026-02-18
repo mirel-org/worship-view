@@ -24,11 +24,22 @@ import { BibleReferenceType, BibleTextType } from '@ipc/verse/verse.types';
 import bibleText from '@assets/bibles/VDC.json';
 import { settingsSongSlideSizeAtom } from '@ipc/settings/settings.song.atoms';
 import { getSongSlidesBySize } from '@ipc/song/song.utils';
-import { Music, BookOpen, ListPlus, Pencil, Trash2, Plus, Settings, X } from 'lucide-react';
+import { formatBibleReference } from '@ipc/verse/verse.utils';
+import {
+  Music,
+  BookOpen,
+  ListPlus,
+  Pencil,
+  Trash2,
+  Plus,
+  Settings,
+  X,
+  Search,
+} from 'lucide-react';
 import { useCommandPaletteSearch, MIN_SONG_SEARCH_LENGTH } from '@ipc/command/command.hooks';
 import { selectedTabTypeAtom } from '@ipc/tab/tab.atoms';
 import { selectedSongAtom } from '@ipc/song/song.atoms';
-import { selectedVerseReferenceAtom } from '@ipc/verse/verse.atoms';
+import { selectedVerseReferenceAtom, versesHistoryAtom } from '@ipc/verse/verse.atoms';
 import {
   useDeleteSong,
   useAddToServiceList,
@@ -47,6 +58,7 @@ const CommandPalette: FC = () => {
   const [, setSelectedTabType] = useAtom(selectedTabTypeAtom);
   const [, setSelectedSong] = useAtom(selectedSongAtom);
   const [, setSelectedVerseReference] = useAtom(selectedVerseReferenceAtom);
+  const [, setVersesHistory] = useAtom(versesHistoryAtom);
   const [selectedValue, setSelectedValue] = useState<string>('');
   const [searchValue, setSearchValue] = useState<string>('');
   const [editingSong, setEditingSong] = useState<Song | null>(null);
@@ -59,6 +71,8 @@ const CommandPalette: FC = () => {
   const addToServiceListMutation = useAddToServiceList();
   const clearServiceListMutation = useClearServiceList();
   const commandRef = useRef<HTMLDivElement>(null);
+  const baseItemClass =
+    'group rounded-md !px-2 !py-2 text-sm text-[#fafafa] data-[selected=true]:!bg-[#262626] hover:!bg-[#171717]';
   
   // Trigger search when search term changes
   useCommandPaletteSearch(searchValue);
@@ -113,7 +127,7 @@ const CommandPalette: FC = () => {
     ]?.[verseRef.verse - 1];
 
     return {
-      reference: `${verseRef.book} ${verseRef.chapter}:${verseRef.verse}`,
+      reference: formatBibleReference(verseRef),
       text: verseText || '',
     };
   }, [selectedResult]);
@@ -139,8 +153,19 @@ const CommandPalette: FC = () => {
       setSelectedSong(result.data);
       setOpen(false);
     } else if (result.type === 'verse') {
+      const verseReference = result.data as BibleReferenceType;
       setSelectedTabType('bible');
-      setSelectedVerseReference(result.data);
+      setSelectedVerseReference(verseReference);
+      setVersesHistory((history) => {
+        const exists = history.some(
+          (item) =>
+            item.book === verseReference.book &&
+            item.chapter === verseReference.chapter &&
+            item.verse === verseReference.verse,
+        );
+        if (exists) return history;
+        return [...history, verseReference];
+      });
       setOpen(false);
     } else if (result.type === 'command') {
       const command = result.data as { id: CommandAction };
@@ -218,10 +243,6 @@ const CommandPalette: FC = () => {
     }
   };
 
-  const formatVerseReference = (ref: BibleReferenceType): string => {
-    return `${ref.book} ${ref.chapter}:${ref.verse}`;
-  };
-
   // Separate results into songs, verses, and commands
   const songResults = useMemo(() => 
     results.filter(r => r.type === 'song'),
@@ -238,7 +259,7 @@ const CommandPalette: FC = () => {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="max-w-4xl h-[80vh] flex flex-col p-0 overflow-hidden">
+      <DialogContent className="h-[560px] max-h-[560px] w-[896px] max-w-[896px] flex flex-col gap-0 overflow-hidden rounded-xl border border-white/10 bg-[#0a0a0a] p-0 text-[#fafafa] shadow-[0_16px_24px_-4px_rgba(0,0,0,0.25),0_8px_12px_-4px_rgba(0,0,0,0.12)] [&>button]:hidden">
         <DialogHeader className="sr-only">
           <DialogTitle>Paleta de comenzi</DialogTitle>
           <DialogDescription>
@@ -247,11 +268,10 @@ const CommandPalette: FC = () => {
           </DialogDescription>
         </DialogHeader>
         <div className="flex-1 flex overflow-hidden">
-          {/* Left side: Search and Results */}
-          <div className="w-1/2 flex flex-col border-r overflow-hidden">
+          <div className="w-1/2 flex flex-col border-r border-white/10 overflow-hidden">
             <Command 
               ref={commandRef}
-              className="h-full"
+              className="h-full bg-transparent text-[#fafafa]"
               shouldFilter={false}
               value={selectedValue}
               onValueChange={(value) => {
@@ -259,21 +279,24 @@ const CommandPalette: FC = () => {
               }}
               filter={() => 1}
             >
-              <CommandInput 
-                placeholder="Caută cântece, versete sau comenzi..."
-                className="h-12"
-                value={searchValue}
-                onValueChange={setSearchValue}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' && selectedValue) {
-                    e.preventDefault();
-                    handleSelect(selectedValue);
-                  }
-                }}
-              />
-              <CommandList className="flex-1 overflow-y-auto">
+              <div className="h-12 border-b border-white/10 px-4 flex items-center gap-2">
+                <Search className="h-4 w-4 text-[#a3a3a3] shrink-0" />
+                <CommandInput
+                  placeholder="Caută cântece, versete sau comenzi..."
+                  className="h-full border-0 bg-transparent p-0 text-sm text-[#a3a3a3] placeholder:text-[#a3a3a3] focus:outline-none"
+                  value={searchValue}
+                  onValueChange={setSearchValue}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && selectedValue) {
+                      e.preventDefault();
+                      handleSelect(selectedValue);
+                    }
+                  }}
+                />
+              </div>
+              <CommandList className="flex-1 overflow-y-auto px-1 py-1">
                 <CommandEmpty>
-                  <div className="p-4 text-center text-muted-foreground">
+                  <div className="p-4 text-center text-sm text-[#a3a3a3]">
                     {searchValue.length === 0
                       ? 'Începeți să tastați pentru a căuta cântece, versete sau comenzi...'
                       : searchValue.length < MIN_SONG_SEARCH_LENGTH
@@ -282,173 +305,197 @@ const CommandPalette: FC = () => {
                   </div>
                 </CommandEmpty>
                 {commandResults.length > 0 && (
-                  <CommandGroup heading="Comenzi">
-                    {commandResults.map((result) => {
-                      const command = result.data as { id: CommandAction; label: string; description?: string };
-                      const value = `command-${command.id}`;
-                      return (
-                        <CommandItem
-                          key={value}
-                          value={value}
-                          keywords={[command.label, command.description || '', command.id]}
-                          onSelect={(currentValue) => {
-                            if (currentValue === value) {
-                              handleSelect(value);
-                            }
-                          }}
-                        >
-                          <div className="flex items-center gap-2">
-                            {command.id === 'create-song' && <Plus className="h-4 w-4 text-muted-foreground" />}
-                            {command.id === 'clear-service-list' && <X className="h-4 w-4 text-muted-foreground" />}
-                            {command.id === 'open-settings' && <Settings className="h-4 w-4 text-muted-foreground" />}
-                            <div className="flex flex-col">
-                              <span>{command.label}</span>
+                  <div className="px-1 pb-1">
+                    <div className="px-1 pb-1 text-xs font-medium text-[#a3a3a3]">
+                      Comenzi
+                    </div>
+                    <CommandGroup className="p-0">
+                      {commandResults.map((result) => {
+                        const command = result.data as { id: CommandAction; label: string; description?: string };
+                        const value = `command-${command.id}`;
+                        return (
+                          <CommandItem
+                            key={value}
+                            value={value}
+                            keywords={[command.label, command.description || '', command.id]}
+                            onSelect={(currentValue) => {
+                              if (currentValue === value) {
+                                handleSelect(value);
+                              }
+                            }}
+                            className={`${baseItemClass} items-start`}
+                          >
+                            {command.id === 'create-song' && <Plus className="mt-0.5 h-4 w-4 text-[#a3a3a3] shrink-0" />}
+                            {command.id === 'clear-service-list' && <X className="mt-0.5 h-4 w-4 text-[#a3a3a3] shrink-0" />}
+                            {command.id === 'open-settings' && <Settings className="mt-0.5 h-4 w-4 text-[#a3a3a3] shrink-0" />}
+                            <div className="flex min-w-0 flex-col gap-0.5 leading-none">
+                              <span className="text-sm text-[#fafafa] truncate">
+                                {command.label}
+                              </span>
                               {command.description && (
-                                <span className="text-xs text-muted-foreground">{command.description}</span>
+                                <span className="text-xs text-[#a3a3a3] leading-4 truncate">
+                                  {command.description}
+                                </span>
                               )}
                             </div>
-                          </div>
-                        </CommandItem>
-                      );
-                    })}
-                  </CommandGroup>
+                          </CommandItem>
+                        );
+                      })}
+                    </CommandGroup>
+                  </div>
                 )}
                 {songResults.length > 0 && (
-                  <CommandGroup heading="Cântece">
-                    {songResults.map((result) => {
-                      const song = result.data as Song;
-                      const value = `song-${song.id}`;
-                      return (
-                        <CommandItem
-                          key={value}
-                          value={value}
-                          keywords={[song.name, song.fullText]}
-                          onSelect={(currentValue) => {
-                            if (currentValue === value) {
-                              handleSelect(value);
-                            }
-                          }}
-                          className="group"
-                        >
-                          <div className="flex items-center justify-between w-full">
-                            <div className="flex items-center flex-1 min-w-0">
-                              <Music className="h-4 w-4 text-muted-foreground mr-2 flex-shrink-0" />
-                              <span className="truncate">{song.name}</span>
-                            </div>
-                            <div 
-                              className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity ml-2"
-                              onClick={(e) => e.stopPropagation()}
+                  <>
+                    <div className="h-px bg-white/10 mx-1 my-1" />
+                    <div className="px-1 pb-1">
+                      <div className="px-1 pb-1 text-xs font-medium text-[#a3a3a3]">
+                        Cântece
+                      </div>
+                      <CommandGroup className="p-0">
+                        {songResults.map((result) => {
+                          const song = result.data as Song;
+                          const value = `song-${song.id}`;
+                          return (
+                            <CommandItem
+                              key={value}
+                              value={value}
+                              keywords={[song.name, song.fullText]}
+                              onSelect={(currentValue) => {
+                                if (currentValue === value) {
+                                  handleSelect(value);
+                                }
+                              }}
+                              className={`${baseItemClass} items-center`}
                             >
-                              <button
-                                onClick={(e) => handleAddToServiceList(e, song)}
-                                className="p-1 hover:bg-accent-foreground/10 rounded"
-                                aria-label={`Adaugă ${song.name} la lista de melodii`}
-                                disabled={addToServiceListMutation.isLoading}
-                              >
-                                <ListPlus className="h-4 w-4" />
-                              </button>
-                              <button
-                                onClick={(e) => handleEditClick(e, song)}
-                                className="p-1 hover:bg-accent-foreground/10 rounded"
-                                aria-label={`Editează ${song.name}`}
-                              >
-                                <Pencil className="h-4 w-4" />
-                              </button>
-                              <button
-                                onClick={(e) => handleDeleteClick(e, song)}
-                                className="p-1 hover:bg-destructive/10 rounded text-destructive"
-                                aria-label={`Șterge ${song.name}`}
-                              >
-                                <Trash2 className="h-4 w-4" />
-                              </button>
-                            </div>
-                          </div>
-                        </CommandItem>
-                      );
-                    })}
-                  </CommandGroup>
+                              <div className="flex items-center justify-between w-full min-w-0">
+                                <div className="flex items-center flex-1 min-w-0 gap-2">
+                                  <Music className="h-4 w-4 text-[#a3a3a3] shrink-0" />
+                                  <span className="truncate text-sm text-[#fafafa]">
+                                    {song.name}
+                                  </span>
+                                </div>
+                                <div
+                                  className="ml-2 flex items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100 group-data-[selected=true]:opacity-100"
+                                  onClick={(e) => e.stopPropagation()}
+                                >
+                                  <button
+                                    onClick={(e) => handleAddToServiceList(e, song)}
+                                    className="text-[#a3a3a3] hover:text-[#fafafa]"
+                                    aria-label={`Adaugă ${song.name} la lista de melodii`}
+                                    disabled={addToServiceListMutation.isLoading}
+                                  >
+                                    <ListPlus className="h-4 w-4" />
+                                  </button>
+                                  <button
+                                    onClick={(e) => handleEditClick(e, song)}
+                                    className="text-[#a3a3a3] hover:text-[#fafafa]"
+                                    aria-label={`Editează ${song.name}`}
+                                  >
+                                    <Pencil className="h-4 w-4" />
+                                  </button>
+                                  <button
+                                    onClick={(e) => handleDeleteClick(e, song)}
+                                    className="text-[#ff6669]/60 hover:text-[#ff6669]"
+                                    aria-label={`Șterge ${song.name}`}
+                                  >
+                                    <Trash2 className="h-4 w-4" />
+                                  </button>
+                                </div>
+                              </div>
+                            </CommandItem>
+                          );
+                        })}
+                      </CommandGroup>
+                    </div>
+                  </>
                 )}
                 {verseResults.length > 0 && (
-                  <CommandGroup heading="Versete biblice">
-                    {verseResults.map((result) => {
-                      const verse = result.data as BibleReferenceType;
-                      const value = `verse-${verse.book}-${verse.chapter}-${verse.verse}`;
-                      const reference = formatVerseReference(verse);
-                      return (
-                        <CommandItem
-                          key={value}
-                          value={value}
-                          keywords={[verse.book, reference, `${verse.chapter}`, `${verse.verse}`]}
-                          onSelect={(currentValue) => {
-                            if (currentValue === value) {
-                              handleSelect(value);
-                            }
-                          }}
-                        >
-                          <BookOpen className="h-4 w-4 text-muted-foreground mr-2" />
-                          <span>{reference}</span>
-                        </CommandItem>
-                      );
-                    })}
-                  </CommandGroup>
+                  <>
+                    <div className="h-px bg-white/10 mx-1 my-1" />
+                    <div className="px-1 pb-1">
+                      <div className="px-1 pb-1 text-xs font-medium text-[#a3a3a3]">
+                        Versete Biblice
+                      </div>
+                      <CommandGroup className="p-0">
+                        {verseResults.map((result) => {
+                          const verse = result.data as BibleReferenceType;
+                          const value = `verse-${verse.book}-${verse.chapter}-${verse.verse}`;
+                          const reference = formatBibleReference(verse);
+                          return (
+                            <CommandItem
+                              key={value}
+                              value={value}
+                              keywords={[verse.book, reference, `${verse.chapter}`, `${verse.verse}`]}
+                              onSelect={(currentValue) => {
+                                if (currentValue === value) {
+                                  handleSelect(value);
+                                }
+                              }}
+                              className={`${baseItemClass} items-center`}
+                            >
+                              <BookOpen className="h-4 w-4 text-[#a3a3a3]" />
+                              <span className="text-sm text-[#fafafa]">{reference}</span>
+                            </CommandItem>
+                          );
+                        })}
+                      </CommandGroup>
+                    </div>
+                  </>
                 )}
               </CommandList>
             </Command>
           </div>
 
-          {/* Right side: Preview */}
           <div className="w-1/2 flex flex-col overflow-hidden">
-            <div className="p-4 border-b">
-              <h3 className="font-semibold">Previzualizare</h3>
+            <div className="h-12 px-4 border-b border-white/10 flex items-center">
+              <h3 className="text-sm font-semibold text-[#fafafa]">Previzualizare</h3>
             </div>
-            <div className="flex-1 overflow-y-auto p-4">
-              {!selectedResult ? (
-                <div className="text-center text-muted-foreground">
-                  Selectați un element pentru previzualizare
-                </div>
-              ) : selectedResult.type === 'song' && songPreview ? (
-                <div className="space-y-6">
-                  <div>
-                    <h4 className="text-lg font-semibold mb-2">
+            <div className="relative flex-1 overflow-y-auto bg-[#0c0c0c] p-4">
+              <div className="pointer-events-none absolute inset-x-[10px] inset-y-3 opacity-60 bg-[radial-gradient(circle_at_2px_2px,rgba(255,255,255,0.16)_1.5px,transparent_0)] [background-size:32px_32px]" />
+              <div className="relative">
+                {selectedResult?.type === 'song' && songPreview ? (
+                  <div className="space-y-2">
+                    <h4 className="text-lg font-semibold text-[#fafafa]">
                       {(selectedResult.data as Song).name}
                     </h4>
-                  </div>
-                  {songPreview.map((part, partIndex) => (
-                    <div key={partIndex} className="space-y-2">
-                      <div className="font-semibold text-sm text-muted-foreground uppercase">
-                        {part.key}
+                    {songPreview.map((part, partIndex) => (
+                      <div key={partIndex} className="space-y-2">
+                        <span className="inline-flex h-4 items-center rounded-sm border border-white bg-white px-1.5 text-[10px] font-semibold uppercase tracking-[0.05em] text-black">
+                          {part.key.replace(/[-_]/g, ' ').toUpperCase()}
+                        </span>
+                        {part.slides.map((slide, slideIndex) => (
+                          <div
+                            key={slideIndex}
+                            data-testid="command-preview-slide"
+                            className="min-h-[68px] w-full rounded-lg border border-white/10 bg-[#1e1e1e] px-3 py-1.5 text-center shadow-[0_2px_6px_rgba(0,0,0,0.25)] flex flex-col justify-center gap-1"
+                          >
+                            {slide.lines.map((line, lineIndex) => (
+                              <div
+                                key={lineIndex}
+                                className="font-montserrat text-xs font-bold italic uppercase text-[#fafafa]"
+                                style={{ textShadow: '0.06em 0.06em 1px #00000094' }}
+                              >
+                                {line}
+                              </div>
+                            ))}
+                          </div>
+                        ))}
                       </div>
-                      {part.slides.map((slide, slideIndex) => (
-                        <div
-                          key={slideIndex}
-                          className="bg-black text-white p-4 rounded-md text-center"
-                        >
-                          {slide.lines.map((line, lineIndex) => (
-                            <div
-                              key={lineIndex}
-                              className="font-montserrat text-sm font-bold italic uppercase"
-                              style={{ textShadow: '0.1em 0.1em 0 hsl(200 50% 30%)' }}
-                            >
-                              {line}
-                            </div>
-                          ))}
-                        </div>
-                      ))}
-                    </div>
-                  ))}
-                </div>
-              ) : selectedResult.type === 'verse' && versePreview ? (
-                <div className="space-y-4">
-                  <div>
-                    <h4 className="text-lg font-semibold mb-2">
+                    ))}
+                  </div>
+                ) : selectedResult?.type === 'verse' && versePreview ? (
+                  <div className="space-y-2">
+                    <h4 className="text-lg font-semibold text-[#fafafa]">
                       {versePreview.reference}
                     </h4>
+                    <div className="min-h-[68px] w-full rounded-lg border border-white/10 bg-[#1e1e1e] px-3 py-2 shadow-[0_2px_6px_rgba(0,0,0,0.25)] flex items-center">
+                      <p className="text-xs italic leading-relaxed text-[#fafafa]">
+                        {versePreview.text}
+                      </p>
+                    </div>
                   </div>
-                  <div className="bg-card border rounded-lg p-4">
-                    <p className="text-base leading-relaxed">{versePreview.text}</p>
-                  </div>
-                </div>
-              ) : null}
+                ) : null}
+              </div>
             </div>
           </div>
         </div>
@@ -475,4 +522,3 @@ const CommandPalette: FC = () => {
 };
 
 export default CommandPalette;
-

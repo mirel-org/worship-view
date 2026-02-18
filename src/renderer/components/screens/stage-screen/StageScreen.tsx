@@ -8,6 +8,7 @@ import {
   selectedVerseReferenceAtom,
   selectedVerseTextAtom,
 } from '@ipc/verse/verse.atoms';
+import { formatBibleReference } from '@ipc/verse/verse.utils';
 import { useAtom } from 'jotai';
 import { FC } from 'react';
 import VerseSlide from '../audience-screen/components/VerseSlide';
@@ -46,9 +47,7 @@ const StageScreen: FC = () => {
         <VerseSlide
           text={selectedVerseText ?? ''}
           reference={
-            selectedVerseReference
-              ? `${selectedVerseReference.book} ${selectedVerseReference.chapter}:${selectedVerseReference.verse}`
-              : ''
+            selectedVerseReference ? formatBibleReference(selectedVerseReference) : ''
           }
           isStage
         />

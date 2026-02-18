@@ -161,7 +161,7 @@ const SongEditorDialog = ({
               <div className="space-y-1" data-testid="song-validation-errors">
                 {liveValidation.errors.map((e, i) => (
                   <p key={i} className="text-sm text-destructive">
-                    {e.line ? `Line ${e.line}: ` : ''}{e.message}
+                    {e.line ? `Linia ${e.line}: ` : ''}{e.message}
                   </p>
                 ))}
               </div>
@@ -170,7 +170,7 @@ const SongEditorDialog = ({
               <div className="space-y-1" data-testid="song-validation-warnings">
                 {liveValidation.warnings.map((w, i) => (
                   <p key={i} className="text-sm text-yellow-600 dark:text-yellow-500">
-                    {w.line ? `Line ${w.line}: ` : ''}{w.message}
+                    {w.line ? `Linia ${w.line}: ` : ''}{w.message}
                   </p>
                 ))}
               </div>
@@ -198,4 +198,3 @@ const SongEditorDialog = ({
 };
 
 export default SongEditorDialog;
-

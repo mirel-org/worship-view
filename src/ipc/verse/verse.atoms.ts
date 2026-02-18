@@ -14,5 +14,5 @@ export const selectedVerseTextAtom = atom<string | null>((get) => {
 
 export const verseInputReferenceAtom = atom<BibleReferenceType | null>(null);
 export const verseInputValueAtom = atom<string>('');
-export const verseInputFocusAtom = atom<boolean>(true);
+export const verseInputFocusAtom = atom<boolean>(false);
 export const versesHistoryAtom = atom<BibleReferenceType[]>([]);

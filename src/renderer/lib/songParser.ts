@@ -48,7 +48,7 @@ export function validateSongContent(content: string): ValidationResult {
       if (malformedSepCount < MAX_WARNINGS_PER_CATEGORY) {
         warnings.push({
           severity: 'warning',
-          message: `Malformed separator "${line.trim()}" (should be exactly "---")`,
+          message: `Separator invalid "${line.trim()}" (trebuie sa fie exact "---")`,
           line: i + 1,
         });
       }
@@ -60,7 +60,8 @@ export function validateSongContent(content: string): ValidationResult {
   if (!normalized.includes('\n---\n')) {
     errors.push({
       severity: 'error',
-      message: 'Missing separator: content must contain at least one "---" on its own line',
+      message:
+        'Lipseste separatorul: continutul trebuie sa contina cel putin un "---" pe o linie separata',
     });
     return { errors, warnings, isValid: false };
   }
@@ -74,7 +75,7 @@ export function validateSongContent(content: string): ValidationResult {
   if (!arrangementRaw.trim()) {
     errors.push({
       severity: 'error',
-      message: 'Missing arrangement: the last section after "---" is empty',
+      message: 'Lipseste aranjamentul: ultima sectiune dupa "---" este goala',
       line: chunkOffsets[chunkOffsets.length - 1],
     });
   }
@@ -92,7 +93,7 @@ export function validateSongContent(content: string): ValidationResult {
     if (!partKey.trim()) {
       errors.push({
         severity: 'error',
-        message: `Empty part key in part ${i + 1}`,
+        message: `Cheie de parte goala in partea ${i + 1}`,
         line: lineOffset,
       });
       continue;
@@ -102,7 +103,7 @@ export function validateSongContent(content: string): ValidationResult {
     if (partKey !== partKey.trim()) {
       errors.push({
         severity: 'error',
-        message: `Part key "${partKey.trim()}" has trailing or leading whitespace`,
+        message: `Cheia partii "${partKey.trim()}" are spatii la inceput sau la sfarsit`,
         line: lineOffset,
       });
     }
@@ -111,7 +112,7 @@ export function validateSongContent(content: string): ValidationResult {
     if (partKey.trim().includes(' ')) {
       errors.push({
         severity: 'error',
-        message: `Part key "${partKey.trim()}" contains spaces (arrangement is space-delimited)`,
+        message: `Cheia partii "${partKey.trim()}" contine spatii (aranjamentul este delimitat prin spatii)`,
         line: lineOffset,
       });
     }
@@ -122,7 +123,7 @@ export function validateSongContent(content: string): ValidationResult {
     if (seenKeys.has(trimmedKey)) {
       errors.push({
         severity: 'error',
-        message: `Duplicate part key "${trimmedKey}" (first definition will be shadowed)`,
+        message: `Cheie de parte duplicata "${trimmedKey}" (prima definitie va fi suprascrisa)`,
         line: lineOffset,
       });
     }
@@ -134,7 +135,7 @@ export function validateSongContent(content: string): ValidationResult {
     if (contentLines.length === 0 || contentLines.every((l) => !l.trim())) {
       errors.push({
         severity: 'error',
-        message: `Part "${trimmedKey}" has no lyrics content`,
+        message: `Partea "${trimmedKey}" nu are continut de versuri`,
         line: lineOffset,
       });
     }
@@ -152,7 +153,7 @@ export function validateSongContent(content: string): ValidationResult {
         if (slideLineCount > 2) {
           errors.push({
             severity: 'error',
-            message: `Slide in part "${trimmedKey}" has more than 2 lines (max 2 per slide)`,
+            message: `Slide-ul din partea "${trimmedKey}" are mai mult de 2 linii (maxim 2 pe slide)`,
             line: slideStartLine,
           });
           // Skip to next blank line to avoid duplicate errors for the same slide
@@ -173,7 +174,7 @@ export function validateSongContent(content: string): ValidationResult {
         if (wsCount < MAX_WARNINGS_PER_CATEGORY) {
           warnings.push({
             severity: 'warning',
-            message: `Line has leading/trailing whitespace (will be trimmed)`,
+            message: 'Linia are spatii la inceput/sfarsit (vor fi eliminate)',
             line: lineOffset + j,
           });
         }
@@ -190,7 +191,7 @@ export function validateSongContent(content: string): ValidationResult {
         if (blankCount > 1 && extraBlankWarnings < MAX_WARNINGS_PER_CATEGORY) {
           warnings.push({
             severity: 'warning',
-            message: `Extra consecutive blank line (will be collapsed to single slide break)`,
+            message: 'Linie goala consecutiva in plus (va fi comprimata la o singura separare de slide)',
             line: lineOffset + j,
           });
           extraBlankWarnings++;
@@ -204,14 +205,14 @@ export function validateSongContent(content: string): ValidationResult {
     if (contentLines.length > 0 && !contentLines[0].trim()) {
       warnings.push({
         severity: 'warning',
-        message: `Part "${trimmedKey}" has leading blank line(s) in content`,
+        message: `Partea "${trimmedKey}" are linii goale la inceputul continutului`,
         line: lineOffset + 1,
       });
     }
     if (contentLines.length > 0 && !contentLines[contentLines.length - 1].trim()) {
       warnings.push({
         severity: 'warning',
-        message: `Part "${trimmedKey}" has trailing blank line(s) in content`,
+        message: `Partea "${trimmedKey}" are linii goale la sfarsitul continutului`,
         line: lineOffset + chunkLines.length - 1,
       });
     }
@@ -221,7 +222,7 @@ export function validateSongContent(content: string): ValidationResult {
   if (arrangementRaw !== arrangementRaw.trim()) {
     errors.push({
       severity: 'error',
-      message: 'Arrangement has trailing or leading whitespace/newlines',
+      message: 'Aranjamentul are spatii sau linii noi la inceput/sfarsit',
       line: chunkOffsets[chunkOffsets.length - 1],
     });
   }
@@ -233,7 +234,7 @@ export function validateSongContent(content: string): ValidationResult {
       if (!definedKeys.has(key)) {
         errors.push({
           severity: 'error',
-          message: `Arrangement references undefined part "${key}"`,
+          message: `Aranjamentul face referire la o parte nedefinita "${key}"`,
           line: chunkOffsets[chunkOffsets.length - 1],
         });
       }
@@ -245,7 +246,7 @@ export function validateSongContent(content: string): ValidationResult {
       if (!usedKeys.has(key)) {
         warnings.push({
           severity: 'warning',
-          message: `Part "${key}" is defined but not used in arrangement`,
+          message: `Partea "${key}" este definita, dar nu este folosita in aranjament`,
         });
       }
     }
@@ -319,4 +320,3 @@ export const reconstructRawText = (song: {
   // Join parts with --- separator and add arrangement at the end
   return partTexts.join('\n---\n') + '\n---\n' + song.arrangement.join(' ');
 };
-

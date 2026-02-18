@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { Button } from '@/components/ui/button';
 import { GripVertical, X } from 'lucide-react';
 import { useAtom } from 'jotai';
 import { selectedSongAtom } from '@ipc/song/song.atoms';
@@ -7,7 +6,6 @@ import {
   useGetServiceList,
   useRemoveFromServiceList,
   useReorderServiceList,
-  useClearServiceList,
 } from '@renderer/hooks/useSongs';
 import type { ServiceListSongResponse } from '@renderer/lib/jazz/store';
 
@@ -15,8 +13,7 @@ const ServiceListSection = () => {
   const { data: serviceList = [], isLoading } = useGetServiceList();
   const removeMutation = useRemoveFromServiceList();
   const reorderMutation = useReorderServiceList();
-  const clearMutation = useClearServiceList();
-  const [, setSelectedSong] = useAtom(selectedSongAtom);
+  const [selectedSong, setSelectedSong] = useAtom(selectedSongAtom);
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
 
@@ -86,21 +83,6 @@ const ServiceListSection = () => {
     }
   };
 
-  const handleClear = async () => {
-    if (
-      !window.confirm(
-        'Sigur doriți să goliți întreaga listă de melodii?',
-      )
-    ) {
-      return;
-    }
-    try {
-      await clearMutation.mutateAsync();
-    } catch (error) {
-      console.error('Failed to clear service list:', error);
-    }
-  };
-
   const handleSongClick = (item: ServiceListSongResponse) => {
     // Song is already parsed in the response, use it directly
     setSelectedSong(item.song);
@@ -109,28 +91,15 @@ const ServiceListSection = () => {
   if (isLoading) {
     return (
       <div className="p-2">
-        <p className="text-sm text-muted-foreground">Se încarcă lista de melodii...</p>
+        <p className="text-sm text-[#a3a3a3]">Se încarcă lista de melodii...</p>
       </div>
     );
   }
 
   return (
     <div className="h-full overflow-y-auto p-2 box-border">
-      <div className="flex items-center justify-end mb-2 px-2">
-        {serviceList.length > 0 && (
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleClear}
-            disabled={clearMutation.isLoading}
-            className="h-6 px-2 text-xs"
-          >
-            Golește
-          </Button>
-        )}
-      </div>
       {serviceList.length === 0 ? (
-        <div className="p-2 text-sm text-muted-foreground text-center">
+        <div className="p-2 text-sm text-[#a3a3a3] text-center">
           Niciun cântec în lista de melodii
         </div>
       ) : (
@@ -141,10 +110,14 @@ const ServiceListSection = () => {
               onDragOver={(e) => handleDragOver(e, index)}
               onDragLeave={handleDragLeave}
               onDrop={(e) => handleDrop(e, index)}
-              className={`group flex items-center gap-2 hover:bg-accent rounded-md p-2 transition-colors cursor-pointer ${
+              className={`group relative flex h-10 items-center gap-2 rounded-md px-2 transition-colors cursor-pointer ${
                 draggedIndex === index ? 'opacity-50' : ''
               } ${
-                dragOverIndex === index ? 'bg-accent border-2 border-primary' : ''
+                dragOverIndex === index
+                  ? 'border border-white bg-[#262626]'
+                  : selectedSong?.id === item.song.id
+                    ? 'bg-[#262626]'
+                    : 'hover:bg-[#262626]/75'
               }`}
             >
               <div
@@ -155,17 +128,17 @@ const ServiceListSection = () => {
                 aria-label="Trageți pentru a reordona"
                 style={{ userSelect: 'none' }}
               >
-                <GripVertical className="h-4 w-4 text-muted-foreground pointer-events-none" />
+                <GripVertical className="h-4 w-4 text-[#a3a3a3] pointer-events-none" />
               </div>
               <span
                 onClick={() => handleSongClick(item)}
-                className="flex-1 text-sm cursor-pointer"
+                className="flex-1 text-sm text-[#fafafa] cursor-pointer truncate"
               >
                 {item.song.name}
               </span>
               <button
                 onClick={(e) => handleRemove(item.songId, e)}
-                className="opacity-0 group-hover:opacity-100 p-1 hover:bg-destructive/10 rounded text-destructive transition-opacity"
+                className="absolute right-1 opacity-0 group-hover:opacity-100 p-1 hover:bg-white/5 rounded text-[#ff6669] transition-opacity"
                 aria-label={`Elimină ${item.song.name} din lista de melodii`}
                 disabled={removeMutation.isLoading}
               >
@@ -180,4 +153,3 @@ const ServiceListSection = () => {
 };
 
 export default ServiceListSection;
-

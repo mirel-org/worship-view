@@ -1,27 +1,140 @@
-import { selectedBackgroundMediaItemAtom } from '@ipc/media/media.atoms';
-import { useGetMediaItems, useUploadMediaItem, useDeleteMediaItem } from '@renderer/hooks/useMedia';
+import {
+  mediaUploadPickerRequestAtom,
+  selectedBackgroundMediaItemAtom,
+} from '@ipc/media/media.atoms';
+import {
+  useGetMediaItems,
+  useUploadMediaItem,
+  useDeleteMediaItem,
+  useMediaBlobUrl,
+  useRenameMediaItem,
+} from '@renderer/hooks/useMedia';
 import { validateMediaFile, type MediaItemResponse } from '@renderer/lib/jazz/media-store';
 import { useAtom } from 'jotai';
-import { FC, useRef, useState } from 'react';
-import { Trash2, Upload, X } from 'lucide-react';
+import { FC, useEffect, useRef, useState } from 'react';
+import { ImageOff, Pencil, Trash2 } from 'lucide-react';
 import { Progress } from '@renderer/components/ui/progress';
-import { Button } from '@renderer/components/ui/button';
+import { cn } from '@renderer/lib/utils';
 import MediaDeleteDialog from './MediaDeleteDialog';
+import MediaRenameDialog from './MediaRenameDialog';
+
+const MediaGridItem: FC<{
+  mediaItem: MediaItemResponse;
+  selected: boolean;
+  onSelect: () => void;
+  onRename: () => void;
+  onDelete: () => void;
+}> = ({ mediaItem, selected, onSelect, onRename, onDelete }) => {
+  const { blobUrl } = useMediaBlobUrl(mediaItem.fileStreamId);
+
+  return (
+    <button
+      type="button"
+      onClick={onSelect}
+      className={cn(
+        'group overflow-hidden rounded-md border bg-[#171717] text-left transition-colors shadow-[0_1px_4px_rgba(0,0,0,0.25)]',
+        selected
+          ? 'border-2 border-white shadow-[0_0_0_1px_rgba(255,255,255,0.35),0_8px_20px_rgba(0,0,0,0.22)]'
+          : 'border-white/10 hover:border-white/30'
+      )}
+    >
+      <div className="h-20 w-full bg-[#0a0a0a]">
+        {blobUrl ? (
+          mediaItem.mediaType === 'video' ? (
+            <video
+              src={blobUrl}
+              className="h-full w-full object-cover"
+              muted
+              playsInline
+              preload="metadata"
+            />
+          ) : (
+            <img
+              src={blobUrl}
+              alt={mediaItem.name}
+              className="h-full w-full object-cover"
+            />
+          )
+        ) : (
+          <div className="h-full w-full" />
+        )}
+      </div>
+      <div className="flex items-center justify-between gap-1 px-2 py-1.5">
+        <span className="truncate text-[11px] font-medium text-[#fafafa]">{mediaItem.name}</span>
+        <div className="flex items-center gap-0.5">
+          <span
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              onRename();
+            }}
+            className="rounded p-1 text-[#a3a3a3] opacity-0 group-hover:opacity-100 hover:bg-white/5"
+            aria-label={`Redenumește ${mediaItem.name}`}
+          >
+            <Pencil className="h-3.5 w-3.5" />
+          </span>
+          <span
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              onDelete();
+            }}
+            className="rounded p-1 text-[#ff6669] opacity-0 group-hover:opacity-100 hover:bg-white/5"
+            aria-label={`Șterge ${mediaItem.name}`}
+          >
+            <Trash2 className="h-3.5 w-3.5" />
+          </span>
+        </div>
+      </div>
+    </button>
+  );
+};
+
+const ClearBackgroundItem: FC<{ selected: boolean; onSelect: () => void }> = ({
+  selected,
+  onSelect,
+}) => {
+  return (
+    <button
+      type="button"
+      onClick={onSelect}
+      className={cn(
+        'group overflow-hidden rounded-md border bg-[#171717] text-left transition-colors',
+        selected ? 'border-2 border-white' : 'border-white/10 hover:border-white/30'
+      )}
+    >
+      <div className="h-20 w-full bg-[#0a0a0a] flex items-center justify-center">
+        <ImageOff className="h-6 w-6 text-[#a3a3a3]" />
+      </div>
+      <div className="px-2 py-1.5">
+        <span className="truncate text-[11px] font-medium text-[#fafafa]">Fără fundal</span>
+      </div>
+    </button>
+  );
+};
 
 const MediaPanel: FC = () => {
   const { data: mediaItems } = useGetMediaItems();
   const [selectedMediaItem, setSelectedMediaItem] = useAtom(selectedBackgroundMediaItemAtom);
+  const [uploadRequest] = useAtom(mediaUploadPickerRequestAtom);
   const uploadMedia = useUploadMediaItem();
+  const renameMedia = useRenameMediaItem();
   const deleteMedia = useDeleteMediaItem();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [validationError, setValidationError] = useState<string | null>(null);
+  const [renameTarget, setRenameTarget] = useState<MediaItemResponse | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<MediaItemResponse | null>(null);
+
+  useEffect(() => {
+    if (uploadRequest > 0) {
+      fileInputRef.current?.click();
+    }
+  }, [uploadRequest]);
 
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Reset file input so the same file can be re-selected
     e.target.value = '';
 
     const validation = validateMediaFile(file);
@@ -38,6 +151,11 @@ const MediaPanel: FC = () => {
     }
   };
 
+  const handleRenameConfirm = async (newName: string) => {
+    if (!renameTarget) return;
+    await renameMedia.mutateAsync({ id: renameTarget.id, newName });
+  };
+
   const handleDeleteConfirm = async () => {
     if (!deleteTarget) return;
     try {
@@ -50,32 +168,14 @@ const MediaPanel: FC = () => {
     }
   };
 
-  const errorMessage = validationError || uploadMedia.error?.message || deleteMedia.error?.message;
+  const errorMessage =
+    validationError ||
+    uploadMedia.error?.message ||
+    renameMedia.error?.message ||
+    deleteMedia.error?.message;
 
   return (
-    <div className="h-full overflow-y-auto overflow-x-hidden p-4">
-      <div className="flex items-center gap-2 mb-3">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => fileInputRef.current?.click()}
-          disabled={uploadMedia.isLoading}
-        >
-          <Upload className="h-4 w-4 mr-1" />
-          Încarcă
-        </Button>
-        {selectedMediaItem && (
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setSelectedMediaItem(null)}
-          >
-            <X className="h-4 w-4 mr-1" />
-            Șterge fundal
-          </Button>
-        )}
-      </div>
-
+    <div className="h-full overflow-y-auto p-2">
       <input
         ref={fileInputRef}
         type="file"
@@ -85,45 +185,50 @@ const MediaPanel: FC = () => {
       />
 
       {uploadMedia.isLoading && (
-        <div className="mb-3">
-          <Progress value={uploadMedia.progress * 100} className="h-2" />
-          <span className="text-xs text-muted-foreground">
+        <div className="mb-2">
+          <Progress value={uploadMedia.progress * 100} className="h-1.5" />
+          <span className="text-[11px] text-[#a3a3a3]">
             Se încarcă... {Math.round(uploadMedia.progress * 100)}%
           </span>
         </div>
       )}
 
       {errorMessage && (
-        <div className="mb-3 text-xs text-destructive">{errorMessage}</div>
+        <div className="mb-2 text-[11px] text-[#ff6669]">{errorMessage}</div>
       )}
 
-      <ul className="space-y-1">
+      <div className="grid grid-cols-2 gap-2">
+        <ClearBackgroundItem
+          selected={selectedMediaItem === null}
+          onSelect={() => setSelectedMediaItem(null)}
+        />
         {mediaItems.map((mediaItem) => (
-          <li
+          <MediaGridItem
             key={mediaItem.id}
-            onClick={() => setSelectedMediaItem(mediaItem)}
-            className={`cursor-pointer hover:bg-accent rounded-md p-2 transition-colors flex items-center justify-between group ${
-              selectedMediaItem?.id === mediaItem.id ? 'bg-accent' : ''
-            }`}
-          >
-            <span className="truncate">{mediaItem.name}</span>
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                setDeleteTarget(mediaItem);
-              }}
-              className="opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-destructive transition-opacity p-1"
-            >
-              <Trash2 className="h-3.5 w-3.5" />
-            </button>
-          </li>
+            mediaItem={mediaItem}
+            selected={selectedMediaItem?.id === mediaItem.id}
+            onSelect={() => setSelectedMediaItem(mediaItem)}
+            onRename={() => setRenameTarget(mediaItem)}
+            onDelete={() => setDeleteTarget(mediaItem)}
+          />
         ))}
-      </ul>
+      </div>
+
+      <MediaRenameDialog
+        mediaItem={renameTarget}
+        open={renameTarget !== null}
+        onOpenChange={(open) => {
+          if (!open) setRenameTarget(null);
+        }}
+        onRename={handleRenameConfirm}
+      />
 
       <MediaDeleteDialog
         mediaItem={deleteTarget}
         open={deleteTarget !== null}
-        onOpenChange={(open) => { if (!open) setDeleteTarget(null); }}
+        onOpenChange={(open) => {
+          if (!open) setDeleteTarget(null);
+        }}
         onDelete={handleDeleteConfirm}
       />
     </div>

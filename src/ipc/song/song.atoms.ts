@@ -52,7 +52,7 @@ export const nextSongSlideAtom = atom<SongSlide | null>((get) => {
 });
 
 export const songInputValueAtom = atom<string>('');
-export const songInputFocusAtom = atom<boolean>(true);
+export const songInputFocusAtom = atom<boolean>(false);
 
 // Calculate total number of slides across all parts (excluding first and last empty slides)
 export const totalSongSlidesAtom = atom<number>((get) => {

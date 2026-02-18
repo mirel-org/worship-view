@@ -8,7 +8,8 @@ import {
 } from './command.atoms';
 import { selectedTabTypeAtom } from '@ipc/tab/tab.atoms';
 import { selectedSongAtom } from '@ipc/song/song.atoms';
-import { selectedVerseReferenceAtom } from '@ipc/verse/verse.atoms';
+import { selectedVerseReferenceAtom, versesHistoryAtom } from '@ipc/verse/verse.atoms';
+import { BibleReferenceType } from '@ipc/verse/verse.types';
 
 const useOpenCommandPaletteShortcut = () => {
   const [, setOpen] = useAtom(commandPaletteOpenAtom);
@@ -60,6 +61,7 @@ const useCommandPaletteSelectShortcut = () => {
   const [, setSelectedTabType] = useAtom(selectedTabTypeAtom);
   const [, setSelectedSong] = useAtom(selectedSongAtom);
   const [, setSelectedVerseReference] = useAtom(selectedVerseReferenceAtom);
+  const [, setVersesHistory] = useAtom(versesHistoryAtom);
   
   const selectItem = useCallback(() => {
     if (!open || results.length === 0) return;
@@ -72,8 +74,19 @@ const useCommandPaletteSelectShortcut = () => {
       setSelectedSong(selectedResult.data);
       setOpen(false);
     } else if (selectedResult.type === 'verse') {
+      const verseReference = selectedResult.data as BibleReferenceType;
       setSelectedTabType('bible');
-      setSelectedVerseReference(selectedResult.data);
+      setSelectedVerseReference(verseReference);
+      setVersesHistory((history) => {
+        const exists = history.some(
+          (item) =>
+            item.book === verseReference.book &&
+            item.chapter === verseReference.chapter &&
+            item.verse === verseReference.verse,
+        );
+        if (exists) return history;
+        return [...history, verseReference];
+      });
       setOpen(false);
     }
   }, [
@@ -83,6 +96,7 @@ const useCommandPaletteSelectShortcut = () => {
     setSelectedTabType,
     setSelectedSong,
     setSelectedVerseReference,
+    setVersesHistory,
     setOpen,
   ]);
   
@@ -95,4 +109,3 @@ export const useCommandPaletteShortcuts = () => {
   useCommandPaletteNavigationShortcuts();
   useCommandPaletteSelectShortcut();
 };
-

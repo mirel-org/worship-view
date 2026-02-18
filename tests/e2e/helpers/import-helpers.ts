@@ -16,7 +16,7 @@ export async function importFiles(
   await expect(page.locator('text=Import Songs')).toBeVisible({ timeout: 5000 });
 
   // Click the Import Songs tab
-  await page.locator('[role="tab"]:has-text("Import Songs")').click();
+  await page.locator('[role="tab"]:has-text("Importă cântece")').click();
 
   // Set files on the hidden input
   await page.locator('#file-input').setInputFiles(
@@ -33,7 +33,7 @@ export async function importFiles(
   ).toBeVisible({ timeout: 5000 });
 
   // Click the Import Songs action button (not the tab trigger which has role="tab")
-  await page.locator('button:not([role="tab"]):has-text("Import Songs")').click();
+  await page.locator('button:not([role="tab"]):has-text("Importă cântece")').click();
 
   // Wait for results to appear
   await page.locator('text=processed').waitFor({ timeout: 10000 });
