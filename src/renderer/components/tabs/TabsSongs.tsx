@@ -95,8 +95,10 @@ const TabsSongs: FC = () => {
     }
   };
 
-  const handleSave = async () => {
-    // Song is updated by reactive store subscriptions.
+  const handleSave = async (updatedSong: Song) => {
+    if (selectedSong?.id === updatedSong.id) {
+      setSelectedSong(updatedSong);
+    }
   };
 
   return (

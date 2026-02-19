@@ -5,16 +5,25 @@ import {
   commandPaletteResultsAtom,
   CommandPaletteResult,
 } from './command.atoms';
+import { makeVerseKey, normalizeForSearch } from './command.search.utils';
 import { useGetSongs } from '@renderer/hooks/useSongs';
 import { Song } from '@ipc/song/song.types';
-import { BibleReferenceType , BibleTextType } from '@ipc/verse/verse.types';
+import { BibleReferenceType, BibleTextType } from '@ipc/verse/verse.types';
 import bibleText from '@assets/bibles/VDC.json';
 
 // Minimum number of characters required before showing song search results
 export const MIN_SONG_SEARCH_LENGTH = 7;
+export const MIN_VERSE_TEXT_SEARCH_LENGTH = 7;
 
 // Maximum number of search results to display
 export const MAX_SEARCH_RESULTS = 10;
+
+type VerseSearchIndexEntry = {
+  reference: BibleReferenceType;
+  normalizedReferenceText: string;
+  normalizedVerseText: string;
+  normalizedCombinedText: string;
+};
 
 export const useCommandPaletteSearch = (searchValue?: string) => {
   const [searchAtom, setSearchAtom] = useAtom(commandPaletteSearchAtom);
@@ -36,8 +45,11 @@ export const useCommandPaletteSearch = (searchValue?: string) => {
   // Use refs to track songs for use in effects without causing re-renders
   const songsRef = useRef<Song[]>(songs);
   
-  // Calculate stable songs key based on IDs (only changes when songs actually change)
-  const songsKey = useMemo(() => songs.map(s => s.id).join(','), [songs]);
+  // Include searchable song fields so edits refresh results even when IDs stay the same.
+  const songsKey = useMemo(
+    () => songs.map((s) => `${s.id}:${s.name}:${s.fullText}`).join('|'),
+    [songs],
+  );
   
   // Update ref when songs change
   useEffect(() => {
@@ -48,40 +60,82 @@ export const useCommandPaletteSearch = (searchValue?: string) => {
     return Object.keys(bibleText);
   }, []);
 
+  const normalizedBookLookup = useMemo(
+    () =>
+      books.map((book) => ({
+        book,
+        normalizedBook: normalizeForSearch(book).replace(/\s+/g, ''),
+      })),
+    [books],
+  );
+
+  const verseSearchIndex = useMemo<VerseSearchIndexEntry[]>(() => {
+    const index: VerseSearchIndexEntry[] = [];
+    const bible = bibleText as BibleTextType;
+
+    for (const book of books) {
+      const chapters = bible[book] ?? [];
+      chapters.forEach((chapter, chapterIndex) => {
+        chapter.forEach((verseText, verseIndex) => {
+          const reference: BibleReferenceType = {
+            book,
+            chapter: chapterIndex + 1,
+            verse: verseIndex + 1,
+          };
+          const normalizedReferenceText = normalizeForSearch(
+            `${book} ${reference.chapter} ${reference.verse}`,
+          );
+          const normalizedVerseText = normalizeForSearch(verseText);
+
+          index.push({
+            reference,
+            normalizedReferenceText,
+            normalizedVerseText,
+            normalizedCombinedText: `${normalizedReferenceText} ${normalizedVerseText}`.trim(),
+          });
+        });
+      });
+    }
+
+    return index;
+  }, [books]);
+
   const searchVerses = useCallback(
     (query: string): BibleReferenceType[] => {
       const results: BibleReferenceType[] = [];
-      
+
       if (query.trim().length === 0) return results;
-      
+
       try {
-        // Try to parse as verse reference (e.g., "John 3 16" or "John 3:16")
-        const normalizedQuery = query.replace(/:/g, ' ');
-        let chunks = normalizedQuery.trim().split(/\s+/);
-        
+        // Try to parse as verse reference (e.g., "Ioan 3 16" or "Ioan 3:16")
+        const normalizedQuery = normalizeForSearch(query.replace(/:/g, ' '));
+        let chunks = normalizedQuery.trim().split(/\s+/).filter(Boolean);
+
         // Handle numbered books (e.g., "1 corinteni" -> "1corinteni")
-        // Check if first chunk is a number and second chunk is text
-        if (chunks.length >= 3 && /^\d+$/.test(chunks[0]) && /^[a-zA-Z]/.test(chunks[1])) {
+        if (
+          chunks.length >= 3 &&
+          /^\d+$/.test(chunks[0]) &&
+          /^[a-zA-Z]/.test(chunks[1])
+        ) {
           // Combine number and book name (remove space)
           chunks = [chunks[0] + chunks[1], ...chunks.slice(2)];
         } else if (chunks.length === 4) {
-          // Handle 4-word book names (e.g., "1 Corinthians")
+          // Keep compatibility with existing 4-token fallback behavior
           chunks = [chunks[0] + chunks[1], chunks[2], chunks[3]];
         }
-        
+
         // Try exact match first
         if (chunks.length >= 2) {
-          // Normalize book name by removing spaces for comparison
-          const bookName = chunks[0].replace(/\s+/g, '').toLowerCase();
-          const book = books.find((b) => 
-            b.toLowerCase().startsWith(bookName)
-          );
-          
+          const bookName = chunks[0].replace(/\s+/g, '');
+          const book = normalizedBookLookup.find((candidate) =>
+            candidate.normalizedBook.startsWith(bookName),
+          )?.book;
+
           if (book) {
             const chapterNum = parseInt(chunks[1], 10);
             if (!isNaN(chapterNum) && chapterNum > 0) {
               const chapter = (bibleText as BibleTextType)[book]?.[chapterNum - 1];
-              
+
               if (chapter) {
                 // If verse number is provided
                 if (chunks.length >= 3) {
@@ -107,15 +161,14 @@ export const useCommandPaletteSearch = (searchValue?: string) => {
             }
           }
         }
-        
+
         // Also search for partial book name matches
         if (chunks.length >= 1 && results.length === 0) {
-          // Normalize book name by removing spaces for comparison
-          const bookName = chunks[0].replace(/\s+/g, '').toLowerCase();
-          const matchingBooks = books.filter((b) =>
-            b.toLowerCase().startsWith(bookName)
-          );
-          
+          const bookName = chunks[0].replace(/\s+/g, '');
+          const matchingBooks = normalizedBookLookup
+            .filter((candidate) => candidate.normalizedBook.startsWith(bookName))
+            .map((candidate) => candidate.book);
+
           // Return first chapter, first verse of matching books
           for (const book of matchingBooks.slice(0, 5)) {
             const chapters = (bibleText as BibleTextType)[book];
@@ -131,10 +184,26 @@ export const useCommandPaletteSearch = (searchValue?: string) => {
       } catch (error) {
         console.error('Error searching verses:', error);
       }
-      
+
       return results;
     },
-    [books]
+    [normalizedBookLookup],
+  );
+
+  const searchVersesByText = useCallback(
+    (query: string): BibleReferenceType[] => {
+      const normalizedQuery = normalizeForSearch(query);
+      if (normalizedQuery.length < MIN_VERSE_TEXT_SEARCH_LENGTH) return [];
+
+      return verseSearchIndex
+        .filter(
+          (entry) =>
+            entry.normalizedVerseText.includes(normalizedQuery) ||
+            entry.normalizedCombinedText.includes(normalizedQuery),
+        )
+        .map((entry) => entry.reference);
+    },
+    [verseSearchIndex],
   );
 
   // Available commands
@@ -206,13 +275,28 @@ export const useCommandPaletteSearch = (searchValue?: string) => {
       });
     }
     
-    // Search verses - only if search contains a number
-    if (/\d/.test(search)) {
-      const verseResults = searchVerses(search);
-      verseResults.forEach((verse) => {
-        results.push({ type: 'verse', data: verse });
-      });
+    const referenceVerseResults = /\d/.test(search) ? searchVerses(search) : [];
+    const textVerseResults = searchVersesByText(search);
+    const mergedVerseResults: BibleReferenceType[] = [];
+    const seenVerseKeys = new Set<string>();
+
+    for (const verse of referenceVerseResults) {
+      const key = makeVerseKey(verse);
+      if (seenVerseKeys.has(key)) continue;
+      seenVerseKeys.add(key);
+      mergedVerseResults.push(verse);
     }
+
+    for (const verse of textVerseResults) {
+      const key = makeVerseKey(verse);
+      if (seenVerseKeys.has(key)) continue;
+      seenVerseKeys.add(key);
+      mergedVerseResults.push(verse);
+    }
+
+    mergedVerseResults.forEach((verse) => {
+      results.push({ type: 'verse', data: verse });
+    });
     
     // Limit results to MAX_SEARCH_RESULTS
     const limitedResults = results.slice(0, MAX_SEARCH_RESULTS);
@@ -227,8 +311,14 @@ export const useCommandPaletteSearch = (searchValue?: string) => {
       }
       return limitedResults;
     });
-  }, [search, songsKey, searchVerses, searchCommands, setResults]);
+  }, [
+    search,
+    songsKey,
+    searchVerses,
+    searchVersesByText,
+    searchCommands,
+    setResults,
+  ]);
 
   return { search, setSearch: setSearchAtom };
 };
-

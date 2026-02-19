@@ -4,6 +4,7 @@ import { commandPaletteOpenAtom } from '@ipc/command/command.atoms';
 import { useAtom } from 'jotai';
 import { useCallback } from 'react';
 import useShortcuts from '../utils/useShortcuts';
+import { shouldIgnoreNavigationShortcut } from '../utils/shortcut.guards';
 import { songInputFocusAtom } from './song.atoms';
 
 const useSongShortcuts = () => {
@@ -19,24 +20,20 @@ const useSongControllerShortcuts = () => {
   const [commandPaletteOpen] = useAtom(commandPaletteOpenAtom);
 
   const next = useCallback((event: KeyboardEvent) => {
-    const isCmdkEvent =
-      event.target instanceof Element && !!event.target.closest('[cmdk-root]');
+    if (shouldIgnoreNavigationShortcut(event)) return;
 
-    if (selectedTabType === 'songs' && !songInputFocus && !commandPaletteOpen)
-      if (!isCmdkEvent) {
-        event.preventDefault();
-        gotoNextSlide();
-      }
+    if (selectedTabType === 'songs' && !songInputFocus && !commandPaletteOpen) {
+      event.preventDefault();
+      gotoNextSlide();
+    }
   }, [selectedTabType, gotoNextSlide, songInputFocus, commandPaletteOpen]);
   const previous = useCallback((event: KeyboardEvent) => {
-    const isCmdkEvent =
-      event.target instanceof Element && !!event.target.closest('[cmdk-root]');
+    if (shouldIgnoreNavigationShortcut(event)) return;
 
-    if (selectedTabType === 'songs' && !songInputFocus && !commandPaletteOpen)
-      if (!isCmdkEvent) {
-        event.preventDefault();
-        gotoPreviousSlide();
-      }
+    if (selectedTabType === 'songs' && !songInputFocus && !commandPaletteOpen) {
+      event.preventDefault();
+      gotoPreviousSlide();
+    }
   }, [selectedTabType, gotoPreviousSlide, songInputFocus, commandPaletteOpen]);
   useShortcuts(['w', 'W', 'ArrowUp', 'a', 'A', 'ArrowLeft'], previous);
   useShortcuts(['s', 'S', 'ArrowDown', 'd', 'D', 'ArrowRight'], next);

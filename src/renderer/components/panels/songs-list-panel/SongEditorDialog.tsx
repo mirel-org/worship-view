@@ -19,7 +19,7 @@ type SongEditorDialogProps = {
   song: Song | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSave: (newName?: string) => void;
+  onSave: (updatedSong: Song) => void;
 };
 
 const SongEditorDialog = ({
@@ -99,14 +99,12 @@ const SongEditorDialog = ({
         updates.name = songName.trim();
       }
 
-      console.log('Saving song:', { id: song.id, updates });
       const result = await updateSongMutation.mutateAsync({
         id: song.id,
         updates,
       });
-      console.log('Save result:', result);
       
-      onSave(nameChanged ? songName.trim() : undefined);
+      onSave(result);
       onOpenChange(false);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Salvarea cântecului a eșuat');

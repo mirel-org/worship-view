@@ -1,13 +1,36 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useSyncExternalStore } from 'react';
 import * as store from '../lib/jazz/store';
 import type { Song } from '../../ipc/song/song.types';
 import type { ServiceListSongResponse } from '../lib/jazz/store';
 import { useActiveOrganization } from './useActiveOrganization';
 
+let songsDataRevision = 0;
+const songsDataListeners = new Set<() => void>();
+
+const notifySongsDataChanged = () => {
+  songsDataRevision += 1;
+  songsDataListeners.forEach((listener) => listener());
+};
+
+const subscribeToSongsData = (listener: () => void) => {
+  songsDataListeners.add(listener);
+  return () => songsDataListeners.delete(listener);
+};
+
+const getSongsDataRevision = () => songsDataRevision;
+
+const useSongsDataRevision = () =>
+  useSyncExternalStore(
+    subscribeToSongsData,
+    getSongsDataRevision,
+    getSongsDataRevision,
+  );
+
 // Hook to get all songs with Jazz reactive updates
 // Songs are already parsed in the store, so no parsing needed here
 export function useGetSongs() {
   const { activeOrganization } = useActiveOrganization();
+  const revision = useSongsDataRevision();
   const [songs, setSongs] = useState<Song[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
@@ -33,7 +56,7 @@ export function useGetSongs() {
 
     // Jazz automatically handles reactivity, but we can re-run when organization changes
     // The organization object itself is reactive, so changes will trigger re-renders
-  }, [activeOrganization]);
+  }, [activeOrganization, revision]);
 
   return { data: songs, isLoading, error };
 }
@@ -41,6 +64,7 @@ export function useGetSongs() {
 // Hook to get song content
 export function useGetSongContent(id: string) {
   const { activeOrganization } = useActiveOrganization();
+  const revision = useSongsDataRevision();
   const [content, setContent] = useState<string>('');
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
@@ -61,7 +85,7 @@ export function useGetSongContent(id: string) {
           setError(err instanceof Error ? err : new Error('Failed to load song content'));
           setIsLoading(false);
         }
-  }, [id, activeOrganization]);
+  }, [id, activeOrganization, revision]);
 
   return { data: content, isLoading, error };
 }
@@ -78,6 +102,7 @@ export function useSaveSong() {
     setError(null);
     try {
         const result = store.saveSong(activeOrganization, name, content);
+      notifySongsDataChanged();
       return result;
     } catch (err) {
       const error = err instanceof Error ? err : new Error('Failed to save song');
@@ -110,6 +135,7 @@ export function useRenameSong() {
     setError(null);
     try {
         const result = store.renameSong(activeOrganization, id, newName);
+      notifySongsDataChanged();
       return result;
     } catch (err) {
       const error = err instanceof Error ? err : new Error('Failed to rename song');
@@ -148,6 +174,7 @@ export function useUpdateSong() {
     setError(null);
     try {
         const result = store.updateSong(activeOrganization, id, updates);
+      notifySongsDataChanged();
       return result;
     } catch (err) {
       const error = err instanceof Error ? err : new Error('Failed to update song');
@@ -180,6 +207,7 @@ export function useDeleteSong() {
     setError(null);
     try {
         const result = store.deleteSong(activeOrganization, id);
+      notifySongsDataChanged();
       return result;
     } catch (err) {
       const error = err instanceof Error ? err : new Error('Failed to delete song');
@@ -205,6 +233,7 @@ export function useDeleteSong() {
 // Hook to get service list
 export function useGetServiceList() {
   const { activeOrganization } = useActiveOrganization();
+  const revision = useSongsDataRevision();
   const [serviceList, setServiceList] = useState<ServiceListSongResponse[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
@@ -226,7 +255,7 @@ export function useGetServiceList() {
           setError(err instanceof Error ? err : new Error('Failed to load service list'));
           setIsLoading(false);
         }
-  }, [activeOrganization]);
+  }, [activeOrganization, revision]);
 
   return { data: serviceList, isLoading, error };
 }
@@ -243,6 +272,7 @@ export function useAddToServiceList() {
     setError(null);
     try {
         const result = store.addToServiceList(activeOrganization, songId);
+      notifySongsDataChanged();
       return result;
     } catch (err) {
         const error =
@@ -278,6 +308,7 @@ export function useRemoveFromServiceList() {
     setError(null);
     try {
         const result = store.removeFromServiceList(activeOrganization, songId);
+      notifySongsDataChanged();
       return result;
     } catch (err) {
         const error =
@@ -313,6 +344,7 @@ export function useReorderServiceList() {
     setError(null);
     try {
         const result = store.reorderServiceList(activeOrganization, songIds);
+      notifySongsDataChanged();
       return result;
     } catch (err) {
         const error =
@@ -345,6 +377,7 @@ export function useClearServiceList() {
     setError(null);
     try {
       const result = store.clearServiceList(activeOrganization);
+      notifySongsDataChanged();
       return result;
     } catch (err) {
       const error =
@@ -375,6 +408,7 @@ export function useDeleteAllSongs() {
       setError(null);
       try {
         const result = store.deleteAllSongs(organization);
+        notifySongsDataChanged();
         return result;
       } catch (err) {
         const error =

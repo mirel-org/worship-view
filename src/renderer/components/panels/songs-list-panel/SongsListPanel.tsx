@@ -63,11 +63,10 @@ const SongsListPanel = () => {
     setDeleteDialogOpen(true);
   };
 
-  const handleSave = async (_newName?: string) => {
-    // React Query will automatically refetch songs after mutation
-    // The useEffect hook will handle updating the selected song if it was edited
-    // If the song was renamed and it's currently selected, we don't need to clear it
-    // because the useEffect will update it with the new name
+  const handleSave = async (updatedSong: Song) => {
+    if (selectedSong?.id === updatedSong.id) {
+      setSelectedSong(updatedSong);
+    }
   };
 
   const handleAddSave = async () => {
