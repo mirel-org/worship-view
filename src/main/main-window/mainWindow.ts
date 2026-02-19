@@ -1,5 +1,6 @@
 import displayHandlers from '@ipc/display/display.handlers';
 import updateHandlers from '@ipc/update/update.handlers';
+import settingsZoomHandlers from '@ipc/settings/settings.zoom.handlers';
 import { app, BrowserWindow } from 'electron';
 import path from 'path';
 
@@ -84,4 +85,5 @@ function registerMainIPC() {
    */
   displayHandlers();
   updateHandlers();
+  settingsZoomHandlers();
 }

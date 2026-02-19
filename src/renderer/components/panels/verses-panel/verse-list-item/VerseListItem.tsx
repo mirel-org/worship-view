@@ -29,31 +29,30 @@ const VerseListItem = ({
       data-testid="verse-card"
       data-selected={selected ? 'true' : 'false'}
       className={cn(
-        'cursor-pointer rounded-lg border bg-[#1e1e1e] px-5 py-3 text-white transition-colors shadow-[0_2px_8px_rgba(0,0,0,0.25)]',
-        selected
-          ? 'border-2 border-white shadow-[0_2px_10px_rgba(0,0,0,0.38)]'
-          : 'border-white/[0.07]'
+        'cursor-pointer rounded-lg border bg-card px-5 py-3 text-foreground transition-colors',
+        selected ? 'border-2 border-primary' : 'border-border'
       )}
       onClick={() => onClick(reference)}
     >
       <div className="mb-1 flex items-center justify-between gap-2">
-        <p className="text-[11px] font-semibold tracking-[0.5px] text-[#a3a3a3]">
+        <p className="text-[11px] font-semibold tracking-[0.5px] text-muted-foreground">
           {reference}
         </p>
-        {liveState && (
-          <span
-            className={cn(
-              'rounded-2xl px-2 py-0.5 text-xs font-semibold',
-              liveState === 'live'
-                ? 'bg-[#ff666999] text-[#fafafa]'
-                : 'bg-[#262626] text-[#a3a3a3]',
-            )}
-          >
-            LIVE
-          </span>
-        )}
+        <span
+          aria-hidden={liveState === null}
+          className={cn(
+            'rounded-2xl px-2 py-0.5 text-[12px] font-semibold',
+            liveState === 'live' &&
+              'bg-destructive text-destructive-foreground visible',
+            liveState === 'selected' &&
+              'bg-muted text-muted-foreground visible',
+            liveState === null && 'invisible',
+          )}
+        >
+          LIVE
+        </span>
       </div>
-      <p className="font-montserrat text-[13px] font-bold italic uppercase leading-[1.6] text-[#fafafa]">
+      <p className="font-montserrat text-[15px] font-bold italic leading-[1.6] text-center text-foreground">
         {text}
       </p>
     </div>

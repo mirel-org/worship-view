@@ -184,7 +184,7 @@ export function AcceptInviteDialog({
           </div>
 
           {error && (
-            <div className='text-sm text-red-500 bg-red-50 p-2 rounded'>
+            <div className='text-sm text-destructive bg-destructive/10 p-2 rounded'>
               {error}
             </div>
           )}

@@ -91,7 +91,7 @@ const ServiceListSection = () => {
   if (isLoading) {
     return (
       <div className="p-2">
-        <p className="text-sm text-[#a3a3a3]">Se încarcă lista de melodii...</p>
+        <p className="text-sm text-muted-foreground">Se încarcă lista de melodii...</p>
       </div>
     );
   }
@@ -99,7 +99,7 @@ const ServiceListSection = () => {
   return (
     <div className="h-full overflow-y-auto p-2 box-border">
       {serviceList.length === 0 ? (
-        <div className="p-2 text-sm text-[#a3a3a3] text-center">
+        <div className="p-2 text-sm text-muted-foreground text-center">
           Niciun cântec în lista de melodii
         </div>
       ) : (
@@ -114,10 +114,10 @@ const ServiceListSection = () => {
                 draggedIndex === index ? 'opacity-50' : ''
               } ${
                 dragOverIndex === index
-                  ? 'border border-white bg-[#262626]'
+                  ? 'border border-ring bg-accent'
                   : selectedSong?.id === item.song.id
-                    ? 'bg-[#262626]'
-                    : 'hover:bg-[#262626]/75'
+                    ? 'bg-accent'
+                    : 'hover:bg-accent/70'
               }`}
             >
               <div
@@ -128,17 +128,17 @@ const ServiceListSection = () => {
                 aria-label="Trageți pentru a reordona"
                 style={{ userSelect: 'none' }}
               >
-                <GripVertical className="h-4 w-4 text-[#a3a3a3] pointer-events-none" />
+                <GripVertical className="h-4 w-4 text-muted-foreground pointer-events-none" />
               </div>
               <span
                 onClick={() => handleSongClick(item)}
-                className="flex-1 text-sm text-[#fafafa] cursor-pointer truncate"
+                className="flex-1 text-sm text-foreground cursor-pointer truncate"
               >
                 {item.song.name}
               </span>
               <button
                 onClick={(e) => handleRemove(item.songId, e)}
-                className="absolute right-1 opacity-0 group-hover:opacity-100 p-1 hover:bg-white/5 rounded text-[#ff6669] transition-opacity"
+                className="absolute right-1 opacity-0 group-hover:opacity-100 p-1 hover:bg-accent rounded text-destructive transition-opacity"
                 aria-label={`Elimină ${item.song.name} din lista de melodii`}
                 disabled={removeMutation.isLoading}
               >

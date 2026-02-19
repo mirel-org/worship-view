@@ -100,18 +100,18 @@ const TabsSongs: FC = () => {
   };
 
   return (
-    <div className="flex h-full bg-[#171717]">
-      <div className="w-[300px] flex-none flex flex-col bg-[#0a0a0a]">
+    <div className="flex h-full bg-card">
+      <div className="w-[300px] flex-none flex flex-col bg-background">
         <PanelGroup direction="vertical" autoSaveId="songs-tabs-panels">
           <Panel defaultSize={55} minSize={20}>
-            <div className="h-full flex flex-col border-b border-white/10">
-              <div className="flex h-10 items-center justify-between bg-[#262626] border-b border-white/10 pl-3 pr-2 flex-shrink-0">
-                <span className="text-sm font-semibold text-[#fafafa]">Listă Serviciu</span>
+            <div className="h-full flex flex-col border-b border-border">
+              <div className="flex h-10 items-center justify-between bg-muted border-b border-border pl-3 pr-2 flex-shrink-0">
+                <span className="text-sm font-semibold text-foreground">Listă Serviciu</span>
                 <button
                   type="button"
                   onClick={handleClearServiceList}
                   disabled={clearServiceListMutation.isLoading}
-                  className="h-7 rounded-md border border-white/10 px-2.5 inline-flex items-center gap-1.5 text-xs font-medium text-[#fafafa] hover:bg-white/5 disabled:opacity-50"
+                  className="h-7 rounded-md border border-border px-2.5 inline-flex items-center gap-1.5 text-xs font-medium text-foreground hover:bg-accent/70 disabled:opacity-50"
                 >
                   <X className="h-3.5 w-3.5" />
                   {clearServiceListMutation.isLoading ? 'Se golește...' : 'Golește'}
@@ -123,16 +123,16 @@ const TabsSongs: FC = () => {
             </div>
           </Panel>
 
-          <PanelResizeHandle className="h-1 bg-white/10 transition-colors hover:bg-white/20" />
+          <PanelResizeHandle className="h-1 bg-border transition-colors hover:bg-accent" />
 
           <Panel defaultSize={45} minSize={20}>
             <div className="h-full flex flex-col">
-              <div className="flex h-10 items-center justify-between bg-[#262626] border-b border-white/10 pl-3 pr-2 flex-shrink-0">
-                <span className="text-sm font-semibold text-[#fafafa]">Media</span>
+              <div className="flex h-10 items-center justify-between bg-muted border-b border-border pl-3 pr-2 flex-shrink-0">
+                <span className="text-sm font-semibold text-foreground">Media</span>
                 <button
                   type="button"
                   onClick={handleUpload}
-                  className="h-7 rounded-md bg-[#262626] px-2.5 inline-flex items-center gap-1.5 text-xs font-medium text-[#fafafa] hover:bg-white/5"
+                  className="h-7 rounded-md bg-muted px-2.5 inline-flex items-center gap-1.5 text-xs font-medium text-foreground hover:bg-accent/70"
                 >
                   <Upload className="h-3.5 w-3.5" />
                   Încarcă
@@ -146,12 +146,12 @@ const TabsSongs: FC = () => {
         </PanelGroup>
       </div>
 
-      <div className="w-px h-full bg-white/10" />
+      <div className="w-px h-full bg-border" />
 
       <div className="flex-1 flex flex-col">
         {selectedSong && (
-          <div className="h-10 border-b border-white/10 bg-[#262626] flex items-center justify-between pl-4 pr-3">
-            <span className="text-sm font-semibold text-[#fafafa]">
+          <div className="h-10 border-b border-border bg-muted flex items-center justify-between pl-4 pr-3">
+            <span className="text-sm font-semibold text-foreground">
               {selectedSong.name}
             </span>
             <div className="flex items-center gap-2">
@@ -159,7 +159,7 @@ const TabsSongs: FC = () => {
                 type="button"
                 onClick={handleHeaderAddToServiceList}
                 disabled={addToServiceListMutation.isLoading}
-                className="h-8 w-8 rounded-md border border-white/10 flex items-center justify-center text-[#fafafa] hover:bg-white/5"
+                className="h-8 w-8 rounded-md border border-border flex items-center justify-center text-foreground hover:bg-accent/70"
                 aria-label="Add to service list"
               >
                 <ListPlus className="h-4 w-4" />
@@ -167,7 +167,7 @@ const TabsSongs: FC = () => {
               <button
                 type="button"
                 onClick={handleHeaderEdit}
-                className="h-8 w-8 rounded-md border border-white/10 flex items-center justify-center text-[#fafafa] hover:bg-white/5"
+                className="h-8 w-8 rounded-md border border-border flex items-center justify-center text-foreground hover:bg-accent/70"
                 aria-label="Edit song"
               >
                 <Pencil className="h-4 w-4" />
@@ -175,7 +175,7 @@ const TabsSongs: FC = () => {
               <button
                 type="button"
                 onClick={handleHeaderDelete}
-                className="h-8 w-8 rounded-md border border-white/10 flex items-center justify-center text-[#ff6669] hover:bg-white/5"
+                className="h-8 w-8 rounded-md border border-border flex items-center justify-center text-destructive hover:bg-accent/70"
                 aria-label="Delete song"
               >
                 <Trash2 className="h-4 w-4" />
@@ -183,7 +183,7 @@ const TabsSongs: FC = () => {
             </div>
           </div>
         )}
-        <div className="flex-1 overflow-hidden bg-[#0c0c0c] bg-[radial-gradient(circle,rgba(255,255,255,0.16)_1.5px,transparent_1.5px)] [background-size:31px_31px] [background-position:10px_12px]">
+        <div className="flex-1 overflow-hidden dot-grid-bg">
           <SlidesListPanel />
         </div>
       </div>

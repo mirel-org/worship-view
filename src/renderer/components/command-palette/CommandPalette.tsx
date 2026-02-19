@@ -72,7 +72,7 @@ const CommandPalette: FC = () => {
   const clearServiceListMutation = useClearServiceList();
   const commandRef = useRef<HTMLDivElement>(null);
   const baseItemClass =
-    'group rounded-md !px-2 !py-2 text-sm text-[#fafafa] data-[selected=true]:!bg-[#262626] hover:!bg-[#171717]';
+    'group rounded-md !px-2 !py-2 text-sm text-foreground data-[selected=true]:!bg-accent hover:!bg-accent/70';
   
   // Trigger search when search term changes
   useCommandPaletteSearch(searchValue);
@@ -128,6 +128,7 @@ const CommandPalette: FC = () => {
 
     return {
       reference: formatBibleReference(verseRef),
+      verse: verseRef.verse,
       text: verseText || '',
     };
   }, [selectedResult]);
@@ -259,7 +260,7 @@ const CommandPalette: FC = () => {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="h-[560px] max-h-[560px] w-[896px] max-w-[896px] flex flex-col gap-0 overflow-hidden rounded-xl border border-white/10 bg-[#0a0a0a] p-0 text-[#fafafa] shadow-[0_16px_24px_-4px_rgba(0,0,0,0.25),0_8px_12px_-4px_rgba(0,0,0,0.12)] [&>button]:hidden">
+      <DialogContent className="h-[560px] max-h-[560px] w-[896px] max-w-[896px] flex flex-col gap-0 overflow-hidden rounded-xl border border-border bg-background p-0 text-foreground shadow-[0_16px_24px_-4px_rgba(0,0,0,0.25),0_8px_12px_-4px_rgba(0,0,0,0.12)] [&>button]:hidden">
         <DialogHeader className="sr-only">
           <DialogTitle>Paleta de comenzi</DialogTitle>
           <DialogDescription>
@@ -268,10 +269,10 @@ const CommandPalette: FC = () => {
           </DialogDescription>
         </DialogHeader>
         <div className="flex-1 flex overflow-hidden">
-          <div className="w-1/2 flex flex-col border-r border-white/10 overflow-hidden">
+          <div className="w-1/2 flex flex-col border-r border-border overflow-hidden">
             <Command 
               ref={commandRef}
-              className="h-full bg-transparent text-[#fafafa]"
+              className="h-full bg-transparent text-foreground"
               shouldFilter={false}
               value={selectedValue}
               onValueChange={(value) => {
@@ -279,11 +280,11 @@ const CommandPalette: FC = () => {
               }}
               filter={() => 1}
             >
-              <div className="h-12 border-b border-white/10 px-4 flex items-center gap-2">
-                <Search className="h-4 w-4 text-[#a3a3a3] shrink-0" />
+              <div className="h-12 border-b border-border px-4 flex items-center gap-2">
+                <Search className="h-4 w-4 text-muted-foreground shrink-0" />
                 <CommandInput
                   placeholder="Caută cântece, versete sau comenzi..."
-                  className="h-full border-0 bg-transparent p-0 text-sm text-[#a3a3a3] placeholder:text-[#a3a3a3] focus:outline-none"
+                  className="h-full border-0 bg-transparent p-0 text-sm text-muted-foreground placeholder:text-muted-foreground focus:outline-none"
                   value={searchValue}
                   onValueChange={setSearchValue}
                   onKeyDown={(e) => {
@@ -296,7 +297,7 @@ const CommandPalette: FC = () => {
               </div>
               <CommandList className="flex-1 overflow-y-auto px-1 py-1">
                 <CommandEmpty>
-                  <div className="p-4 text-center text-sm text-[#a3a3a3]">
+                  <div className="p-4 text-center text-sm text-muted-foreground">
                     {searchValue.length === 0
                       ? 'Începeți să tastați pentru a căuta cântece, versete sau comenzi...'
                       : searchValue.length < MIN_SONG_SEARCH_LENGTH
@@ -306,7 +307,7 @@ const CommandPalette: FC = () => {
                 </CommandEmpty>
                 {commandResults.length > 0 && (
                   <div className="px-1 pb-1">
-                    <div className="px-1 pb-1 text-xs font-medium text-[#a3a3a3]">
+                    <div className="px-1 pb-1 text-xs font-medium text-muted-foreground">
                       Comenzi
                     </div>
                     <CommandGroup className="p-0">
@@ -325,15 +326,15 @@ const CommandPalette: FC = () => {
                             }}
                             className={`${baseItemClass} items-start`}
                           >
-                            {command.id === 'create-song' && <Plus className="mt-0.5 h-4 w-4 text-[#a3a3a3] shrink-0" />}
-                            {command.id === 'clear-service-list' && <X className="mt-0.5 h-4 w-4 text-[#a3a3a3] shrink-0" />}
-                            {command.id === 'open-settings' && <Settings className="mt-0.5 h-4 w-4 text-[#a3a3a3] shrink-0" />}
+                            {command.id === 'create-song' && <Plus className="mt-0.5 h-4 w-4 text-muted-foreground shrink-0" />}
+                            {command.id === 'clear-service-list' && <X className="mt-0.5 h-4 w-4 text-muted-foreground shrink-0" />}
+                            {command.id === 'open-settings' && <Settings className="mt-0.5 h-4 w-4 text-muted-foreground shrink-0" />}
                             <div className="flex min-w-0 flex-col gap-0.5 leading-none">
-                              <span className="text-sm text-[#fafafa] truncate">
+                              <span className="text-sm text-foreground truncate">
                                 {command.label}
                               </span>
                               {command.description && (
-                                <span className="text-xs text-[#a3a3a3] leading-4 truncate">
+                                <span className="text-xs text-muted-foreground leading-4 truncate">
                                   {command.description}
                                 </span>
                               )}
@@ -346,9 +347,9 @@ const CommandPalette: FC = () => {
                 )}
                 {songResults.length > 0 && (
                   <>
-                    <div className="h-px bg-white/10 mx-1 my-1" />
+                    <div className="h-px bg-border mx-1 my-1" />
                     <div className="px-1 pb-1">
-                      <div className="px-1 pb-1 text-xs font-medium text-[#a3a3a3]">
+                      <div className="px-1 pb-1 text-xs font-medium text-muted-foreground">
                         Cântece
                       </div>
                       <CommandGroup className="p-0">
@@ -369,8 +370,8 @@ const CommandPalette: FC = () => {
                             >
                               <div className="flex items-center justify-between w-full min-w-0">
                                 <div className="flex items-center flex-1 min-w-0 gap-2">
-                                  <Music className="h-4 w-4 text-[#a3a3a3] shrink-0" />
-                                  <span className="truncate text-sm text-[#fafafa]">
+                                  <Music className="h-4 w-4 text-muted-foreground shrink-0" />
+                                  <span className="truncate text-sm text-foreground">
                                     {song.name}
                                   </span>
                                 </div>
@@ -380,7 +381,7 @@ const CommandPalette: FC = () => {
                                 >
                                   <button
                                     onClick={(e) => handleAddToServiceList(e, song)}
-                                    className="text-[#a3a3a3] hover:text-[#fafafa]"
+                                    className="text-muted-foreground hover:text-foreground"
                                     aria-label={`Adaugă ${song.name} la lista de melodii`}
                                     disabled={addToServiceListMutation.isLoading}
                                   >
@@ -388,14 +389,14 @@ const CommandPalette: FC = () => {
                                   </button>
                                   <button
                                     onClick={(e) => handleEditClick(e, song)}
-                                    className="text-[#a3a3a3] hover:text-[#fafafa]"
+                                    className="text-muted-foreground hover:text-foreground"
                                     aria-label={`Editează ${song.name}`}
                                   >
                                     <Pencil className="h-4 w-4" />
                                   </button>
                                   <button
                                     onClick={(e) => handleDeleteClick(e, song)}
-                                    className="text-[#ff6669]/60 hover:text-[#ff6669]"
+                                    className="text-destructive hover:text-destructive"
                                     aria-label={`Șterge ${song.name}`}
                                   >
                                     <Trash2 className="h-4 w-4" />
@@ -411,9 +412,9 @@ const CommandPalette: FC = () => {
                 )}
                 {verseResults.length > 0 && (
                   <>
-                    <div className="h-px bg-white/10 mx-1 my-1" />
+                    <div className="h-px bg-border mx-1 my-1" />
                     <div className="px-1 pb-1">
-                      <div className="px-1 pb-1 text-xs font-medium text-[#a3a3a3]">
+                      <div className="px-1 pb-1 text-xs font-medium text-muted-foreground">
                         Versete Biblice
                       </div>
                       <CommandGroup className="p-0">
@@ -433,8 +434,8 @@ const CommandPalette: FC = () => {
                               }}
                               className={`${baseItemClass} items-center`}
                             >
-                              <BookOpen className="h-4 w-4 text-[#a3a3a3]" />
-                              <span className="text-sm text-[#fafafa]">{reference}</span>
+                              <BookOpen className="h-4 w-4 text-muted-foreground" />
+                              <span className="text-sm text-foreground">{reference}</span>
                             </CommandItem>
                           );
                         })}
@@ -447,32 +448,32 @@ const CommandPalette: FC = () => {
           </div>
 
           <div className="w-1/2 flex flex-col overflow-hidden">
-            <div className="h-12 px-4 border-b border-white/10 flex items-center">
-              <h3 className="text-sm font-semibold text-[#fafafa]">Previzualizare</h3>
+            <div className="h-12 px-4 border-b border-border flex items-center">
+              <h3 className="text-sm font-semibold text-foreground">Previzualizare</h3>
             </div>
-            <div className="relative flex-1 overflow-y-auto bg-[#0c0c0c] p-4">
-              <div className="pointer-events-none absolute inset-x-[10px] inset-y-3 opacity-60 bg-[radial-gradient(circle_at_2px_2px,rgba(255,255,255,0.16)_1.5px,transparent_0)] [background-size:32px_32px]" />
+            <div className="relative flex-1 overflow-y-auto dot-grid-bg p-4">
+              <div className="pointer-events-none absolute inset-x-[10px] inset-y-3 dot-grid-overlay" />
               <div className="relative">
                 {selectedResult?.type === 'song' && songPreview ? (
                   <div className="space-y-2">
-                    <h4 className="text-lg font-semibold text-[#fafafa]">
+                    <h4 className="text-lg font-semibold text-foreground">
                       {(selectedResult.data as Song).name}
                     </h4>
                     {songPreview.map((part, partIndex) => (
                       <div key={partIndex} className="space-y-2">
-                        <span className="inline-flex h-4 items-center rounded-sm border border-white bg-white px-1.5 text-[10px] font-semibold uppercase tracking-[0.05em] text-black">
+                        <span className="inline-flex h-4 items-center rounded-sm border border-border bg-secondary px-1.5 text-[10px] font-semibold uppercase tracking-[0.05em] text-secondary-foreground">
                           {part.key.replace(/[-_]/g, ' ').toUpperCase()}
                         </span>
                         {part.slides.map((slide, slideIndex) => (
                           <div
                             key={slideIndex}
                             data-testid="command-preview-slide"
-                            className="min-h-[68px] w-full rounded-lg border border-white/10 bg-[#1e1e1e] px-3 py-1.5 text-center shadow-[0_2px_6px_rgba(0,0,0,0.25)] flex flex-col justify-center gap-1"
+                            className="min-h-[68px] w-full rounded-lg border border-border bg-card px-3 py-1.5 text-center shadow-[0_2px_6px_rgba(0,0,0,0.25)] flex flex-col justify-center gap-1"
                           >
                             {slide.lines.map((line, lineIndex) => (
                               <div
                                 key={lineIndex}
-                                className="font-montserrat text-xs font-bold italic uppercase text-[#fafafa]"
+                                className="font-montserrat text-xs font-bold italic uppercase text-foreground"
                                 style={{ textShadow: '0.06em 0.06em 1px #00000094' }}
                               >
                                 {line}
@@ -485,11 +486,13 @@ const CommandPalette: FC = () => {
                   </div>
                 ) : selectedResult?.type === 'verse' && versePreview ? (
                   <div className="space-y-2">
-                    <h4 className="text-lg font-semibold text-[#fafafa]">
-                      {versePreview.reference}
-                    </h4>
-                    <div className="min-h-[68px] w-full rounded-lg border border-white/10 bg-[#1e1e1e] px-3 py-2 shadow-[0_2px_6px_rgba(0,0,0,0.25)] flex items-center">
-                      <p className="text-xs italic leading-relaxed text-[#fafafa]">
+                    <div className="w-full rounded-lg border border-border bg-card px-5 py-3 text-foreground">
+                      <div className="mb-1 flex items-center gap-2">
+                        <p className="text-[11px] font-semibold tracking-[0.5px] text-muted-foreground">
+                          {versePreview.verse}
+                        </p>
+                      </div>
+                      <p className="font-montserrat text-[15px] font-bold italic leading-[1.6] text-center text-foreground">
                         {versePreview.text}
                       </p>
                     </div>

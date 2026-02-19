@@ -26,8 +26,8 @@ export function BibleVersesHistory() {
               key={index}
               onClick={() => setSelectedVerseReference(verseReference)}
               className={cn(
-                'cursor-pointer rounded-md px-2 py-2 transition-colors text-sm text-[#fafafa]',
-                isSelected ? 'bg-[#262626]' : 'hover:bg-[#262626]/75'
+                'cursor-pointer rounded-md px-2 py-2 transition-colors text-sm text-foreground',
+                isSelected ? 'bg-accent' : 'hover:bg-accent/70'
               )}
             >
               <span>{formatBibleReference(verseReference)}</span>

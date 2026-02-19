@@ -23,14 +23,20 @@ const useSongControllerShortcuts = () => {
       event.target instanceof Element && !!event.target.closest('[cmdk-root]');
 
     if (selectedTabType === 'songs' && !songInputFocus && !commandPaletteOpen)
-      if (!isCmdkEvent) gotoNextSlide();
+      if (!isCmdkEvent) {
+        event.preventDefault();
+        gotoNextSlide();
+      }
   }, [selectedTabType, gotoNextSlide, songInputFocus, commandPaletteOpen]);
   const previous = useCallback((event: KeyboardEvent) => {
     const isCmdkEvent =
       event.target instanceof Element && !!event.target.closest('[cmdk-root]');
 
     if (selectedTabType === 'songs' && !songInputFocus && !commandPaletteOpen)
-      if (!isCmdkEvent) gotoPreviousSlide();
+      if (!isCmdkEvent) {
+        event.preventDefault();
+        gotoPreviousSlide();
+      }
   }, [selectedTabType, gotoPreviousSlide, songInputFocus, commandPaletteOpen]);
   useShortcuts(['w', 'W', 'ArrowUp', 'a', 'A', 'ArrowLeft'], previous);
   useShortcuts(['s', 'S', 'ArrowDown', 'd', 'D', 'ArrowRight'], next);

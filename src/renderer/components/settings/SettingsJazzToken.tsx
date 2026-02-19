@@ -97,11 +97,12 @@ export function SettingsJazzToken() {
       <div className="space-y-2">
         <Label>Stare sincronizare</Label>
         <div className="flex items-center gap-2">
-          <div className={`w-3 h-3 rounded-full ${apiKey ? 'bg-green-500' : 'bg-yellow-500'}`} />
+          <div
+            className={`w-3 h-3 rounded-full ${apiKey ? 'bg-primary' : 'bg-muted-foreground'}`}
+          />
           <span>{apiKey ? 'Conectat la Jazz Cloud' : 'Sincronizare cloud dezactivată (lipsă cheie API)'}</span>
         </div>
       </div>
     </div>
   );
 }
-

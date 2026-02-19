@@ -52,7 +52,7 @@ const SettingsDisplay = () => {
               return (
                 <div
                   key={key}
-                  className="rounded-lg border-2 border-neutral-600 bg-black p-4 min-h-44 flex flex-col justify-between"
+                  className="rounded-lg border-2 border-border bg-card p-4 min-h-44 flex flex-col justify-between"
                 >
                   <div className="h-full flex flex-col items-center justify-center text-center gap-2">
                     <p className="text-xs text-muted-foreground">{displayName}</p>

@@ -253,9 +253,9 @@ export function SettingsImportSongs() {
           <div className='border rounded-lg p-4 space-y-2'>
             <div className='flex items-center gap-2'>
               {importResult.success ? (
-                <CheckCircle2 className='h-5 w-5 text-green-500' />
+                <CheckCircle2 className='h-5 w-5 text-primary' />
               ) : (
-                <XCircle className='h-5 w-5 text-red-500' />
+                <XCircle className='h-5 w-5 text-destructive' />
               )}
               <span className='font-medium'>
                 {importResult.created + (importResult.updated || 0)} cântece procesate
@@ -284,7 +284,7 @@ export function SettingsImportSongs() {
                 {importResult.errors.map((error, index) => (
                   <div
                     key={index}
-                    className='text-sm text-red-500 bg-red-50 p-2 rounded'
+                    className='text-sm text-destructive bg-destructive/10 p-2 rounded'
                   >
                     <strong>{error.name}:</strong> {error.error}
                   </div>

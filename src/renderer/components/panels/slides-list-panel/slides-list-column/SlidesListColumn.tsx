@@ -1,4 +1,3 @@
-import { useEffect, useRef } from 'react';
 import SlidesListItem from './slides-list-item/SlidesListItem';
 
 export type SlideItem = {
@@ -9,6 +8,7 @@ export type SlidesListColumnProps = {
   slides: SlideItem[];
   onSelect?: (index: number) => void;
   selectedIndex?: number;
+  partIndex: number;
 };
 
 const SlidesListColumn = ({
@@ -16,26 +16,21 @@ const SlidesListColumn = ({
   slides,
   onSelect,
   selectedIndex,
+  partIndex,
 }: SlidesListColumnProps) => {
-  const ref = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (selectedIndex === -1 || !ref?.current) return;
-    ref.current.scrollIntoView({
-      behavior: 'smooth',
-      block: 'center',
-    });
-  }, [selectedIndex]);
-
   const handleSelection = (slideIndex: number) => {
     if (!onSelect) return;
     onSelect(slideIndex);
   };
 
   return (
-    <div ref={ref} className="w-full h-fit min-w-0">
+    <div
+      className="w-full h-fit min-w-0"
+      data-part-index={partIndex}
+      data-selected-column={selectedIndex !== -1 ? 'true' : 'false'}
+    >
       <div className="mb-2">
-        <span className="inline-flex items-center justify-center rounded-2xl bg-white px-2 py-0.5 text-[11px] font-semibold tracking-[0.5px] text-black">
+        <span className="inline-flex items-center justify-center rounded-2xl border border-border bg-secondary px-2 py-0.5 text-[11px] font-semibold tracking-[0.5px] text-secondary-foreground">
           {title}
         </span>
       </div>

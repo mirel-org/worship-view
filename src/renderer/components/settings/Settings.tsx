@@ -16,6 +16,7 @@ import { SettingsAccount } from './SettingsAccount';
 import { SettingsOrganizations } from './SettingsOrganizations';
 import { SettingsImportSongs } from './SettingsImportSongs';
 import { SettingsUpdate } from './SettingsUpdate';
+import { SettingsAppearance } from './SettingsAppearance';
 
 const Settings = () => {
   const [areSettingsOpen, setAreSettingsOpen] = useAtom(areSettingsOpenAtom);
@@ -41,6 +42,12 @@ const Settings = () => {
                   className="w-full justify-start rounded-none border-b px-4 py-3 data-[state=active]:bg-background data-[state=active]:shadow-none"
                 >
                   Afișare
+                </TabsTrigger>
+                <TabsTrigger
+                  value="aspect"
+                  className="w-full justify-start rounded-none border-b px-4 py-3 data-[state=active]:bg-background data-[state=active]:shadow-none"
+                >
+                  Aspect
                 </TabsTrigger>
                 {isAuthenticated && (
                   <>
@@ -83,6 +90,9 @@ const Settings = () => {
               <div className="p-6">
                 <TabsContent value="display" className="mt-0">
                   <SettingsDisplay />
+                </TabsContent>
+                <TabsContent value="aspect" className="mt-0">
+                  <SettingsAppearance />
                 </TabsContent>
                 {isAuthenticated && (
                   <>

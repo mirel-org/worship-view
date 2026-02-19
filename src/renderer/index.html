@@ -3,6 +3,21 @@
   <head>
     <meta charset="UTF-8" />
     <title>Worship View</title>
+    <script>
+      (function () {
+        try {
+          const savedTheme = localStorage.getItem('settings-theme');
+          const parsedTheme = savedTheme ? JSON.parse(savedTheme) : 'dark';
+          const isDark = parsedTheme !== 'light';
+          document.documentElement.classList.toggle('dark', isDark);
+          document.documentElement.style.colorScheme = isDark ? 'dark' : 'light';
+
+        } catch (_error) {
+          document.documentElement.classList.add('dark');
+          document.documentElement.style.colorScheme = 'dark';
+        }
+      })();
+    </script>
   </head>
   <body>
     <div id="app"></div>

@@ -4,6 +4,7 @@ import {
 } from '@ipc/song/song.atoms';
 import usePreventScroll from '@renderer/hooks/usePreventScroll';
 import { useAtom } from 'jotai';
+import { useEffect, useRef } from 'react';
 import SlidesListColumn from './slides-list-column/SlidesListColumn';
 
 const SlidesListPanel = () => {
@@ -16,6 +17,32 @@ const SlidesListPanel = () => {
     setSelectedSongSlideReference({ partIndex, slideIndex });
   };
   const { ref: containerRef } = usePreventScroll<HTMLDivElement>();
+  const previousPartIndexRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    const currentPartIndex = selectedSongSlideReference?.partIndex;
+    if (currentPartIndex == null) {
+      previousPartIndexRef.current = null;
+      return;
+    }
+
+    if (previousPartIndexRef.current === null) {
+      previousPartIndexRef.current = currentPartIndex;
+      return;
+    }
+
+    if (previousPartIndexRef.current !== currentPartIndex) {
+      const targetColumn = containerRef.current?.querySelector<HTMLElement>(
+        `[data-part-index="${currentPartIndex}"]`,
+      );
+      targetColumn?.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center',
+      });
+    }
+
+    previousPartIndexRef.current = currentPartIndex;
+  }, [selectedSongSlideReference?.partIndex, containerRef]);
 
   return (
     <div
@@ -27,6 +54,7 @@ const SlidesListPanel = () => {
           selectedSongText.map((part, partIndex) => (
             <SlidesListColumn
               key={partIndex}
+              partIndex={partIndex}
               slides={part.slides}
               title={part.key}
               selectedIndex={

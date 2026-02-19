@@ -116,15 +116,15 @@ export function OrganizationMembers({
   const getRoleColor = (role: string | undefined): string => {
     switch (role) {
       case 'admin':
-        return 'text-red-600 bg-red-50';
+        return 'text-destructive bg-destructive/15';
       case 'manager':
-        return 'text-blue-600 bg-blue-50';
+        return 'text-primary bg-primary/15';
       case 'writer':
-        return 'text-green-600 bg-green-50';
+        return 'text-accent-foreground bg-accent';
       case 'reader':
-        return 'text-gray-600 bg-gray-50';
+        return 'text-muted-foreground bg-muted';
       default:
-        return 'text-gray-600 bg-gray-50';
+        return 'text-muted-foreground bg-muted';
     }
   };
 

@@ -169,7 +169,7 @@ const SongEditorDialog = ({
             {liveValidation && liveValidation.warnings.length > 0 && (
               <div className="space-y-1" data-testid="song-validation-warnings">
                 {liveValidation.warnings.map((w, i) => (
-                  <p key={i} className="text-sm text-yellow-600 dark:text-yellow-500">
+                  <p key={i} className="text-sm text-muted-foreground">
                     {w.line ? `Linia ${w.line}: ` : ''}{w.message}
                   </p>
                 ))}

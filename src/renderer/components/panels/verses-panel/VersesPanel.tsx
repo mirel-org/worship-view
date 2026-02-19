@@ -36,10 +36,10 @@ const VersesPanel: FC = () => {
     currentProjectionType === 'verse' && verseProjectionEnabled;
 
   return (
-    <div ref={ref} className="h-full overflow-y-auto px-6 py-4">
+    <div ref={ref} className="h-full overflow-y-auto px-[120px] pt-3 pb-[72px]">
       <div className="space-y-2">
         {selectedVerseReference && (
-          <span className="inline-flex items-center justify-center rounded-2xl bg-white px-2 py-0.5 text-[11px] font-semibold tracking-[0.5px] text-black">
+          <span className="inline-flex items-center justify-center rounded-2xl border border-border bg-secondary px-2 py-0.5 text-[11px] font-semibold tracking-[0.5px] text-secondary-foreground">
             {formatBibleChapterReference(selectedVerseReference)}
           </span>
         )}

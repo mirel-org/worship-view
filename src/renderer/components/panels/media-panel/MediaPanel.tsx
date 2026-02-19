@@ -32,13 +32,13 @@ const MediaGridItem: FC<{
       type="button"
       onClick={onSelect}
       className={cn(
-        'group overflow-hidden rounded-md border bg-[#171717] text-left transition-colors shadow-[0_1px_4px_rgba(0,0,0,0.25)]',
+        'group overflow-hidden rounded-md border bg-card text-left transition-colors shadow-[0_1px_4px_rgba(0,0,0,0.25)]',
         selected
-          ? 'border-2 border-white shadow-[0_0_0_1px_rgba(255,255,255,0.35),0_8px_20px_rgba(0,0,0,0.22)]'
-          : 'border-white/10 hover:border-white/30'
+          ? 'border-2 border-ring shadow-[0_0_0_1px_hsl(var(--ring)/0.35),0_8px_20px_rgba(0,0,0,0.22)]'
+          : 'border-border hover:border-ring/60'
       )}
     >
-      <div className="h-20 w-full bg-[#0a0a0a]">
+      <div className="h-20 w-full bg-muted">
         {blobUrl ? (
           mediaItem.mediaType === 'video' ? (
             <video
@@ -60,7 +60,7 @@ const MediaGridItem: FC<{
         )}
       </div>
       <div className="flex items-center justify-between gap-1 px-2 py-1.5">
-        <span className="truncate text-[11px] font-medium text-[#fafafa]">{mediaItem.name}</span>
+        <span className="truncate text-[11px] font-medium text-foreground">{mediaItem.name}</span>
         <div className="flex items-center gap-0.5">
           <span
             onClick={(e) => {
@@ -68,7 +68,7 @@ const MediaGridItem: FC<{
               e.stopPropagation();
               onRename();
             }}
-            className="rounded p-1 text-[#a3a3a3] opacity-0 group-hover:opacity-100 hover:bg-white/5"
+            className="rounded p-1 text-muted-foreground opacity-0 group-hover:opacity-100 hover:bg-accent/70"
             aria-label={`Redenumește ${mediaItem.name}`}
           >
             <Pencil className="h-3.5 w-3.5" />
@@ -79,7 +79,7 @@ const MediaGridItem: FC<{
               e.stopPropagation();
               onDelete();
             }}
-            className="rounded p-1 text-[#ff6669] opacity-0 group-hover:opacity-100 hover:bg-white/5"
+            className="rounded p-1 text-destructive opacity-0 group-hover:opacity-100 hover:bg-accent/70"
             aria-label={`Șterge ${mediaItem.name}`}
           >
             <Trash2 className="h-3.5 w-3.5" />
@@ -99,15 +99,15 @@ const ClearBackgroundItem: FC<{ selected: boolean; onSelect: () => void }> = ({
       type="button"
       onClick={onSelect}
       className={cn(
-        'group overflow-hidden rounded-md border bg-[#171717] text-left transition-colors',
-        selected ? 'border-2 border-white' : 'border-white/10 hover:border-white/30'
+        'group overflow-hidden rounded-md border bg-card text-left transition-colors',
+        selected ? 'border-2 border-ring' : 'border-border hover:border-ring/60'
       )}
     >
-      <div className="h-20 w-full bg-[#0a0a0a] flex items-center justify-center">
-        <ImageOff className="h-6 w-6 text-[#a3a3a3]" />
+      <div className="h-20 w-full bg-muted flex items-center justify-center">
+        <ImageOff className="h-6 w-6 text-muted-foreground" />
       </div>
       <div className="px-2 py-1.5">
-        <span className="truncate text-[11px] font-medium text-[#fafafa]">Fără fundal</span>
+        <span className="truncate text-[11px] font-medium text-foreground">Fără fundal</span>
       </div>
     </button>
   );
@@ -187,14 +187,14 @@ const MediaPanel: FC = () => {
       {uploadMedia.isLoading && (
         <div className="mb-2">
           <Progress value={uploadMedia.progress * 100} className="h-1.5" />
-          <span className="text-[11px] text-[#a3a3a3]">
+          <span className="text-[11px] text-muted-foreground">
             Se încarcă... {Math.round(uploadMedia.progress * 100)}%
           </span>
         </div>
       )}
 
       {errorMessage && (
-        <div className="mb-2 text-[11px] text-[#ff6669]">{errorMessage}</div>
+        <div className="mb-2 text-[11px] text-destructive">{errorMessage}</div>
       )}
 
       <div className="grid grid-cols-2 gap-2">
