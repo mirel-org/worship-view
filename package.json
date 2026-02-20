@@ -1,7 +1,7 @@
 {
   "name": "worship-view",
   "productName": "Worship View",
-  "version": "1.6.0",
+  "version": "1.7.0",
   "description": "Worship View is a desktop application for viewing and editing worship songs.",
   "main": ".vite/build/main.js",
   "scripts": {
