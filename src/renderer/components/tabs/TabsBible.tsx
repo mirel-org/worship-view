@@ -1,19 +1,13 @@
 import { PanelGroup, Panel, PanelResizeHandle } from 'react-resizable-panels';
-import { Upload, X } from 'lucide-react';
+import { X } from 'lucide-react';
 import { useAtom } from 'jotai';
-import { mediaUploadPickerRequestAtom } from '@ipc/media/media.atoms';
 import { versesHistoryAtom } from '@ipc/verse/verse.atoms';
 import { BibleVersesHistory } from '../panels/bible-verses-history/BibleVersesHistory';
 import MediaPanel from '../panels/media-panel/MediaPanel';
 import VersesPanel from '../panels/verses-panel/VersesPanel';
 
 const TabsBible = () => {
-  const [, setUploadRequest] = useAtom(mediaUploadPickerRequestAtom);
   const [, setVersesHistory] = useAtom(versesHistoryAtom);
-
-  const handleUpload = () => {
-    setUploadRequest((v) => v + 1);
-  };
 
   const handleClearHistory = () => {
     setVersesHistory([]);
@@ -45,21 +39,8 @@ const TabsBible = () => {
           <PanelResizeHandle className="h-1 bg-border transition-colors hover:bg-accent" />
 
           <Panel defaultSize={45} minSize={20}>
-            <div className="h-full flex flex-col">
-              <div className="flex h-10 items-center justify-between bg-muted border-b border-border pl-3 pr-2 flex-shrink-0">
-                <span className="text-sm font-semibold text-foreground">Media</span>
-                <button
-                  type="button"
-                  onClick={handleUpload}
-                  className="h-7 rounded-md bg-muted px-2.5 inline-flex items-center gap-1.5 text-xs font-medium text-foreground hover:bg-accent/70"
-                >
-                  <Upload className="h-3.5 w-3.5" />
-                  Încarcă
-                </button>
-              </div>
-              <div className="flex-1 overflow-hidden">
-                <MediaPanel />
-              </div>
+            <div className="h-full overflow-hidden">
+              <MediaPanel />
             </div>
           </Panel>
         </PanelGroup>

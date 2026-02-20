@@ -1,8 +1,7 @@
 import { FC, useEffect, useState } from 'react';
 import { PanelGroup, Panel, PanelResizeHandle } from 'react-resizable-panels';
-import { ListPlus, Pencil, Trash2, Upload, X } from 'lucide-react';
+import { ListPlus, Pencil, Trash2, X } from 'lucide-react';
 import { useAtom } from 'jotai';
-import { mediaUploadPickerRequestAtom } from '@ipc/media/media.atoms';
 import { selectedSongAtom } from '@ipc/song/song.atoms';
 import { Song } from '@ipc/song/song.types';
 import {
@@ -18,7 +17,6 @@ import SongDeleteDialog from '../panels/songs-list-panel/SongDeleteDialog';
 import SongEditorDialog from '../panels/songs-list-panel/SongEditorDialog';
 
 const TabsSongs: FC = () => {
-  const [, setUploadRequest] = useAtom(mediaUploadPickerRequestAtom);
   const [selectedSong, setSelectedSong] = useAtom(selectedSongAtom);
   const { data: songs = [] } = useGetSongs();
   const clearServiceListMutation = useClearServiceList();
@@ -40,10 +38,6 @@ const TabsSongs: FC = () => {
       setSelectedSong(updatedSong);
     }
   }, [songs, selectedSong, setSelectedSong]);
-
-  const handleUpload = () => {
-    setUploadRequest((v) => v + 1);
-  };
 
   const handleClearServiceList = async () => {
     if (!window.confirm('Sigur doriți să goliți întreaga listă de melodii?')) {
@@ -128,21 +122,8 @@ const TabsSongs: FC = () => {
           <PanelResizeHandle className="h-1 bg-border transition-colors hover:bg-accent" />
 
           <Panel defaultSize={45} minSize={20}>
-            <div className="h-full flex flex-col">
-              <div className="flex h-10 items-center justify-between bg-muted border-b border-border pl-3 pr-2 flex-shrink-0">
-                <span className="text-sm font-semibold text-foreground">Media</span>
-                <button
-                  type="button"
-                  onClick={handleUpload}
-                  className="h-7 rounded-md bg-muted px-2.5 inline-flex items-center gap-1.5 text-xs font-medium text-foreground hover:bg-accent/70"
-                >
-                  <Upload className="h-3.5 w-3.5" />
-                  Încarcă
-                </button>
-              </div>
-              <div className="flex-1 overflow-hidden">
-                <MediaPanel />
-              </div>
+            <div className="h-full overflow-hidden">
+              <MediaPanel />
             </div>
           </Panel>
         </PanelGroup>

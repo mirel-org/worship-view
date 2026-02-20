@@ -1,5 +1,4 @@
 import {
-  mediaUploadPickerRequestAtom,
   selectedBackgroundMediaItemAtom,
 } from '@ipc/media/media.atoms';
 import {
@@ -11,8 +10,8 @@ import {
 } from '@renderer/hooks/useMedia';
 import { validateMediaFile, type MediaItemResponse } from '@renderer/lib/jazz/media-store';
 import { useAtom } from 'jotai';
-import { FC, useEffect, useRef, useState } from 'react';
-import { ImageOff, Pencil, Trash2 } from 'lucide-react';
+import { FC, useRef, useState } from 'react';
+import { ImageOff, Pencil, Trash2, Upload } from 'lucide-react';
 import { Progress } from '@renderer/components/ui/progress';
 import { cn } from '@renderer/lib/utils';
 import MediaDeleteDialog from './MediaDeleteDialog';
@@ -116,7 +115,6 @@ const ClearBackgroundItem: FC<{ selected: boolean; onSelect: () => void }> = ({
 const MediaPanel: FC = () => {
   const { data: mediaItems } = useGetMediaItems();
   const [selectedMediaItem, setSelectedMediaItem] = useAtom(selectedBackgroundMediaItemAtom);
-  const [uploadRequest] = useAtom(mediaUploadPickerRequestAtom);
   const uploadMedia = useUploadMediaItem();
   const renameMedia = useRenameMediaItem();
   const deleteMedia = useDeleteMediaItem();
@@ -125,11 +123,9 @@ const MediaPanel: FC = () => {
   const [renameTarget, setRenameTarget] = useState<MediaItemResponse | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<MediaItemResponse | null>(null);
 
-  useEffect(() => {
-    if (uploadRequest > 0) {
-      fileInputRef.current?.click();
-    }
-  }, [uploadRequest]);
+  const handleUpload = () => {
+    fileInputRef.current?.click();
+  };
 
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -175,43 +171,57 @@ const MediaPanel: FC = () => {
     deleteMedia.error?.message;
 
   return (
-    <div className="h-full overflow-y-auto p-2">
-      <input
-        ref={fileInputRef}
-        type="file"
-        accept=".mp4,.mov,.png,.jpg,.jpeg"
-        onChange={handleFileSelect}
-        className="hidden"
-      />
+    <div className="h-full flex flex-col">
+      <div className="flex h-10 items-center justify-between bg-muted border-b border-border pl-3 pr-2 flex-shrink-0">
+        <span className="text-sm font-semibold text-foreground">Media</span>
+        <button
+          type="button"
+          onClick={handleUpload}
+          className="h-7 rounded-md bg-muted px-2.5 inline-flex items-center gap-1.5 text-xs font-medium text-foreground hover:bg-accent/70"
+        >
+          <Upload className="h-3.5 w-3.5" />
+          Încarcă
+        </button>
+      </div>
 
-      {uploadMedia.isLoading && (
-        <div className="mb-2">
-          <Progress value={uploadMedia.progress * 100} className="h-1.5" />
-          <span className="text-[11px] text-muted-foreground">
-            Se încarcă... {Math.round(uploadMedia.progress * 100)}%
-          </span>
-        </div>
-      )}
-
-      {errorMessage && (
-        <div className="mb-2 text-[11px] text-destructive">{errorMessage}</div>
-      )}
-
-      <div className="grid grid-cols-2 gap-2">
-        <ClearBackgroundItem
-          selected={selectedMediaItem === null}
-          onSelect={() => setSelectedMediaItem(null)}
+      <div className="flex-1 overflow-y-auto p-2">
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept=".mp4,.mov,.png,.jpg,.jpeg"
+          onChange={handleFileSelect}
+          className="hidden"
         />
-        {mediaItems.map((mediaItem) => (
-          <MediaGridItem
-            key={mediaItem.id}
-            mediaItem={mediaItem}
-            selected={selectedMediaItem?.id === mediaItem.id}
-            onSelect={() => setSelectedMediaItem(mediaItem)}
-            onRename={() => setRenameTarget(mediaItem)}
-            onDelete={() => setDeleteTarget(mediaItem)}
+
+        {uploadMedia.isLoading && (
+          <div className="mb-2">
+            <Progress value={uploadMedia.progress * 100} className="h-1.5" />
+            <span className="text-[11px] text-muted-foreground">
+              Se încarcă... {Math.round(uploadMedia.progress * 100)}%
+            </span>
+          </div>
+        )}
+
+        {errorMessage && (
+          <div className="mb-2 text-[11px] text-destructive">{errorMessage}</div>
+        )}
+
+        <div className="grid grid-cols-2 gap-2">
+          <ClearBackgroundItem
+            selected={selectedMediaItem === null}
+            onSelect={() => setSelectedMediaItem(null)}
           />
-        ))}
+          {mediaItems.map((mediaItem) => (
+            <MediaGridItem
+              key={mediaItem.id}
+              mediaItem={mediaItem}
+              selected={selectedMediaItem?.id === mediaItem.id}
+              onSelect={() => setSelectedMediaItem(mediaItem)}
+              onRename={() => setRenameTarget(mediaItem)}
+              onDelete={() => setDeleteTarget(mediaItem)}
+            />
+          ))}
+        </div>
       </div>
 
       <MediaRenameDialog
