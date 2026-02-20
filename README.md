@@ -114,6 +114,15 @@ yarn publish
 
 <br />
 
+## Release Artifacts
+
+The manual GitHub release workflow publishes platform installers to GitHub Releases for:
+- macOS (`.dmg`, `.zip`)
+- Windows (`Setup.exe`, `.nupkg`)
+- Linux x64 (`.deb`, `.rpm`)
+
+<br />
+
 ## Packager & Makers Configuration
 
 This provides an easy way of configuring your packaged application and making platform specific distributables like DMG, EXE, or Flatpak files.

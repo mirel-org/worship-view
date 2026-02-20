@@ -1,7 +1,7 @@
 {
   "name": "worship-view",
   "productName": "Worship View",
-  "version": "1.4.1",
+  "version": "1.5.0",
   "description": "Worship View is a desktop application for viewing and editing worship songs.",
   "main": ".vite/build/main.js",
   "scripts": {
@@ -26,18 +26,18 @@
     "editor"
   ],
   "author": {
-    "name": "AlexandruRoman",
-    "url": "https://github.com/AlexandruRoman"
+    "name": "mirel-org",
+    "url": "https://github.com/mirel-org"
   },
   "contributors": [
     {
-      "name": "AlexandruRoman",
-      "url": "https://github.com/AlexandruRoman"
+      "name": "mirel-org",
+      "url": "https://github.com/mirel-org"
     }
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/AlexandruRoman/worship-view.git"
+    "url": "https://github.com/mirel-org/worship-view.git"
   },
   "license": "MIT",
   "private": true,

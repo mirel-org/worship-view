@@ -11,12 +11,15 @@ jobs:
     name: Build for ${{ matrix.platform }}
     runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
         include:
           - os: macos-latest
             platform: darwin
           - os: windows-latest
             platform: win32
+          - os: ubuntu-latest
+            platform: linux
 
     steps:
       - name: Checkout code
@@ -34,6 +37,12 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+
+      - name: Install Linux packaging tools
+        if: matrix.platform == 'linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y rpm fakeroot
         
       # - name: Rebuild native modules (macOS only)
       #   if: matrix.platform == 'darwin'
