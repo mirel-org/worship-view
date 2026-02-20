@@ -22,14 +22,17 @@ const getRepoInfo = () => {
 };
 
 const repoInfo = getRepoInfo();
+const executableName =
+  process.platform === 'linux' ? 'worship-view' : 'Worship View';
 
 module.exports = {
   // Packager Config
   packagerConfig: {
     // Create asar archive for main, renderer process files
     asar: true,
-    // Set executable name
-    executableName: 'Worship View',
+    // Keep a filesystem-safe executable name for Linux packaging (.deb/.rpm expect this binary name),
+    // while preserving existing executable naming on macOS/Windows for update continuity.
+    executableName,
     // Set application copyright
     appCopyright: `Copyright (C) ${new Date().getFullYear()} ${packageJson.author?.name || 'Worship View'}`,
   },
