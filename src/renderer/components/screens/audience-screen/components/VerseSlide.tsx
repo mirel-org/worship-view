@@ -27,7 +27,7 @@ const VerseSlide: FC<VerseSlideProps> = ({
       ) : (
         <div
           className="font-montserrat text-[450%] font-bold italic text-white text-center"
-          style={{ textShadow: '0.08em 0.08em 0 black' }}
+          style={{ textShadow: '0.06em 0.06em 1px #00000094' }}
         >
           {text}
         </div>

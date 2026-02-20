@@ -24,12 +24,12 @@ interface AcceptInviteDialogProps {
   onOpenChange: (open: boolean) => void;
 }
 
+const ORGANIZATION_ID_REGEX = /^co_z[A-Za-z0-9_-]+$/;
+
 export function AcceptInviteDialog({
   open,
   onOpenChange,
 }: AcceptInviteDialogProps) {
-  const [inviteId, setInviteId] = useState('');
-  const [inviteSecret, setInviteSecret] = useState('');
   const [combinedInput, setCombinedInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -45,20 +45,29 @@ export function AcceptInviteDialog({
   const agent = useAgent();
   const { switchToOrganization } = useActiveOrganization();
 
-  const handlePasteCombined = () => {
-    // Try to parse combined format: "orgId:secret" or just paste and split
-    const parts = combinedInput.trim().split(':');
-    if (parts.length === 2) {
-      setInviteId(parts[0].trim());
-      setInviteSecret(parts[1].trim());
-    } else {
-      setError('Format invalid. Format așteptat: IDOrganizație:SecretInvitație');
-    }
-  };
-
   const handleAccept = async () => {
-    if (!inviteId.trim() || !inviteSecret.trim()) {
-      setError('Vă rugăm să furnizați atât ID-ul organizației, cât și secretul invitației');
+    const trimmedInput = combinedInput.trim();
+    const separatorIndex = trimmedInput.indexOf(':');
+    if (
+      separatorIndex <= 0 ||
+      separatorIndex === trimmedInput.length - 1
+    ) {
+      setError(
+        'Format invalid. Folosiți formatul complet: IDOrganizație:SecretInvitație',
+      );
+      return;
+    }
+
+    const normalizedInviteId = trimmedInput.slice(0, separatorIndex).trim();
+    const normalizedInviteSecret = trimmedInput.slice(separatorIndex + 1).trim();
+
+    if (!normalizedInviteId || !normalizedInviteSecret) {
+      setError('Vă rugăm să furnizați invitația completă: IDOrganizație:SecretInvitație');
+      return;
+    }
+
+    if (!normalizedInviteSecret.startsWith('inviteSecret_z')) {
+      setError('Secret invitație invalid. Trebuie să înceapă cu "inviteSecret_z".');
       return;
     }
 
@@ -71,6 +80,32 @@ export function AcceptInviteDialog({
     setError(null);
 
     try {
+      if (
+        !ORGANIZATION_ID_REGEX.test(normalizedInviteId) ||
+        normalizedInviteId.length < 20
+      ) {
+        setError(
+          'ID organizație invalid. Folosiți ID-ul complet (începe cu "co_z").',
+        );
+        return;
+      }
+
+      const resolvedOrganization = (await Organization.load(
+        normalizedInviteId,
+      )) as OrganizationType | null;
+      if (!resolvedOrganization) {
+        setError('Organizația nu a fost găsită. Verificați ID-ul complet.');
+        return;
+      }
+
+      const resolvedOrganizationId = resolvedOrganization.$jazz.id;
+      if (resolvedOrganizationId !== normalizedInviteId) {
+        setError(
+          'ID organizație incomplet. Vă rugăm să introduceți ID-ul complet exact.',
+        );
+        return;
+      }
+
       // Get the account instance to call acceptInvite
       const account = Account.getMe();
       if (!account) {
@@ -79,18 +114,12 @@ export function AcceptInviteDialog({
 
       // Accept the invite using the account's acceptInvite method
       await account.acceptInvite(
-        inviteId,
-        inviteSecret as `inviteSecret_z${string}`,
+        normalizedInviteId,
+        normalizedInviteSecret as `inviteSecret_z${string}`,
         Organization,
       );
 
-      // Load the organization to add it to the user's list
-      const organization = (await Organization.load(
-        inviteId,
-      )) as OrganizationType | null;
-      if (!organization) {
-        throw new Error('Organization not found');
-      }
+      const organization = resolvedOrganization;
 
       // Check if already in user's organizations list
       const existingIds =
@@ -98,7 +127,7 @@ export function AcceptInviteDialog({
           ?.map((org: OrganizationType | null) => org?.$jazz.id)
           .filter(Boolean) || [];
 
-      if (!existingIds.includes(inviteId)) {
+      if (!existingIds.includes(resolvedOrganizationId)) {
         // Ensure organizations list exists and add to it
         if (!me.root?.organizations) {
           setCoMapProperty(me.root, 'organizations', []);
@@ -110,8 +139,6 @@ export function AcceptInviteDialog({
       switchToOrganization(organization);
 
       // Reset form
-      setInviteId('');
-      setInviteSecret('');
       setCombinedInput('');
       onOpenChange(false);
     } catch (err: any) {
@@ -131,54 +158,22 @@ export function AcceptInviteDialog({
         <DialogHeader>
           <DialogTitle>Acceptă invitația</DialogTitle>
           <DialogDescription>
-            Introduceți ID-ul organizației și secretul invitației pentru a vă
-            alătura unei organizații.
+            Introduceți invitația completă în formatul
+            {' '}
+            <span className='font-mono'>IDOrganizație:SecretInvitație</span>
+            {' '}
+            pentru a vă alătura unei organizații.
           </DialogDescription>
         </DialogHeader>
 
         <div className='space-y-4'>
-          {/* Combined input for pasting */}
           <div className='space-y-2'>
-            <Label>Lipește invitația (format ID:Secret)</Label>
-            <div className='flex gap-2'>
-              <Input
-                value={combinedInput}
-                onChange={(e) => setCombinedInput(e.target.value)}
-                placeholder='OrganizationID:InviteSecret'
-                className='font-mono text-sm flex-1'
-                onPaste={(e) => {
-                  const pasted = e.clipboardData.getData('text');
-                  setCombinedInput(pasted);
-                  setTimeout(() => handlePasteCombined(), 0);
-                }}
-              />
-              <Button onClick={handlePasteCombined} variant='outline' size='sm'>
-                Parsează
-              </Button>
-            </div>
-          </div>
-
-          <div className='text-center text-sm text-muted-foreground'>SAU</div>
-
-          {/* Separate inputs */}
-          <div className='space-y-2'>
-            <Label htmlFor='invite-id'>ID organizație</Label>
+            <Label htmlFor='invite-combined'>Invitație</Label>
             <Input
-              id='invite-id'
-              value={inviteId}
-              onChange={(e) => setInviteId(e.target.value)}
-              placeholder='Introduceți ID-ul organizației'
-              className='font-mono text-sm'
-            />
-          </div>
-
-          <div className='space-y-2'>
-            <Label htmlFor='invite-secret'>Secret invitație</Label>
-            <Input
-              id='invite-secret'
-              value={inviteSecret}
-              onChange={(e) => setInviteSecret(e.target.value)}
-              placeholder='Introduceți secretul invitației'
+              id='invite-combined'
+              value={combinedInput}
+              onChange={(e) => setCombinedInput(e.target.value)}
+              placeholder='co_z...:inviteSecret_z...'
               className='font-mono text-sm'
             />
           </div>
@@ -195,7 +190,7 @@ export function AcceptInviteDialog({
             </Button>
             <Button
               onClick={handleAccept}
-              disabled={isLoading || !inviteId.trim() || !inviteSecret.trim()}
+              disabled={isLoading || !combinedInput.trim()}
             >
               {isLoading ? 'Se acceptă...' : 'Acceptă invitația'}
             </Button>

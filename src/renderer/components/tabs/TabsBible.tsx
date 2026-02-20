@@ -5,6 +5,7 @@ import { versesHistoryAtom } from '@ipc/verse/verse.atoms';
 import { BibleVersesHistory } from '../panels/bible-verses-history/BibleVersesHistory';
 import MediaPanel from '../panels/media-panel/MediaPanel';
 import VersesPanel from '../panels/verses-panel/VersesPanel';
+import { Button } from '../ui/button';
 
 const TabsBible = () => {
   const [, setVersesHistory] = useAtom(versesHistoryAtom);
@@ -21,14 +22,15 @@ const TabsBible = () => {
             <div className="h-full flex flex-col border-b border-border">
               <div className="flex h-10 items-center justify-between bg-muted border-b border-border pl-3 pr-2 flex-shrink-0">
                 <span className="text-sm font-semibold text-foreground">Istoric Versete</span>
-                <button
-                  type="button"
+                <Button
                   onClick={handleClearHistory}
-                  className="h-7 rounded-md border border-border px-2.5 inline-flex items-center gap-1.5 text-xs font-medium text-foreground hover:bg-accent/70"
+                  variant="outline"
+                  size="sm"
+                  className="h-7 gap-1.5 px-2.5 text-xs"
                 >
                   <X className="h-3.5 w-3.5" />
                   Golește
-                </button>
+                </Button>
               </div>
               <div className="flex-1 overflow-hidden">
                 <BibleVersesHistory />

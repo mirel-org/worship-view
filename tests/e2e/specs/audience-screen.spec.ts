@@ -84,6 +84,26 @@ test.describe('Audience Screen', () => {
     await expect(audienceWindow.locator('body')).toContainText(/through many dangers/i, { timeout: 5000 });
   });
 
+  test('song slide transition renders overlap cross-fade layers', async ({ mainWindow, audienceWindow }) => {
+    await addSong(mainWindow, SONG_NAME, SONG_CONTENT);
+    await selectSongFromPalette(mainWindow, 'amazing grace audience', SONG_NAME);
+
+    const slides = getContentSlides(mainWindow);
+    await expect(slides.first()).toBeVisible({ timeout: 10000 });
+    await slides.first().click();
+    await mainWindow.waitForTimeout(300);
+
+    const songCrossfadeLeaving = audienceWindow.locator('.z-10 [data-testid="crossfade-leaving"]');
+    const songCrossfadeEntering = audienceWindow.locator('.z-10 [data-testid="crossfade-entering"]');
+
+    await mainWindow.keyboard.press('s');
+
+    await expect(songCrossfadeLeaving).toHaveCount(1, { timeout: 1000 });
+    await expect(songCrossfadeEntering).toHaveCount(1);
+
+    await expect(songCrossfadeLeaving).toHaveCount(0, { timeout: 2000 });
+  });
+
   test('slide counter shows for songs', async ({ mainWindow, audienceWindow }) => {
     await addSong(mainWindow, SONG_NAME, SONG_CONTENT);
     await selectSongFromPalette(mainWindow, 'amazing grace audience', SONG_NAME);
@@ -158,6 +178,27 @@ test.describe('Audience Screen', () => {
 
     // Verse should no longer appear
     await expect(audienceWindow.locator('body')).not.toContainText('Dumnezeu', { timeout: 5000 });
+  });
+
+  test('verse transition renders overlap cross-fade layers', async ({ mainWindow, audienceWindow }) => {
+    await selectVerseFromPalette(mainWindow, 'ioan 3 16', 'IOAN 3:16');
+    await mainWindow.waitForTimeout(500);
+
+    await focusAppWindow(mainWindow);
+    await mainWindow.keyboard.press('Enter');
+    await mainWindow.waitForTimeout(300);
+
+    await expect(audienceWindow.locator('body')).toContainText('Dumnezeu', { timeout: 5000 });
+
+    const verseCrossfadeLeaving = audienceWindow.locator('.z-10 [data-testid="crossfade-leaving"]');
+    const verseCrossfadeEntering = audienceWindow.locator('.z-10 [data-testid="crossfade-entering"]');
+
+    await mainWindow.keyboard.press('s');
+
+    await expect(verseCrossfadeLeaving).toHaveCount(1, { timeout: 1000 });
+    await expect(verseCrossfadeEntering).toHaveCount(1);
+
+    await expect(verseCrossfadeLeaving).toHaveCount(0, { timeout: 2000 });
   });
 
   test('song to verse transition on audience screen', async ({ mainWindow, audienceWindow }) => {

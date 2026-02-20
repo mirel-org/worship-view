@@ -5,78 +5,131 @@ type CrossFadeProps = {
   nodeKey?: string | null;
 };
 
-type HistoryEntry = {
-  nodeKey: string | null;
-  key: number;
-};
+type TransitionPhase = 'idle' | 'prepare' | 'animate';
+
+const TRANSITION_DURATION_MS = 250;
+const TRANSITION_EASING = 'linear';
 
 const CrossFade: FC<CrossFadeProps> = ({ children, nodeKey = null }) => {
-  const [history, setHistory] = useState<HistoryEntry[]>([]);
-  const [opacity, setOpacity] = useState(1);
-  const keyCounter = useRef(0);
-  const prevNodeKeyRef = useRef<string | null | undefined>(undefined);
+  const [enteringContent, setEnteringContent] = useState<React.ReactNode>(
+    children
+  );
+  const [leavingContent, setLeavingContent] = useState<React.ReactNode | null>(
+    null
+  );
+  const [phase, setPhase] = useState<TransitionPhase>('idle');
 
-  // Only run when nodeKey actually changes
+  const prevNodeKeyRef = useRef<string | null | undefined>(undefined);
+  const enteringContentRef = useRef<React.ReactNode>(children);
+  const firstRafRef = useRef<number | null>(null);
+  const secondRafRef = useRef<number | null>(null);
+  const cleanupTimerRef = useRef<number | null>(null);
+
+  const clearTransitionHandles = () => {
+    if (firstRafRef.current !== null) {
+      cancelAnimationFrame(firstRafRef.current);
+      firstRafRef.current = null;
+    }
+    if (secondRafRef.current !== null) {
+      cancelAnimationFrame(secondRafRef.current);
+      secondRafRef.current = null;
+    }
+    if (cleanupTimerRef.current !== null) {
+      window.clearTimeout(cleanupTimerRef.current);
+      cleanupTimerRef.current = null;
+    }
+  };
+
   useEffect(() => {
-    // On first mount (undefined) or when nodeKey changes
+    enteringContentRef.current = enteringContent;
+  }, [enteringContent]);
+
+  useEffect(() => {
+    return () => {
+      clearTransitionHandles();
+    };
+  }, []);
+
+  useEffect(() => {
     const isFirstMount = prevNodeKeyRef.current === undefined;
     const hasKeyChanged = prevNodeKeyRef.current !== nodeKey;
 
-    if (!isFirstMount && !hasKeyChanged) {
-      return;
-    }
-
     prevNodeKeyRef.current = nodeKey;
 
-    // Add new entry
-    keyCounter.current += 1;
-    const entryKey = keyCounter.current;
-
-    setHistory((prev) => [...prev, { nodeKey, key: entryKey }]);
-
-    // Skip fade animation on first mount
     if (isFirstMount) {
-      setOpacity(1);
+      clearTransitionHandles();
+      setEnteringContent(children);
+      setLeavingContent(null);
+      setPhase('idle');
+      enteringContentRef.current = children;
       return;
     }
 
-    setOpacity(0);
+    if (!hasKeyChanged) {
+      setEnteringContent(children);
+      enteringContentRef.current = children;
+      return;
+    }
 
-    // Fade in after a frame
-    const fadeInTimer = requestAnimationFrame(() => {
-      setOpacity(1);
+    clearTransitionHandles();
+
+    const outgoingContent = enteringContentRef.current;
+    setLeavingContent(outgoingContent ?? null);
+    setEnteringContent(children);
+    enteringContentRef.current = children;
+    setPhase('prepare');
+
+    // Double rAF guarantees the "prepare" frame is painted before animating.
+    firstRafRef.current = requestAnimationFrame(() => {
+      secondRafRef.current = requestAnimationFrame(() => {
+        setPhase('animate');
+      });
     });
 
-    // Remove old entries after transition completes
-    const cleanupTimer = setTimeout(() => {
-      setHistory((prev) => prev.filter((entry) => entry.nodeKey === nodeKey));
-    }, 500);
+    cleanupTimerRef.current = window.setTimeout(() => {
+      setLeavingContent(null);
+      setPhase('idle');
+    }, TRANSITION_DURATION_MS);
+  }, [nodeKey, children]);
 
-    return () => {
-      cancelAnimationFrame(fadeInTimer);
-      clearTimeout(cleanupTimer);
-    };
-  }, [nodeKey]);
+  const fadeTransitionStyle = {
+    transition: `opacity ${TRANSITION_DURATION_MS}ms ${TRANSITION_EASING}`,
+  } as const;
+  const noTransitionStyle = { transition: 'none' } as const;
+  const layerTransitionStyle =
+    phase === 'animate' ? fadeTransitionStyle : noTransitionStyle;
 
-  // Render: always use current children for the active entry
+  const isAnimating = leavingContent !== null;
+  const leavingOpacity = phase === 'animate' ? 0 : 1;
+  const enteringOpacity = isAnimating ? (phase === 'animate' ? 1 : 0) : 1;
+
   return (
-    <>
-      {history.map((entry) => {
-        const isActive = entry.nodeKey === nodeKey;
-        return (
-          <div
-            key={entry.key}
-            className="w-full h-full absolute transition-opacity duration-500 left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
-            style={{
-              opacity: isActive ? opacity : 0,
-              zIndex: isActive ? 1 : 0,
-            }}
-          >
-            {isActive ? children : null}
-          </div>
-        );
-      })}
-    </>
+    <div data-testid="crossfade" className="w-full h-full">
+      {leavingContent !== null && (
+        <div
+          data-testid="crossfade-leaving"
+          className="w-full h-full absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
+          style={{
+            ...layerTransitionStyle,
+            opacity: leavingOpacity,
+            zIndex: 0,
+          }}
+        >
+          {leavingContent}
+        </div>
+      )}
+      <div
+        data-testid="crossfade-entering"
+        className="w-full h-full absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
+        style={{
+          ...layerTransitionStyle,
+          opacity: enteringOpacity,
+          zIndex: 1,
+        }}
+      >
+        {enteringContent}
+      </div>
+    </div>
   );
 };
 

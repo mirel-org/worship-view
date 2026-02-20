@@ -25,12 +25,12 @@ const SlidesListColumn = ({
 
   return (
     <div
-      className="w-full h-fit min-w-0"
+      className="w-full h-fit min-w-0 my-6"
       data-part-index={partIndex}
       data-selected-column={selectedIndex !== -1 ? 'true' : 'false'}
     >
       <div className="mb-2">
-        <span className="inline-flex items-center justify-center rounded-2xl border border-border bg-secondary px-2 py-0.5 text-[11px] font-semibold tracking-[0.5px] text-secondary-foreground">
+        <span className="inline-flex items-center justify-center rounded-2xl border border-border bg-secondary px-2 py-0.5 text-[14px] font-semibold tracking-[0.5px] text-secondary-foreground">
           {title}
         </span>
       </div>

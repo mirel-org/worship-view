@@ -52,7 +52,7 @@ const VerseListItem = ({
           LIVE
         </span>
       </div>
-      <p className="font-montserrat text-[15px] font-bold italic leading-[1.6] text-center text-foreground">
+      <p className="font-montserrat text-[20px] font-bold italic leading-[1.6] text-center text-foreground">
         {text}
       </p>
     </div>

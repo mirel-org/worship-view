@@ -23,6 +23,7 @@ export function useActiveOrganization() {
   }; // Type assertion needed due to Jazz type resolution
 
   const [activeOrgId, setActiveOrgId] = useAtom(activeOrgIdAtom);
+  const isOrganizationsLoading = !me || !me.root?.organizations;
 
   // Memoize organizations to prevent unnecessary re-renders
   const organizations = useMemo(
@@ -57,7 +58,6 @@ export function useActiveOrganization() {
     setActiveOrgId,
     switchToOrganization,
     organizations,
+    isOrganizationsLoading,
   };
 }
-
-

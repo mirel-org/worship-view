@@ -49,7 +49,7 @@ const SlidesListPanel = () => {
       ref={containerRef}
       className="h-full overflow-y-auto px-4 py-[10px]"
     >
-      <div className="grid grid-cols-[repeat(auto-fill,minmax(320px,1fr))] gap-3 content-start">
+      <div className="grid grid-cols-[repeat(auto-fill,minmax(400px,1fr))] gap-3 content-start">
         {selectedSongText &&
           selectedSongText.map((part, partIndex) => (
             <SlidesListColumn

@@ -23,7 +23,7 @@ export function Onboarding({ children }: OnboardingProps) {
   const [apiKey] = useAtom(jazzApiKeyAtom);
   const [passphraseConfirmed] = usePassphraseConfirmed();
   const isAuthenticated = useIsAuthenticated();
-  const { organizations } = useActiveOrganization();
+  const { organizations, isOrganizationsLoading } = useActiveOrganization();
 
   // Check authentication state and passphrase confirmation
   const auth = usePassphraseAuth({ wordlist });
@@ -92,6 +92,20 @@ export function Onboarding({ children }: OnboardingProps) {
           </div>
         </div>
       </>
+    );
+  }
+
+  // Step 2.5: Wait for organizations to resolve to avoid a flash of the setup modal
+  if (isAuthenticated && hasCompletedAuth && isOrganizationsLoading) {
+    return (
+      <div className='h-full flex items-center justify-center p-4 box-border bg-background text-foreground font-sans antialiased'>
+        <div className='text-center space-y-4 max-w-md'>
+          <h1 className='text-2xl font-semibold'>Se încarcă</h1>
+          <p className='text-muted-foreground'>
+            Se încarcă organizațiile disponibile...
+          </p>
+        </div>
+      </div>
     );
   }
 

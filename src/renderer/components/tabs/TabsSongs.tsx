@@ -15,6 +15,7 @@ import SlidesListPanel from '../panels/slides-list-panel/SlidesListPanel';
 import ServiceListSection from '../panels/songs-list-panel/ServiceListSection';
 import SongDeleteDialog from '../panels/songs-list-panel/SongDeleteDialog';
 import SongEditorDialog from '../panels/songs-list-panel/SongEditorDialog';
+import { Button } from '../ui/button';
 
 const TabsSongs: FC = () => {
   const [selectedSong, setSelectedSong] = useAtom(selectedSongAtom);
@@ -103,15 +104,16 @@ const TabsSongs: FC = () => {
             <div className="h-full flex flex-col border-b border-border">
               <div className="flex h-10 items-center justify-between bg-muted border-b border-border pl-3 pr-2 flex-shrink-0">
                 <span className="text-sm font-semibold text-foreground">Listă Serviciu</span>
-                <button
-                  type="button"
+                <Button
                   onClick={handleClearServiceList}
                   disabled={clearServiceListMutation.isLoading}
-                  className="h-7 rounded-md border border-border px-2.5 inline-flex items-center gap-1.5 text-xs font-medium text-foreground hover:bg-accent/70 disabled:opacity-50"
+                  variant="outline"
+                  size="sm"
+                  className="h-7 gap-1.5 px-2.5 text-xs"
                 >
                   <X className="h-3.5 w-3.5" />
                   {clearServiceListMutation.isLoading ? 'Se golește...' : 'Golește'}
-                </button>
+                </Button>
               </div>
               <div className="flex-1 overflow-hidden">
                 <ServiceListSection />
@@ -138,31 +140,34 @@ const TabsSongs: FC = () => {
               {selectedSong.name}
             </span>
             <div className="flex items-center gap-2">
-              <button
-                type="button"
+              <Button
                 onClick={handleHeaderAddToServiceList}
                 disabled={addToServiceListMutation.isLoading}
-                className="h-8 w-8 rounded-md border border-border flex items-center justify-center text-foreground hover:bg-accent/70"
+                variant="outline"
+                size="icon"
+                className="h-8 w-8"
                 aria-label="Add to service list"
               >
                 <ListPlus className="h-4 w-4" />
-              </button>
-              <button
-                type="button"
+              </Button>
+              <Button
                 onClick={handleHeaderEdit}
-                className="h-8 w-8 rounded-md border border-border flex items-center justify-center text-foreground hover:bg-accent/70"
+                variant="outline"
+                size="icon"
+                className="h-8 w-8"
                 aria-label="Edit song"
               >
                 <Pencil className="h-4 w-4" />
-              </button>
-              <button
-                type="button"
+              </Button>
+              <Button
                 onClick={handleHeaderDelete}
-                className="h-8 w-8 rounded-md border border-border flex items-center justify-center text-destructive hover:bg-accent/70"
+                variant="outline"
+                size="icon"
+                className="h-8 w-8 text-destructive hover:text-destructive"
                 aria-label="Delete song"
               >
                 <Trash2 className="h-4 w-4" />
-              </button>
+              </Button>
             </div>
           </div>
         )}
