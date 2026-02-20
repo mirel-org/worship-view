@@ -1,16 +1,22 @@
 import { useState } from 'react';
 import { Button } from '../ui/button';
 import { getApiClient } from '../../../ipc/index';
+import type { UpdateCheckResult } from '@ipc/update/update.types';
 
 export const SettingsUpdate = () => {
   const [checking, setChecking] = useState(false);
+  const [lastResult, setLastResult] = useState<UpdateCheckResult | null>(null);
 
   const handleCheckForUpdates = async () => {
     setChecking(true);
     try {
-      await getApiClient().checkForUpdates();
+      const result = await getApiClient().checkForUpdates();
+      setLastResult(result);
+      if (result.status === 'error') {
+        console.error(result.message);
+      }
     } finally {
-      setTimeout(() => setChecking(false), 3000);
+      setChecking(false);
     }
   };
 
@@ -24,6 +30,17 @@ export const SettingsUpdate = () => {
       <Button onClick={handleCheckForUpdates} disabled={checking}>
         {checking ? 'Se verifică...' : 'Verifică actualizări'}
       </Button>
+      {lastResult && (
+        <p
+          className={`text-sm ${
+            lastResult.status === 'error'
+              ? 'text-destructive'
+              : 'text-muted-foreground'
+          }`}
+        >
+          {lastResult.message}
+        </p>
+      )}
     </div>
   );
 };

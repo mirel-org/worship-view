@@ -3,6 +3,9 @@ import started from 'electron-squirrel-startup';
 import { updateElectronApp } from 'update-electron-app';
 import { createAppWindow } from './main-window/mainWindow';
 
+const DEFAULT_UPDATE_REPO = 'mirel-org/worship-view';
+const UPDATE_REPO = process.env.WV_UPDATE_REPO || DEFAULT_UPDATE_REPO;
+
 // Handle Squirrel.Windows lifecycle events (install/update/uninstall).
 // Must be at the top — exits early during Squirrel operations.
 if (started) app.quit();
@@ -12,7 +15,7 @@ app.commandLine.appendSwitch('autoplay-policy', 'no-user-gesture-required');
 
 // Initialize auto-updater in production only
 if (app.isPackaged) {
-  updateElectronApp();
+  updateElectronApp({ repo: UPDATE_REPO });
 }
 
 /**

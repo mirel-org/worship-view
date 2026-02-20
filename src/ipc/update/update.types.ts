@@ -1,5 +1,11 @@
+export type UpdateCheckResult = {
+  status: 'disabled' | 'checking' | 'available' | 'not-available' | 'error';
+  message: string;
+  version?: string;
+};
+
 export type UpdatePreloadType = {
-  checkForUpdates: () => Promise<void>;
+  checkForUpdates: () => Promise<UpdateCheckResult>;
 };
 
 export const UpdateChannels = {

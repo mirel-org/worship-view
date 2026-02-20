@@ -74,7 +74,7 @@ test.describe('Command Palette', () => {
     await mainWindow.waitForTimeout(500);
 
     // A verse result should appear
-    const verseItem = mainWindow.locator('[cmdk-item]').filter({ hasText: 'IOAN 3:16' });
+    const verseItem = mainWindow.getByRole('option', { name: 'IOAN 3:16', exact: true });
     await expect(verseItem).toBeVisible({ timeout: 5000 });
 
     await closeCommandPalette(mainWindow);
@@ -112,7 +112,7 @@ test.describe('Command Palette', () => {
     await mainWindow.locator('[cmdk-input]').fill('ioan 3 16');
     await mainWindow.waitForTimeout(500);
 
-    const verseItem = mainWindow.locator('[cmdk-item]').filter({ hasText: 'IOAN 3:16' });
+    const verseItem = mainWindow.getByRole('option', { name: 'IOAN 3:16', exact: true });
     await expect(verseItem).toBeVisible({ timeout: 5000 });
     await verseItem.click();
 

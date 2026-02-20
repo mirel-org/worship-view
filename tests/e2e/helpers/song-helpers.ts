@@ -74,7 +74,7 @@ export async function selectVerseFromPalette(page: Page, query: string, expected
   await page.locator('[cmdk-input]').fill(query);
   await page.waitForTimeout(500);
 
-  const verseItem = page.locator('[cmdk-item]').filter({ hasText: expectedRef });
+  const verseItem = page.getByRole('option', { name: expectedRef, exact: true });
   await expect(verseItem).toBeVisible({ timeout: 5000 });
   await verseItem.click();
 
