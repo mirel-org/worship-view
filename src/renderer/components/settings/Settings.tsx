@@ -15,6 +15,7 @@ import { SettingsJazzToken } from './SettingsJazzToken';
 import { SettingsAccount } from './SettingsAccount';
 import { SettingsOrganizations } from './SettingsOrganizations';
 import { SettingsImportSongs } from './SettingsImportSongs';
+import { SettingsBackup } from './SettingsBackup';
 import { SettingsUpdate } from './SettingsUpdate';
 import { SettingsAppearance } from './SettingsAppearance';
 
@@ -75,6 +76,12 @@ const Settings = () => {
                     >
                       Importă cântece
                     </TabsTrigger>
+                    <TabsTrigger
+                      value="backup"
+                      className="w-full justify-start rounded-none border-b px-4 py-3 data-[state=active]:bg-background data-[state=active]:shadow-none"
+                    >
+                      Backup
+                    </TabsTrigger>
                   </>
                 )}
                 <TabsTrigger
@@ -107,6 +114,9 @@ const Settings = () => {
                     </TabsContent>
                     <TabsContent value="import-songs" className="mt-0">
                       <SettingsImportSongs />
+                    </TabsContent>
+                    <TabsContent value="backup" className="mt-0">
+                      <SettingsBackup />
                     </TabsContent>
                   </>
                 )}
