@@ -35,7 +35,7 @@ const VerseListItem = ({
       onClick={() => onClick(reference)}
     >
       <div className="mb-1 flex items-center justify-between gap-2">
-        <p className="text-[11px] font-semibold tracking-[0.5px] text-muted-foreground">
+        <p className="text-sm font-semibold tracking-[0.5px] text-muted-foreground">
           {reference}
         </p>
         <span

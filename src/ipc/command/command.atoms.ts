@@ -16,6 +16,5 @@ export type CommandPaletteResult =
 
 export const commandPaletteOpenAtom = atom<boolean>(false);
 export const commandPaletteSearchAtom = atom<string>('');
-export const commandPaletteSelectedIndexAtom = atom<number>(0);
 export const commandPaletteResultsAtom = atom<CommandPaletteResult[]>([]);
 
