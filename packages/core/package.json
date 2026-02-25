@@ -1,0 +1,27 @@
+{
+  "name": "@worship-view/core",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "@worship-view/schema": "workspace:*",
+    "@worship-view/ui": "workspace:*",
+    "@tanstack/query-core": "4.36.1",
+    "@tanstack/react-query": "4.36.1",
+    "cmdk": "^1.1.1",
+    "jotai": "^1.4.3",
+    "jazz-tools": "^0.19.18",
+    "lucide-react": "^0.556.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "react-resizable-panels": "^3.0.6",
+    "react-scroll": "^1.8.5",
+    "react-textfit": "^1.1.1",
+    "textfit": "^2.4.0",
+    "use-fit-text": "^2.4.0",
+    "uuid": "^11.0.3"
+  }
+}

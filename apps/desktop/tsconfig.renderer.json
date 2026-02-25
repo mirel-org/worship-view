@@ -1,0 +1,20 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "outDir": ".vite/renderer",
+    "jsx": "react-jsx",
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "types": ["vite/client"],
+    "noEmit": false,
+    "skipLibCheck": true,
+    "moduleResolution": "bundler"
+  },
+  "include": [
+    "src/renderer/**/*",
+    "src/typings/**/*",
+    "src/ipc/**/*.hooks.ts",
+    "src/ipc/**/*.atoms.ts",
+    "src/ipc/index.ts"
+  ],
+  "exclude": ["node_modules"]
+}

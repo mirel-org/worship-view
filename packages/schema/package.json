@@ -1,0 +1,12 @@
+{
+  "name": "@worship-view/schema",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "jazz-tools": "^0.19.18"
+  }
+}
