@@ -159,7 +159,7 @@ const MediaPanel: FC = () => {
       if (selectedMediaItem?.id === deleteTarget.id) {
         setSelectedMediaItem(null);
       }
-      await deleteMedia.mutateAsync(deleteTarget.id);
+      await deleteMedia.mutateAsync(deleteTarget.id, deleteTarget.fileStreamId);
     } catch {
       // Error is already set in the hook
     }

@@ -6,6 +6,10 @@ import { useActiveOrganization } from './useActiveOrganization';
 import {
   getCachedBlobUrl,
   setCachedBlobUrl,
+  revokeCachedBlobUrl,
+  loadFromDiskCache,
+  saveToDiskCache,
+  deleteFromDiskCache,
 } from '../lib/media-cache';
 
 export function useGetMediaItems() {
@@ -111,11 +115,16 @@ export function useDeleteMediaItem() {
   const [error, setError] = useState<Error | null>(null);
 
   const mutate = useCallback(
-    async (id: string) => {
+    async (id: string, fileStreamId?: string) => {
       setIsLoading(true);
       setError(null);
       try {
         const result = mediaStore.deleteMediaItem(activeOrganization, id);
+        // Clean up both in-memory and disk caches
+        if (fileStreamId) {
+          revokeCachedBlobUrl(fileStreamId);
+          deleteFromDiskCache(fileStreamId);
+        }
         return result;
       } catch (err) {
         const error = err instanceof Error ? err : new Error('Failed to delete media');
@@ -156,21 +165,55 @@ export function useMediaBlobUrl(fileStreamId: string | undefined) {
     let cancelled = false;
     setIsLoading(true);
 
-    co.fileStream()
-      .loadAsBlob(fileStreamId)
-      .then((blob) => {
+    // Try disk cache first, then fall back to Jazz
+    loadFromDiskCache(fileStreamId)
+      .then((diskUrl) => {
         if (cancelled) return;
-        if (blob) {
-          const url = URL.createObjectURL(blob);
-          setCachedBlobUrl(fileStreamId, url);
-          setBlobUrl(url);
+        if (diskUrl) {
+          setBlobUrl(diskUrl);
+          setIsLoading(false);
+          return;
         }
+
+        // Fall back to Jazz cloud
+        co.fileStream()
+          .loadAsBlob(fileStreamId)
+          .then((blob) => {
+            if (cancelled) return;
+            if (blob) {
+              const url = URL.createObjectURL(blob);
+              setCachedBlobUrl(fileStreamId, url);
+              setBlobUrl(url);
+              // Save to disk cache for next restart (fire-and-forget)
+              saveToDiskCache(fileStreamId, blob);
+            }
+          })
+          .catch(() => {
+            // Silently fail — URL stays null
+          })
+          .finally(() => {
+            if (!cancelled) setIsLoading(false);
+          });
       })
       .catch(() => {
-        // Silently fail — URL stays null
-      })
-      .finally(() => {
-        if (!cancelled) setIsLoading(false);
+        // Disk cache failed, fall back to Jazz
+        co.fileStream()
+          .loadAsBlob(fileStreamId)
+          .then((blob) => {
+            if (cancelled) return;
+            if (blob) {
+              const url = URL.createObjectURL(blob);
+              setCachedBlobUrl(fileStreamId, url);
+              setBlobUrl(url);
+              saveToDiskCache(fileStreamId, blob);
+            }
+          })
+          .catch(() => {
+            // Silently fail
+          })
+          .finally(() => {
+            if (!cancelled) setIsLoading(false);
+          });
       });
 
     return () => {
