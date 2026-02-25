@@ -88,6 +88,7 @@ const CommandPalette: FC = () => {
   // Get selected result based on selectedValue
   const selectedResult = useMemo(() => {
     if (!selectedValue) return null;
+    const valueLower = selectedValue.toLowerCase();
     return results.find((result) => {
       let key: string;
       if (result.type === 'song') {
@@ -98,7 +99,7 @@ const CommandPalette: FC = () => {
       } else {
         key = `command-${(result.data as { id: CommandAction }).id}`;
       }
-      return key === selectedValue;
+      return key.toLowerCase() === valueLower;
     }) || null;
   }, [selectedValue, results]);
 
@@ -134,6 +135,7 @@ const CommandPalette: FC = () => {
   }, [selectedResult]);
 
   const handleSelect = async (value: string) => {
+    const valueLower = value.toLowerCase();
     const result = results.find((r) => {
       let key: string;
       if (r.type === 'song') {
@@ -144,7 +146,7 @@ const CommandPalette: FC = () => {
       } else {
         key = `command-${(r.data as { id: CommandAction }).id}`;
       }
-      return key === value;
+      return key.toLowerCase() === valueLower;
     });
 
     if (!result) return;
@@ -319,11 +321,7 @@ const CommandPalette: FC = () => {
                             key={value}
                             value={value}
                             keywords={[command.label, command.description || '', command.id]}
-                            onSelect={(currentValue) => {
-                              if (currentValue === value) {
-                                handleSelect(value);
-                              }
-                            }}
+                            onSelect={() => handleSelect(value)}
                             className={`${baseItemClass} items-start`}
                           >
                             {command.id === 'create-song' && <Plus className="mt-0.5 h-4 w-4 text-muted-foreground shrink-0" />}
@@ -361,11 +359,7 @@ const CommandPalette: FC = () => {
                               key={value}
                               value={value}
                               keywords={[song.name, song.fullText]}
-                              onSelect={(currentValue) => {
-                                if (currentValue === value) {
-                                  handleSelect(value);
-                                }
-                              }}
+                              onSelect={() => handleSelect(value)}
                               className={`${baseItemClass} items-center`}
                             >
                               <div className="flex items-center justify-between w-full min-w-0">
@@ -427,11 +421,7 @@ const CommandPalette: FC = () => {
                               key={value}
                               value={value}
                               keywords={[verse.book, reference, `${verse.chapter}`, `${verse.verse}`]}
-                              onSelect={(currentValue) => {
-                                if (currentValue === value) {
-                                  handleSelect(value);
-                                }
-                              }}
+                              onSelect={() => handleSelect(value)}
                               className={`${baseItemClass} items-center`}
                             >
                               <BookOpen className="h-4 w-4 text-muted-foreground" />
@@ -488,7 +478,7 @@ const CommandPalette: FC = () => {
                   <div className="space-y-2">
                     <div className="w-full rounded-lg border border-border bg-card px-5 py-3 text-foreground">
                       <div className="mb-1 flex items-center gap-2">
-                        <p className="text-[11px] font-semibold tracking-[0.5px] text-muted-foreground">
+                        <p className="text-sm font-semibold tracking-[0.5px] text-muted-foreground">
                           {versePreview.verse}
                         </p>
                       </div>

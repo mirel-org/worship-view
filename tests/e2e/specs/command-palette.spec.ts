@@ -88,19 +88,23 @@ test.describe('Command Palette', () => {
     await mainWindow.waitForTimeout(300);
     await expect(mainWindow.locator('[role="tab"]').filter({ hasText: 'Biblie' })).toHaveAttribute('data-state', 'active');
 
-    // Now search and select the song via Enter key (more reliable than click for cmdk)
+    // Open palette — commands are shown and cmdk auto-selects the first command.
+    // Then type a song query — commands disappear, song appears.
     await searchSongInPalette(mainWindow, 'palette search');
     const songItem = mainWindow.locator('[cmdk-item]').filter({ hasText: SONG_NAME });
     await expect(songItem).toBeVisible({ timeout: 5000 });
 
-    // Use Enter to select (the first matching item is auto-highlighted by cmdk)
-    await mainWindow.keyboard.press('Enter');
+    // Click the song to select it
+    await songItem.click();
 
     // Palette should close
     await expect(mainWindow.locator('[cmdk-input]')).not.toBeVisible({ timeout: 5000 });
 
     // Songs tab should now be active
     await expect(mainWindow.locator('[role="tab"]').filter({ hasText: 'Melodii' })).toHaveAttribute('data-state', 'active', { timeout: 5000 });
+
+    const songHeader = mainWindow.locator('span').filter({ hasText: SONG_NAME });
+    await expect(songHeader.first()).toBeVisible({ timeout: 5000 });
   });
 
   test('selecting a verse switches to Bible tab', async ({ mainWindow }) => {

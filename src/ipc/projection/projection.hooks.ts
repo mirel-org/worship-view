@@ -3,25 +3,11 @@ import { useAtom } from 'jotai';
 import { useEffect } from 'react';
 import {
   currentProjectionTypeAtom,
-  verseProjectionEnabledAtom,
 } from './projection.atoms';
 import { selectedVerseTextAtom } from '@ipc/verse/verse.atoms';
-import { useSongControll } from '@ipc/song/song.hooks';
 import { selectedTabTypeAtom } from '@ipc/tab/tab.atoms';
 export const useManageProjection = () => {
   useProjectionType();
-  useProjectionNavigation();
-};
-
-const useProjectionNavigation = () => {
-  const { clearSong } = useSongControll();
-  const [selectedTabType] = useAtom(selectedTabTypeAtom);
-  const [, setVerseProjectionEnabled] = useAtom(verseProjectionEnabledAtom);
-
-  useEffect(() => {
-    clearSong();
-    setVerseProjectionEnabled(false);
-  }, [clearSong, selectedTabType, setVerseProjectionEnabled]);
 };
 
 const useProjectionType = () => {
