@@ -66,8 +66,8 @@ const mediaCacheHandlers = () => {
     async (_event, fileStreamId: string) => {
       try {
         await Promise.all([
-          fs.unlink(getDataPath(fileStreamId)).catch(() => {}),
-          fs.unlink(getMetaPath(fileStreamId)).catch(() => {}),
+          fs.unlink(getDataPath(fileStreamId)).catch(() => undefined),
+          fs.unlink(getMetaPath(fileStreamId)).catch(() => undefined),
         ]);
       } catch {
         // Cache delete is best-effort — fail silently
