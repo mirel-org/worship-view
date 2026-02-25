@@ -37,7 +37,8 @@ const SlideText: FC = () => {
     : 'song-none';
   const songLinesSnapshot = useMemo(
     () => [...(selectedSongSlide?.lines ?? [])],
-    [songNodeKey, selectedSongSlide?.lines]
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- songNodeKey is an intentional stabiliser
+    [songNodeKey]
   );
 
   const verseNodeKey = selectedVerseReference
@@ -45,14 +46,16 @@ const SlideText: FC = () => {
     : 'verse-none';
   const verseTextSnapshot = useMemo(
     () => selectedVerseText ?? '',
-    [verseNodeKey, selectedVerseText]
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- verseNodeKey is an intentional stabiliser
+    [verseNodeKey]
   );
   const verseReferenceSnapshot = useMemo(
     () =>
       selectedVerseReference
         ? formatBibleReference(selectedVerseReference)
         : '',
-    [verseNodeKey, selectedVerseReference]
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- verseNodeKey is an intentional stabiliser
+    [verseNodeKey]
   );
 
   return (

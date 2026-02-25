@@ -511,7 +511,7 @@ function deduplicateSections(sections: ParsedSection[]): ParsedSection[] {
     }
   }
 
-  return order.map((tag) => seen.get(tag)!);
+  return order.map((tag) => seen.get(tag) as ParsedSection);
 }
 
 /**

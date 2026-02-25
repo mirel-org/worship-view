@@ -15,7 +15,7 @@ export function SettingsBackup() {
     getApiClient()
       .getBackupInfo()
       .then(setBackupInfo)
-      .catch(() => {});
+      .catch(() => undefined);
   }, [lastBackupTimestamp]);
 
   const handleBackup = async () => {

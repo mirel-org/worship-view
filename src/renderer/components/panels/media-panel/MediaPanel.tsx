@@ -136,7 +136,7 @@ const MediaPanel: FC = () => {
 
     const validation = validateMediaFile(file);
     if (!validation.valid) {
-      setValidationError(validation.error!);
+      setValidationError(validation.error ?? 'Invalid file');
       return;
     }
 

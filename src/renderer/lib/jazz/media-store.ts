@@ -90,7 +90,7 @@ export async function uploadMediaItem(
   }
 
   const orgGroup = getOrganizationGroup(organization);
-  const mediaType = ALLOWED_MIME_TYPES[file.type]!;
+  const mediaType = ALLOWED_MIME_TYPES[file.type] as 'video' | 'image';
 
   // Create FileStream from the file blob
   const fileStream = await co.fileStream().createFromBlob(file, {
