@@ -3,6 +3,7 @@ import { DisplayPreloadType } from './display/display.types';
 import { UpdatePreloadType } from './update/update.types';
 import { SettingsZoomPreloadType } from './settings/settings.zoom.types';
 import { SettingsResetPreloadType } from './settings/settings.reset.types';
+import { MediaCachePreloadType } from './media/media-cache.types';
 import { useManageProjection } from './projection/projection.hooks';
 import useProjectionShortcuts from './projection/projection.shortcuts';
 import { useSettings } from './settings/settings.hooks';
@@ -15,7 +16,8 @@ import { useCommandPaletteShortcuts } from './command/command.shortcuts';
 export type MyAPIType = DisplayPreloadType &
   UpdatePreloadType &
   SettingsZoomPreloadType &
-  SettingsResetPreloadType;
+  SettingsResetPreloadType &
+  MediaCachePreloadType;
 
 type MainWindow = typeof window & { myAPI: MyAPIType };
 
