@@ -7,6 +7,9 @@ import { useCallback } from 'react';
 import { verseInputFocusAtom } from './verse.atoms';
 import { useVerseControll } from './verse.hooks';
 
+const PREVIOUS_KEYS = ['w', 'W', 'ArrowUp', 'a', 'A', 'ArrowLeft'];
+const NEXT_KEYS = ['s', 'S', 'ArrowDown', 'd', 'D', 'ArrowRight'];
+
 const useVerseShortcuts = () => {
   useVerseControllShortcuts();
 };
@@ -30,6 +33,6 @@ const useVerseControllShortcuts = () => {
     if (!verseInputFocus && selectedTabType === 'bible' && !commandPaletteOpen)
       gotoPreviousVerse();
   }, [verseInputFocus, gotoPreviousVerse, selectedTabType, commandPaletteOpen]);
-  useShortcuts(['w', 'W', 'ArrowUp', 'a', 'A', 'ArrowLeft'], previous);
-  useShortcuts(['s', 'S', 'ArrowDown', 'd', 'D', 'ArrowRight'], next);
+  useShortcuts(PREVIOUS_KEYS, previous);
+  useShortcuts(NEXT_KEYS, next);
 };

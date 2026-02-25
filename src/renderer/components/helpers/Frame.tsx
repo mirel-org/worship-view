@@ -10,21 +10,25 @@ type FrameProps = {
 
 const Frame: FC<FrameProps> = ({ children, display }) => {
   const [frame, setFrame] = useState<Window | null>(null);
+
+  const displayId = display?.id;
+  const displayX = display?.bounds?.x;
+  const displayY = display?.bounds?.y;
+
   useEffect(() => {
-    if (!display?.bounds) return;
-    const { x, y } = display.bounds;
+    if (displayX === undefined || displayY === undefined) return;
     const f = window.open(
       '',
       '_blank',
-      `fullscreen=true,alwaysOnTop=true,x=${x},y=${y},frame=false,backgroundColor='black'`,
+      `fullscreen=true,alwaysOnTop=true,x=${displayX},y=${displayY},frame=false,backgroundColor='black'`,
     );
     setFrame(f);
     if (f) {
       f.window.document.body.style.margin = '0px';
-      
+
       // Inject fonts into frame window (async)
       injectFontCSS(f.document).catch(console.error);
-      
+
       // Copy styles from main window
       document.querySelectorAll('style, link[rel="stylesheet"]').forEach((el) => {
         if (el.tagName === 'STYLE') {
@@ -38,9 +42,19 @@ const Frame: FC<FrameProps> = ({ children, display }) => {
           f.document.head.appendChild(l);
         }
       });
-      return () => f.close();
+
+      // Prevent child window from stealing focus (especially on Windows).
+      // Projection windows are display-only and should never hold focus.
+      const refocusMain = () => window.focus();
+      f.addEventListener('focus', refocusMain);
+      window.focus();
+
+      return () => {
+        f.removeEventListener('focus', refocusMain);
+        f.close();
+      };
     }
-  }, [display]);
+  }, [displayId, displayX, displayY]);
 
   if (!frame) return null;
 

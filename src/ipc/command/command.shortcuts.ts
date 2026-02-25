@@ -18,8 +18,9 @@ const useOpenCommandPaletteShortcut = () => {
 const useCloseCommandPaletteShortcut = () => {
   const [open, setOpen] = useAtom(commandPaletteOpenAtom);
 
-  const closePalette = useCallback(() => {
+  const closePalette = useCallback((event: KeyboardEvent) => {
     if (open) {
+      event.preventDefault();
       setOpen(false);
     }
   }, [open, setOpen]);

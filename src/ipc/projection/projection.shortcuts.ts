@@ -7,6 +7,7 @@ import { useVerseControll } from '@ipc/verse/verse.hooks';
 import { useAtom } from 'jotai';
 import { useCallback } from 'react';
 import useShortcut from '../utils/useShortcut';
+import { shouldIgnoreNavigationShortcut } from '../utils/shortcut.guards';
 
 const useProjectionShortcuts = () => {
   useEnableVerseShortcut();
@@ -21,11 +22,10 @@ const useEnableVerseShortcut = () => {
   const [commandPaletteOpen] = useAtom(commandPaletteOpenAtom);
   const [, setVerseProjectionEnabled] = useAtom(verseProjectionEnabledAtom);
   const enableVerse = useCallback((event: KeyboardEvent) => {
-    const isCmdkEvent =
-      event.target instanceof Element && !!event.target.closest('[cmdk-root]');
+    if (shouldIgnoreNavigationShortcut(event)) return;
 
     if (!verseInputFocus && selectedTabType === 'bible' && !commandPaletteOpen)
-      if (!isCmdkEvent) setVerseProjectionEnabled(true);
+      setVerseProjectionEnabled(true);
   }, [
     verseInputFocus,
     setVerseProjectionEnabled,
@@ -41,10 +41,8 @@ const useClearScreenShortcut = () => {
   const { disableVerse } = useVerseControll();
   const [commandPaletteOpen] = useAtom(commandPaletteOpenAtom);
   const clear = useCallback((event: KeyboardEvent) => {
-    const isCmdkEvent =
-      event.target instanceof Element && !!event.target.closest('[cmdk-root]');
-
-    if (isCmdkEvent) return;
+    if (event.defaultPrevented) return;
+    if (shouldIgnoreNavigationShortcut(event)) return;
     if (commandPaletteOpen) return;
     clearSong();
     disableVerse();
