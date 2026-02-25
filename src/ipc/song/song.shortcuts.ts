@@ -7,6 +7,9 @@ import useShortcuts from '../utils/useShortcuts';
 import { shouldIgnoreNavigationShortcut } from '../utils/shortcut.guards';
 import { songInputFocusAtom } from './song.atoms';
 
+const PREVIOUS_KEYS = ['w', 'W', 'ArrowUp', 'a', 'A', 'ArrowLeft'];
+const NEXT_KEYS = ['s', 'S', 'ArrowDown', 'd', 'D', 'ArrowRight'];
+
 const useSongShortcuts = () => {
   useSongControllerShortcuts();
   useStartSongSearchShortcut();
@@ -35,8 +38,8 @@ const useSongControllerShortcuts = () => {
       gotoPreviousSlide();
     }
   }, [selectedTabType, gotoPreviousSlide, songInputFocus, commandPaletteOpen]);
-  useShortcuts(['w', 'W', 'ArrowUp', 'a', 'A', 'ArrowLeft'], previous);
-  useShortcuts(['s', 'S', 'ArrowDown', 'd', 'D', 'ArrowRight'], next);
+  useShortcuts(PREVIOUS_KEYS, previous);
+  useShortcuts(NEXT_KEYS, next);
 };
 
 const useStartSongSearchShortcut = () => {
