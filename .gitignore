@@ -79,6 +79,9 @@ jspm_packages/
 # DynamoDB Local files
 .dynamodb/
 
+# Turbo
+.turbo/
+
 # Vite
 .vite/
 .vite-build/
@@ -98,3 +101,4 @@ plan.txt
 # Playwright
 test-results/
 playwright-report/
+apps/webapp/dist/

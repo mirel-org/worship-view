@@ -1,0 +1,15 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "outDir": "dist",
+    "paths": {
+      "@assets/*": ["../../assets/*"]
+    }
+  },
+  "include": ["src/**/*"],
+  "references": [
+    { "path": "../schema" },
+    { "path": "../ui" }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "outDir": ".vite/build",
+    "lib": ["ES2020"],
+    "types": ["node"],
+    "noEmit": false,
+    "skipLibCheck": true
+  },
+  "include": ["src/main/**/*", "src/ipc/**/*.handlers.ts", "src/ipc/**/*.types.ts"],
+  "exclude": ["node_modules"]
+}

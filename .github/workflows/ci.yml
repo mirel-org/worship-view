@@ -13,8 +13,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
-        with:
-          version: 10
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
@@ -28,8 +26,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
-        with:
-          version: 10
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
@@ -43,8 +39,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
-        with:
-          version: 10
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
@@ -54,6 +48,36 @@ jobs:
         env:
           VITE_JAZZ_API_KEY: ${{ secrets.VITE_JAZZ_API_KEY }}
 
+  e2e-webapp:
+    name: E2E Tests (Webapp - ${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+      - run: pnpm install --frozen-lockfile
+
+      - name: Install Playwright browsers
+        run: cd apps/webapp && npx playwright install --with-deps chromium
+
+      - name: Run webapp E2E tests
+        run: pnpm test:webapp
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: playwright-report-webapp-${{ matrix.os }}
+          path: apps/webapp/playwright-report/
+          retention-days: 14
+
   e2e:
     name: E2E Tests (${{ matrix.os }})
     needs: build
@@ -61,12 +85,10 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [macos-latest, ubuntu-latest]
+        os: [macos-latest, windows-latest]
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
-        with:
-          version: 10
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
@@ -84,15 +106,7 @@ jobs:
       - name: Install Playwright
         run: npx playwright install --with-deps
 
-      # Electron needs a virtual display on Linux
-      - name: Run E2E tests (Linux)
-        if: runner.os == 'Linux'
-        run: xvfb-run --auto-servernum -- pnpm test
-        env:
-          VITE_JAZZ_API_KEY: ${{ secrets.VITE_JAZZ_API_KEY }}
-
-      - name: Run E2E tests (macOS)
-        if: runner.os == 'macOS'
+      - name: Run E2E tests
         run: pnpm test
         env:
           VITE_JAZZ_API_KEY: ${{ secrets.VITE_JAZZ_API_KEY }}
