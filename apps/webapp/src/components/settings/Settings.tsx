@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useAtom } from 'jotai';
 import { useIsAuthenticated } from 'jazz-tools/react';
-import { areSettingsOpenAtom, SettingsAccount, SettingsOrganizations, SettingsImportSongs, SettingsAppearance } from '@worship-view/core';
+import { areSettingsOpenAtom, SettingsAccount, SettingsOrganizations, SettingsImportSongs, SettingsAppearance, SettingsSongs } from '@worship-view/core';
 import {
   Dialog,
   DialogContent,
@@ -61,6 +61,12 @@ const Settings = () => {
                       Organizații
                     </TabsTrigger>
                     <TabsTrigger
+                      value="songs"
+                      className="flex-shrink-0 md:w-full justify-start rounded-none border-b px-4 py-3 data-[state=active]:bg-background data-[state=active]:shadow-none"
+                    >
+                      Cântece
+                    </TabsTrigger>
+                    <TabsTrigger
                       value="import-songs"
                       className="flex-shrink-0 md:w-full justify-start rounded-none border-b px-4 py-3 data-[state=active]:bg-background data-[state=active]:shadow-none"
                     >
@@ -86,6 +92,9 @@ const Settings = () => {
                     </TabsContent>
                     <TabsContent value="organizations" className="mt-0">
                       <SettingsOrganizations />
+                    </TabsContent>
+                    <TabsContent value="songs" className="mt-0">
+                      <SettingsSongs />
                     </TabsContent>
                     <TabsContent value="import-songs" className="mt-0">
                       <SettingsImportSongs />

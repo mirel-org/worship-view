@@ -367,6 +367,9 @@ importers:
       '@tanstack/react-query':
         specifier: 4.36.1
         version: 4.36.1(react-dom@19.2.1(react@19.2.1))(react-native@0.83.1(@babel/core@7.28.5)(@types/react@19.2.7)(react@19.2.1))(react@19.2.1)
+      '@tanstack/react-virtual':
+        specifier: ^3.13.19
+        version: 3.13.19(react-dom@19.2.1(react@19.2.1))(react@19.2.1)
       '@worship-view/schema':
         specifier: workspace:*
         version: link:../schema
@@ -2100,6 +2103,15 @@ packages:
         optional: true
       react-native:
         optional: true
+
+  '@tanstack/react-virtual@3.13.19':
+    resolution: {integrity: sha512-KzwmU1IbE0IvCZSm6OXkS+kRdrgW2c2P3Ho3NC+zZXWK6oObv/L+lcV/2VuJ+snVESRlMJ+w/fg4WXI/JzoNGQ==}
+    peerDependencies:
+      react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
+      react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
+
+  '@tanstack/virtual-core@3.13.19':
+    resolution: {integrity: sha512-/BMP7kNhzKOd7wnDeB8NrIRNLwkf5AhCYCvtfZV2GXWbBieFm/el0n6LOAXlTi6ZwHICSNnQcIxRCWHrLzDY+g==}
 
   '@tiptap/core@2.27.2':
     resolution: {integrity: sha512-ABL1N6eoxzDzC1bYvkMbvyexHacszsKdVPYqhl5GwHLOvpZcv9VE9QaKwDILTyz5voCA0lGcAAXZp+qnXOk5lQ==}
@@ -7679,6 +7691,14 @@ snapshots:
     optionalDependencies:
       react-dom: 19.2.1(react@19.2.1)
       react-native: 0.83.1(@babel/core@7.28.5)(@types/react@19.2.7)(react@19.2.1)
+
+  '@tanstack/react-virtual@3.13.19(react-dom@19.2.1(react@19.2.1))(react@19.2.1)':
+    dependencies:
+      '@tanstack/virtual-core': 3.13.19
+      react: 19.2.1
+      react-dom: 19.2.1(react@19.2.1)
+
+  '@tanstack/virtual-core@3.13.19': {}
 
   '@tiptap/core@2.27.2(@tiptap/pm@2.27.2)':
     dependencies:
