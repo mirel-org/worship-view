@@ -201,6 +201,44 @@ test.describe('Audience Screen', () => {
     await expect(verseCrossfadeLeaving).toHaveCount(0, { timeout: 2000 });
   });
 
+  test('editing a song updates the audience screen', async ({ mainWindow, audienceWindow }) => {
+    const editSongName = 'Edit Test Song';
+    const editSongContent = `Verse
+Original first line
+Original second line
+---
+Verse`;
+
+    await addSong(mainWindow, editSongName, editSongContent);
+    await selectSongFromPalette(mainWindow, 'edit test song', editSongName);
+
+    // Click the first content slide to project it
+    const slides = getContentSlides(mainWindow);
+    await expect(slides.first()).toBeVisible({ timeout: 10000 });
+    await slides.first().click();
+    await mainWindow.waitForTimeout(300);
+
+    // Audience screen should show original text
+    await expect(audienceWindow.locator('body')).toContainText(/original first line/i, { timeout: 5000 });
+
+    // Open the edit dialog from the songs tab header
+    await mainWindow.locator('button[aria-label="Edit song"]').click();
+    await expect(mainWindow.locator('text=Editează cântec')).toBeVisible({ timeout: 5000 });
+
+    // Replace the content with updated text
+    const contentTextarea = mainWindow.locator('#song-content');
+    await contentTextarea.clear();
+    await contentTextarea.fill(`Verse\nUpdated first line\nUpdated second line\n---\nVerse`);
+
+    // Save
+    await mainWindow.locator('button:has-text("Salvează")').click();
+    await expect(mainWindow.locator('text=Editează cântec')).not.toBeVisible({ timeout: 10000 });
+
+    // The audience screen should now show the updated text
+    await expect(audienceWindow.locator('body')).toContainText(/updated first line/i, { timeout: 5000 });
+    await expect(audienceWindow.locator('body')).not.toContainText(/original first line/i, { timeout: 3000 });
+  });
+
   test('song to verse transition on audience screen', async ({ mainWindow, audienceWindow }) => {
     // First, set up a song
     await addSong(mainWindow, SONG_NAME, SONG_CONTENT);
