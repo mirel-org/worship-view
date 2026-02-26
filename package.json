@@ -3,7 +3,6 @@
   "version": "1.8.0",
   "description": "Worship View monorepo — desktop + web applications for worship song management.",
   "private": true,
-  "packageManager": "pnpm@10.24.0",
   "scripts": {
     "dev:desktop": "cd apps/desktop && pnpm start",
     "dev:webapp": "cd apps/webapp && pnpm dev",
