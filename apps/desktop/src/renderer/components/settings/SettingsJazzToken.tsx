@@ -1,9 +1,7 @@
 import { useState } from 'react';
 import { useAtom } from 'jotai';
 import { useIsAuthenticated } from 'jazz-tools/react';
-import { Label } from '@worship-view/ui';
-import { Button } from '@worship-view/ui';
-import { Input } from '@worship-view/ui';
+import { Label, Button, Input } from '@worship-view/ui';
 import { jazzApiKeyAtom } from '@worship-view/core';
 import { getApiClient } from '../../../ipc/index';
 

@@ -1,6 +1,5 @@
 import { availableDisplaysAtom } from '../../../ipc/display/display.atoms';
-import { settingsSongSlideSizeAtom } from '@worship-view/core';
-import { SongSlideSize } from '@worship-view/core';
+import { settingsSongSlideSizeAtom, SongSlideSize } from '@worship-view/core';
 import { useAtom } from 'jotai';
 import { settingsDisplayScreenSelectionAtom } from '../../../ipc/settings/settings.display.atoms';
 import {

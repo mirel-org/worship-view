@@ -5,6 +5,7 @@ import { JazzReactProvider } from 'jazz-tools/react';
 import { WorshipViewAccount } from '@worship-view/schema';
 import { useAtom } from 'jotai';
 import { jazzApiKeyAtom, JazzApiKeyModal } from '@worship-view/core';
+import { isTestMode, TestAppWrapper } from './test-provider';
 import './index.css';
 
 console.log('[Worship View Webapp] : Renderer execution started');
@@ -67,7 +68,17 @@ function AppWithJazzProvider() {
 }
 
 const root = createRoot(container);
-root.render(<AppWithJazzProvider />);
+
+if (isTestMode()) {
+  console.log('[Worship View Webapp] : Running in test mode');
+  root.render(
+    <TestAppWrapper>
+      <Application />
+    </TestAppWrapper>
+  );
+} else {
+  root.render(<AppWithJazzProvider />);
+}
 
 if (import.meta.hot) {
   import.meta.hot.accept();

@@ -9,7 +9,11 @@
     "preview": "vite preview",
     "lint": "eslint src/ --ext .ts,.js,.tsx,.jsx",
     "lint:fix": "eslint --fix src/ --ext .ts,.js,.tsx,.jsx",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit",
+    "test": "playwright test",
+    "test:headed": "playwright test --headed",
+    "test:debug": "playwright test --debug",
+    "test:ui": "playwright test --ui"
   },
   "dependencies": {
     "@worship-view/schema": "workspace:*",
@@ -58,6 +62,7 @@
     "typescript": "^5.9.3",
     "vite": "^6.0.0",
     "vite-plugin-top-level-await": "^1.6.0",
-    "vite-plugin-wasm": "^3.5.0"
+    "vite-plugin-wasm": "^3.5.0",
+    "@playwright/test": "^1.58.0"
   }
 }
