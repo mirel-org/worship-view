@@ -38,6 +38,7 @@
     "url": "https://github.com/mirel-org/worship-view.git"
   },
   "license": "MIT",
+  "packageManager": "pnpm@10.11.0",
   "pnpm": {
     "onlyBuiltDependencies": [
       "@swc/core",
