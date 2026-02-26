@@ -1,6 +1,6 @@
 {
   "name": "worship-view",
-  "version": "1.8.0",
+  "version": "1.9.0",
   "description": "Worship View monorepo — desktop + web applications for worship song management.",
   "private": true,
   "scripts": {
