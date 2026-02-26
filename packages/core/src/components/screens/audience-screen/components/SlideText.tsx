@@ -32,8 +32,9 @@ const SlideText: FC = () => {
   const [verseProjectionEnabled] = useAtom(verseProjectionEnabledAtom);
   const [prayerRequests] = useAtom(prayerRequestsAtom);
 
+  const songContentKey = selectedSongSlide?.lines?.join('\n') ?? '';
   const songNodeKey = selectedSongSlideReference
-    ? `song-${selectedSongSlideReference.partIndex}-${selectedSongSlideReference.slideIndex}`
+    ? `song-${selectedSongSlideReference.partIndex}-${selectedSongSlideReference.slideIndex}-${songContentKey}`
     : 'song-none';
   const songLinesSnapshot = useMemo(
     () => [...(selectedSongSlide?.lines ?? [])],

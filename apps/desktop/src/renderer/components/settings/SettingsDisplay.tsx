@@ -1,6 +1,8 @@
-import { availableDisplaysAtom } from '../../../ipc/display/display.atoms';
+import { availableDisplaysAtom, mainWindowDisplayIdAtom } from '../../../ipc/display/display.atoms';
+import { getApiClient } from '../../../ipc';
 import { settingsSongSlideSizeAtom, SongSlideSize } from '@worship-view/core';
 import { useAtom } from 'jotai';
+import { useEffect } from 'react';
 import { settingsDisplayScreenSelectionAtom } from '../../../ipc/settings/settings.display.atoms';
 import {
   RadioValueType,
@@ -18,6 +20,20 @@ const getCheckedValue = (inputs: RadioValueType[] | undefined) =>
 
 const SettingsDisplay = () => {
   const [availableDisplays] = useAtom(availableDisplaysAtom);
+  const [mainWindowDisplayId, setMainWindowDisplayId] = useAtom(mainWindowDisplayIdAtom);
+  const { getMainWindowDisplayId } = getApiClient();
+
+  // Re-fetch which display the app is on every time settings opens,
+  // so moving the app to a different screen is reflected immediately.
+  useEffect(() => {
+    getMainWindowDisplayId().then((id: number) => {
+      setMainWindowDisplayId(id);
+    });
+  }, [getMainWindowDisplayId, setMainWindowDisplayId]);
+
+  const externalDisplays = availableDisplays.filter(
+    (display) => display.id !== mainWindowDisplayId,
+  );
   const [displayScreenSelection, setDisplayScreenSelection] = useAtom(
     settingsDisplayScreenSelectionAtom,
   );
@@ -38,11 +54,11 @@ const SettingsDisplay = () => {
     <div className="space-y-6">
       <div>
         <h3 className="text-lg font-semibold mb-4">Afișaje</h3>
-        {availableDisplays.length === 0 ? (
+        {externalDisplays.length === 0 ? (
           <p className="text-sm text-muted-foreground">Nu există afișaje detectate.</p>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {availableDisplays.map((display, index) => {
+            {externalDisplays.map((display, index) => {
               const key = display.id.toString();
               const selectedRole = getCheckedValue(displayScreenSelection[key]);
               const isOn = selectedRole === 'audience';
