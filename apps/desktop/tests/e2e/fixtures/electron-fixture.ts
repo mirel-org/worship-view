@@ -64,6 +64,12 @@ export const test = base.extend<ElectronFixtures>({
   mainWindow: async ({ electronApp }, use) => {
     const window = await electronApp.firstWindow();
 
+    // Resize the window above the 1024px responsive breakpoint so the sidebar is visible
+    await electronApp.evaluate(({ BrowserWindow }) => {
+      const win = BrowserWindow.getAllWindows()[0];
+      win.setSize(1280, 800);
+    });
+
     // Wait for the window to load its initial content
     await window.waitForLoadState('domcontentloaded');
 
