@@ -69,14 +69,18 @@ module.exports = {
       // Linux distributions such as Ubuntu.
       name: '@electron-forge/maker-deb',
       platforms: ['linux'],
-      config: {},
+      config: {
+        bin: executableName,
+      },
     },
     {
       // The RPM target builds .rpm files, which is the standard package format for
       // RedHat-based Linux distributions such as Fedora.
       name: '@electron-forge/maker-rpm',
       platforms: ['linux'],
-      config: {},
+      config: {
+        bin: executableName,
+      },
     },
   ],
   // Forge Plugins
