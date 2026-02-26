@@ -13,6 +13,10 @@ declare const APP_WINDOW_VITE_NAME: string;
 
 let appWindow: BrowserWindow | null;
 
+export function getAppWindow(): BrowserWindow | null {
+  return appWindow;
+}
+
 /**
  * Create Application Window
  * @returns {BrowserWindow} Application Window Instance
