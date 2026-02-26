@@ -75,6 +75,7 @@ export { SettingsAccount } from './components/settings/SettingsAccount';
 export { SettingsOrganizations } from './components/settings/SettingsOrganizations';
 export { SettingsImportSongs } from './components/settings/SettingsImportSongs';
 export { SettingsAppearance } from './components/settings/SettingsAppearance';
+export { SettingsSongs } from './components/settings/SettingsSongs';
 export { default as AudienceScreen } from './components/screens/audience-screen/AudienceScreen';
 export { default as StageScreen } from './components/screens/stage-screen/StageScreen';
 export { default as Sidebar } from './components/layout/Sidebar';
