@@ -1,5 +1,5 @@
 // State (atoms)
-export { selectedSongAtom, selectedSongTextAtom, selectedSongSlideReferenceAtom, selectedSongSlideAtom, nextSongSlideAtom, songInputValueAtom, songInputFocusAtom, totalSongSlidesAtom, currentSongSlideNumberAtom } from './state/song.atoms';
+export { selectedSongAtom, selectedSongTextAtom, selectedSongSlideReferenceAtom, selectedSongSlideAtom, nextSongSlideAtom, songInputValueAtom, songInputFocusAtom, totalSongSlidesAtom, currentSongSlideNumberAtom, selectedSongKeyAtom } from './state/song.atoms';
 export { selectedVerseReferenceAtom, selectedVerseTextAtom, verseInputReferenceAtom, verseInputValueAtom, verseInputFocusAtom, versesHistoryAtom } from './state/verse.atoms';
 export { currentProjectionTypeAtom, verseProjectionEnabledAtom } from './state/projection.atoms';
 export { prayerRequestsAtom, prayerRequestFontSizeAtom } from './state/prayer.atoms';
@@ -56,7 +56,10 @@ export { inDev } from './utils/helpers';
 
 // Parsers
 export { parseSong, reconstructRawText, validateSongContent } from './parsers/songParser';
-export { isOpenSongFormat, convertOpenSong } from './parsers/openSongParser';
+export { isOpenSongFormat, convertOpenSong, OPENSONG_METADATA_FIELDS, DEFAULT_OPENSONG_FIELD_MAPPING, applyOpenSongMapping } from './parsers/openSongParser';
+export type { OpenSongMetadata, OpenSongMetadataField, OpenSongTargetField, OpenSongFieldMapping } from './parsers/openSongParser';
+export { songToJson, songFromJson, isSongJsonFormat } from './parsers/songJsonFormat';
+export type { SongJsonFormat } from './parsers/songJsonFormat';
 export { getCachedBlobUrl, setCachedBlobUrl, revokeCachedBlobUrl, setMediaCacheApi } from './parsers/media-cache';
 
 // Jazz CRUD

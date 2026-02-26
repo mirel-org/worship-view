@@ -11,6 +11,7 @@ import {
   selectedSongSlideReferenceAtom,
   currentSongSlideNumberAtom,
   selectedSongSlideAtom,
+  selectedSongKeyAtom,
   totalSongSlidesAtom,
 } from '../../../../state/song.atoms';
 import {
@@ -31,6 +32,7 @@ const SlideText: FC = () => {
   const [selectedVerseText] = useAtom(selectedVerseTextAtom);
   const [verseProjectionEnabled] = useAtom(verseProjectionEnabledAtom);
   const [prayerRequests] = useAtom(prayerRequestsAtom);
+  const [selectedSongKey] = useAtom(selectedSongKeyAtom);
 
   const songContentKey = selectedSongSlide?.lines?.join('\n') ?? '';
   const songNodeKey = selectedSongSlideReference
@@ -81,6 +83,14 @@ const SlideText: FC = () => {
       {currentProjectionType === 'prayer' && (
         <div className="w-full flex justify-center absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
           <PrayerSlide prayerRequests={prayerRequests} />
+        </div>
+      )}
+      {currentProjectionType === 'song' && selectedSongKey && (
+        <div
+          className="absolute bottom-10 left-10 pb-4 pl-4 font-montserrat text-[300%] font-bold text-white z-20"
+          style={{ textShadow: '0.06em 0.06em 1px #00000094' }}
+        >
+          {selectedSongKey}
         </div>
       )}
       {currentProjectionType === 'song' &&

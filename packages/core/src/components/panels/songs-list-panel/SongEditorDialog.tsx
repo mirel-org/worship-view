@@ -29,6 +29,7 @@ const SongEditorDialog = ({
   onSave,
 }: SongEditorDialogProps) => {
   const [songName, setSongName] = useState('');
+  const [songKey, setSongKey] = useState('');
   const [content, setContent] = useState('');
   const [error, setError] = useState<string | null>(null);
   const lastLoadedSongId = useRef<string | null>(null);
@@ -42,6 +43,7 @@ const SongEditorDialog = ({
   useEffect(() => {
     if (open && song) {
       setSongName(song.name);
+      setSongKey(song.key ?? '');
       setError(null);
       // Reset content only when opening with a different song
       if (lastLoadedSongId.current !== null && lastLoadedSongId.current !== song.id) {
@@ -49,6 +51,7 @@ const SongEditorDialog = ({
       }
     } else if (!open) {
       setSongName('');
+      setSongKey('');
       setContent('');
       setError(null);
       lastLoadedSongId.current = null;
@@ -88,13 +91,14 @@ const SongEditorDialog = ({
 
     try {
       const nameChanged = songName.trim() !== song.name;
-      
+
       // Always send the fullText update when saving
       // The user explicitly clicked save, so we should update the server
-      const updates: { name?: string; fullText: string } = {
+      const updates: { name?: string; fullText: string; key?: string } = {
         fullText: content,
+        key: songKey.trim() || undefined,
       };
-      
+
       if (nameChanged) {
         updates.name = songName.trim();
       }
@@ -135,6 +139,16 @@ const SongEditorDialog = ({
               value={songName}
               onChange={(e) => { setSongName(e.target.value); setError(null); }}
               disabled={loading || saving}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="song-key">Tonalitate</Label>
+            <Input
+              id="song-key"
+              value={songKey}
+              onChange={(e) => { setSongKey(e.target.value); }}
+              disabled={loading || saving}
+              placeholder="ex: Am, C, G"
             />
           </div>
           <div className="flex-1 overflow-auto flex flex-col space-y-2">

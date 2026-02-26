@@ -32,7 +32,7 @@ const saveBackup = async (songs: BackupSong[]): Promise<BackupResult> => {
     fs.mkdirSync(backupPath, { recursive: true });
 
     for (const song of songs) {
-      const filename = sanitizeFilename(song.name);
+      const filename = `${sanitizeFilename(song.name)}.json`;
       fs.writeFileSync(path.join(backupPath, filename), song.content, 'utf-8');
     }
 

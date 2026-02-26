@@ -2,7 +2,7 @@ import { useState, useCallback, useEffect, useRef } from 'react';
 import { useAtom } from 'jotai';
 import { lastBackupTimestampAtom } from './backup.atoms';
 import { getApiClient } from '../index';
-import { useActiveOrganization, reconstructRawText } from '@worship-view/core';
+import { useActiveOrganization, songToJson } from '@worship-view/core';
 import { getSongsArray } from '@worship-view/schema';
 
 const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000;
@@ -23,7 +23,7 @@ export function useBackup() {
         .filter((song) => song !== null)
         .map((song) => ({
           name: song.name,
-          content: reconstructRawText(song),
+          content: JSON.stringify(songToJson(song), null, 2),
         }));
 
       if (backupSongs.length === 0) {
