@@ -1,4 +1,14 @@
-import { getApiClient } from '@ipc/index';
+type MediaCacheApi = {
+  mediaCacheRead: (fileStreamId: string) => Promise<{ data: ArrayBuffer; mimeType: string } | null>;
+  mediaCacheWrite: (fileStreamId: string, data: ArrayBuffer, mimeType: string) => Promise<void>;
+  mediaCacheDelete: (fileStreamId: string) => Promise<void>;
+};
+
+let _api: MediaCacheApi | null = null;
+
+export function setMediaCacheApi(api: MediaCacheApi): void {
+  _api = api;
+}
 
 const blobUrlCache = new Map<string, string>();
 
@@ -21,8 +31,9 @@ export function revokeCachedBlobUrl(fileStreamId: string): void {
 export async function loadFromDiskCache(
   fileStreamId: string,
 ): Promise<string | null> {
+  if (!_api) return null;
   try {
-    const result = await getApiClient().mediaCacheRead(fileStreamId);
+    const result = await _api.mediaCacheRead(fileStreamId);
     if (!result) return null;
     const blob = new Blob([result.data], { type: result.mimeType });
     const url = URL.createObjectURL(blob);
@@ -34,10 +45,12 @@ export async function loadFromDiskCache(
 }
 
 export function saveToDiskCache(fileStreamId: string, blob: Blob): void {
+  if (!_api) return;
+  const api = _api;
   blob
     .arrayBuffer()
     .then((buffer) => {
-      getApiClient().mediaCacheWrite(fileStreamId, buffer, blob.type);
+      api.mediaCacheWrite(fileStreamId, buffer, blob.type);
     })
     .catch(() => {
       // Best-effort — fail silently
@@ -45,7 +58,8 @@ export function saveToDiskCache(fileStreamId: string, blob: Blob): void {
 }
 
 export function deleteFromDiskCache(fileStreamId: string): void {
-  getApiClient()
+  if (!_api) return;
+  _api
     .mediaCacheDelete(fileStreamId)
     .catch(() => {
       // Best-effort — fail silently

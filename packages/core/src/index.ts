@@ -7,7 +7,7 @@ export { selectedBackgroundMediaItemAtom } from './state/media.atoms';
 export { areScreensEnabledAtom } from './state/screen.atoms';
 export { selectedTabTypeAtom } from './state/tab.atoms';
 export type { TabType } from './state/tab.atoms';
-export { commandPaletteOpenAtom, commandPaletteSearchAtom, commandPaletteSelectedIndexAtom, commandPaletteResultsAtom } from './state/command.atoms';
+export { commandPaletteOpenAtom, commandPaletteSearchAtom, commandPaletteResultsAtom } from './state/command.atoms';
 export type { CommandPaletteResultType, CommandAction, CommandPaletteResult } from './state/command.atoms';
 export { jazzApiKeyAtom, passphraseConfirmedByAccountAtom, activeOrgIdAtom } from './state/jazz.atoms';
 export { areSettingsOpenAtom } from './state/settings.atoms';
@@ -57,7 +57,7 @@ export { inDev } from './utils/helpers';
 // Parsers
 export { parseSong, reconstructRawText, validateSongContent } from './parsers/songParser';
 export { isOpenSongFormat, convertOpenSong } from './parsers/openSongParser';
-export { getCachedBlobUrl, setCachedBlobUrl, revokeCachedBlobUrl } from './parsers/media-cache';
+export { getCachedBlobUrl, setCachedBlobUrl, revokeCachedBlobUrl, setMediaCacheApi } from './parsers/media-cache';
 
 // Jazz CRUD
 export type { SongResponse, ServiceListSongResponse } from './jazz/store';

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useAtom } from 'jotai';
 import { useIsAuthenticated } from 'jazz-tools/react';
 import SettingsDisplay from './SettingsDisplay';
-import { areSettingsOpenAtom } from '@worship-view/core';
+import { areSettingsOpenAtom, SettingsAccount, SettingsOrganizations, SettingsImportSongs, SettingsAppearance } from '@worship-view/core';
 import {
   Dialog,
   DialogContent,
@@ -15,7 +15,6 @@ import {
   TabsContent,
 } from '@worship-view/ui';
 import { SettingsJazzToken } from './SettingsJazzToken';
-import { SettingsAccount, SettingsOrganizations, SettingsImportSongs, SettingsAppearance } from '@worship-view/core';
 import { SettingsBackup } from './SettingsBackup';
 import { SettingsUpdate } from './SettingsUpdate';
 

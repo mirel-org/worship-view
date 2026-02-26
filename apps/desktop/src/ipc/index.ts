@@ -13,6 +13,7 @@ import {
   useCommandPaletteShortcuts,
   useManageSongs,
   useVersesHistory,
+  setMediaCacheApi,
 } from '@worship-view/core';
 import { useDesktopSettings } from './settings/settings.hooks';
 import { useAutoBackup } from './backup/backup.hooks';
@@ -31,6 +32,7 @@ export const getApiClient = () => {
 };
 
 export const useSetup = () => {
+  setMediaCacheApi(getApiClient());
   useManageProjection();
   useManageSongs();
   useVersesHistory();

@@ -1,15 +1,7 @@
 import { useAtom } from 'jotai';
 import { useCallback } from 'react';
 import useShortcut from '../utils/useShortcut';
-import {
-  commandPaletteOpenAtom,
-  commandPaletteSelectedIndexAtom,
-  commandPaletteResultsAtom,
-} from '../state/command.atoms';
-import { selectedTabTypeAtom } from '../state/tab.atoms';
-import { selectedSongAtom } from '../state/song.atoms';
-import { selectedVerseReferenceAtom, versesHistoryAtom } from '../state/verse.atoms';
-import { BibleReferenceType } from '../types/verse.types';
+import { commandPaletteOpenAtom } from '../state/command.atoms';
 
 const useOpenCommandPaletteShortcut = () => {
   const [, setOpen] = useAtom(commandPaletteOpenAtom);

@@ -19,6 +19,7 @@ export default defineConfig({
   resolve: {
     alias: {
       '@assets': resolve(__dirname, '../../assets'),
+      '@ipc': resolve(__dirname, 'src/ipc'),
     },
   },
   server: {

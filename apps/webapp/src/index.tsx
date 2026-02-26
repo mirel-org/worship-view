@@ -42,7 +42,7 @@ function AppWithJazzProvider() {
       >
         <JazzApiKeyModal
           open={showApiKeyModal}
-          onOpenChange={() => {}}
+          onOpenChange={() => { /* noop — modal stays open until key is set */ }}
           onApiKeySet={handleApiKeySet}
         />
       </JazzReactProvider>
