@@ -30,10 +30,13 @@ export async function openCreateSongDialog(page: Page) {
 /**
  * Helper: add a song via the command palette -> Create new song dialog.
  */
-export async function addSong(page: Page, name: string, content: string) {
+export async function addSong(page: Page, name: string, content: string, key?: string) {
   await openCreateSongDialog(page);
 
   await page.locator('#song-name').fill(name);
+  if (key) {
+    await page.locator('#song-key').fill(key);
+  }
   await page.locator('#song-content').fill(content);
 
   await page.locator('button:has-text("Adaugă cântec")').click();

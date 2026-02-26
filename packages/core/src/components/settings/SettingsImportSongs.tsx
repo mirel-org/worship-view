@@ -1,17 +1,32 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import { useIsAuthenticated } from 'jazz-tools/react';
 import { Label } from '@worship-view/ui';
 import { Button } from '@worship-view/ui';
+import { MultiSelect } from '@worship-view/ui';
+import type { MultiSelectOption } from '@worship-view/ui';
 import { useActiveOrganization } from '../../hooks/useActiveOrganization';
 import { batchUpsertSongs, BatchUpsertResponse } from '../../jazz/store';
 import { Upload, FileText, CheckCircle2, XCircle, Loader2 } from 'lucide-react';
-import { isOpenSongFormat, convertOpenSong } from '../../parsers/openSongParser';
+import {
+  isOpenSongFormat,
+  convertOpenSong,
+  OPENSONG_METADATA_FIELDS,
+  DEFAULT_OPENSONG_FIELD_MAPPING,
+  applyOpenSongMapping,
+} from '../../parsers/openSongParser';
+import type { OpenSongFieldMapping, OpenSongMetadataField } from '../../parsers/openSongParser';
+import { isSongJsonFormat, songFromJson } from '../../parsers/songJsonFormat';
+import { reconstructRawText } from '../../parsers/songParser';
 
 interface FileWithContent {
   file: File;
   name: string;
   content: string;
 }
+
+const OPENSONG_FIELD_OPTIONS: MultiSelectOption[] = OPENSONG_METADATA_FIELDS.map(
+  (field) => ({ value: field, label: field }),
+);
 
 export function SettingsImportSongs() {
   const isAuthenticated = useIsAuthenticated();
@@ -22,6 +37,14 @@ export function SettingsImportSongs() {
     null,
   );
   const [selectedFiles, setSelectedFiles] = useState<FileWithContent[]>([]);
+  const [openSongMapping, setOpenSongMapping] = useState<OpenSongFieldMapping>(
+    { ...DEFAULT_OPENSONG_FIELD_MAPPING },
+  );
+
+  const hasOpenSongFiles = useMemo(
+    () => selectedFiles.some((f) => isOpenSongFormat(f.content)),
+    [selectedFiles],
+  );
 
   const handleDragEnter = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -76,6 +99,7 @@ export function SettingsImportSongs() {
       const processed = await processFiles(files);
       setSelectedFiles(processed);
       setImportResult(null);
+      setOpenSongMapping({ ...DEFAULT_OPENSONG_FIELD_MAPPING });
     },
     [isAuthenticated, activeOrganization],
   );
@@ -90,6 +114,7 @@ export function SettingsImportSongs() {
       const processed = await processFiles(e.target.files);
       setSelectedFiles(processed);
       setImportResult(null);
+      setOpenSongMapping({ ...DEFAULT_OPENSONG_FIELD_MAPPING });
       e.target.value = '';
     },
     [isAuthenticated, activeOrganization],
@@ -104,13 +129,25 @@ export function SettingsImportSongs() {
     setImportResult(null);
 
     try {
-      const songs: Array<{ name: string; fullText: string }> = [];
+      const songs: Array<{ name: string; fullText: string; key?: string }> = [];
 
       for (const file of selectedFiles) {
         try {
-          if (isOpenSongFormat(file.content)) {
+          if (isSongJsonFormat(file.content)) {
+            const parsed = songFromJson(file.content);
+            songs.push({
+              name: parsed.name,
+              fullText: reconstructRawText(parsed),
+              key: parsed.key,
+            });
+          } else if (isOpenSongFormat(file.content)) {
             const converted = convertOpenSong(file.content, file.name);
-            songs.push({ name: converted.name, fullText: converted.fullText });
+            const mapped = applyOpenSongMapping(converted.metadata, openSongMapping);
+            songs.push({
+              name: converted.name,
+              fullText: converted.fullText,
+              key: mapped.key,
+            });
           } else {
             songs.push({ name: file.name, fullText: file.content });
           }
@@ -166,9 +203,9 @@ export function SettingsImportSongs() {
         <Label>Importă cântece</Label>
         <p className='text-sm text-muted-foreground'>
           Trageți mai multe fișiere sau faceți clic pentru a selecta. Suportă
-          formate text simplu și OpenSong XML. Fișierele OpenSong sunt detectate
-          automat și convertite. Numele complet al fișierului va fi folosit ca
-          nume al cântecului pentru fișierele text.
+          formate JSON (backup Worship View), text simplu și OpenSong XML.
+          Fișierele sunt detectate automat și convertite. Numele complet al
+          fișierului va fi folosit ca nume al cântecului pentru fișierele text.
         </p>
       </div>
 
@@ -200,7 +237,7 @@ export function SettingsImportSongs() {
               : 'Trageți fișierele aici sau faceți clic pentru a selecta'}
           </p>
           <p className='text-xs text-muted-foreground'>
-            Suportă formate text simplu și OpenSong XML
+            Suportă formate JSON, text simplu și OpenSong XML
           </p>
         </label>
       </div>
@@ -220,6 +257,33 @@ export function SettingsImportSongs() {
               </div>
             ))}
           </div>
+          {/* OpenSong Field Mapping */}
+          {hasOpenSongFiles && (
+            <div className='border rounded-lg p-4 space-y-3' data-testid='opensong-mapping'>
+              <Label className='text-sm font-medium'>
+                Mapare câmpuri OpenSong
+              </Label>
+              <div className='space-y-2'>
+                <Label htmlFor='opensong-key-mapping' className='text-sm text-muted-foreground'>
+                  Tonalitate
+                </Label>
+                <MultiSelect
+                  id='opensong-key-mapping'
+                  options={OPENSONG_FIELD_OPTIONS}
+                  value={openSongMapping.key ?? []}
+                  onValueChange={(selected) =>
+                    setOpenSongMapping((prev) => ({
+                      ...prev,
+                      key: selected as OpenSongMetadataField[],
+                    }))
+                  }
+                  placeholder='Niciunul'
+                  className='w-64'
+                />
+              </div>
+            </div>
+          )}
+
           <div className='flex gap-2'>
             <Button
               onClick={handleImport}

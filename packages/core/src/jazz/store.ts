@@ -37,6 +37,7 @@ function songToResponse(
     name: song.name,
     parts: song.parts,
     arrangement: song.arrangement,
+    key: song.key ?? undefined,
     fullText: song.searchText, // Use searchText as fullText for search compatibility
   };
 }
@@ -111,6 +112,7 @@ export function saveSong(
   organization: OrganizationType | null | undefined,
   name: string,
   content: string,
+  key?: string,
 ): SongResponse {
   if (!organization) {
     throw new Error('No active organization');
@@ -132,6 +134,7 @@ export function saveSong(
       name,
       parts: parsed.parts,
       arrangement: parsed.arrangement,
+      ...(key ? { key } : {}),
       searchText: parsed.fullText, // Store normalized search text
     },
     { owner: orgGroup },
@@ -152,7 +155,7 @@ export function saveSong(
 export function updateSong(
   organization: OrganizationType | null | undefined,
   id: string,
-  updates: { name?: string; fullText?: string },
+  updates: { name?: string; fullText?: string; key?: string },
 ): SongResponse {
   if (!organization) {
     throw new Error('No active organization');
@@ -168,6 +171,9 @@ export function updateSong(
   // Use $jazz.set to update properties (Jazz CoValues are immutable)
   if (updates.name !== undefined) {
     setCoMapProperty(song, 'name', updates.name);
+  }
+  if (updates.key !== undefined) {
+    setCoMapProperty(song, 'key', updates.key || undefined);
   }
   if (updates.fullText !== undefined) {
     // Parse the raw text to get structured data
@@ -234,6 +240,7 @@ export function deleteSong(
 export interface BatchUpsertSong {
   name: string;
   fullText: string;
+  key?: string;
 }
 
 export interface BatchUpsertResponse {
@@ -286,6 +293,9 @@ export function batchUpsertSongs(
         setCoMapProperty(existingSong, 'parts', parsed.parts);
         setCoMapProperty(existingSong, 'arrangement', parsed.arrangement);
         setCoMapProperty(existingSong, 'searchText', parsed.fullText);
+        if (songData.key !== undefined) {
+          setCoMapProperty(existingSong, 'key', songData.key || undefined);
+        }
         const response = songToResponse(existingSong);
         if (response) {
           results.push(response);
@@ -301,6 +311,7 @@ export function batchUpsertSongs(
             parts: parsed.parts,
             arrangement: parsed.arrangement,
             searchText: parsed.fullText,
+            ...(songData.key ? { key: songData.key } : {}),
           },
           { owner: orgGroup },
         );

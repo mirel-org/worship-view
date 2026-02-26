@@ -40,6 +40,9 @@ export {
   TabsTrigger,
   TabsContent,
 } from './tabs';
+export { MultiSelect } from './multi-select';
+export type { MultiSelectOption, MultiSelectProps } from './multi-select';
+export { Popover, PopoverTrigger, PopoverContent, PopoverAnchor } from './popover';
 export { cn } from './utils';
 export { default as RadioGroup } from './inputs/radio-group/RadioGroup';
 export type { RadioValueType, RadioChangeValueType } from './inputs/radio-group/RadioGroup';

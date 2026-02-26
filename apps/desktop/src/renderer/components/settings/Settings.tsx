@@ -25,7 +25,7 @@ const Settings = () => {
 
   return (
     <Dialog open={areSettingsOpen} onOpenChange={setAreSettingsOpen}>
-      <DialogContent className="w-[900px] max-w-[900px] h-[600px] max-h-[90vh] p-0 overflow-hidden">
+      <DialogContent className="w-[900px] max-w-[900px] h-[600px] max-h-[90vh] p-0 overflow-hidden flex flex-col">
         <DialogHeader className="sr-only">
           <DialogTitle>Setări</DialogTitle>
           <DialogDescription>
@@ -33,9 +33,9 @@ const Settings = () => {
             contul și organizațiile.
           </DialogDescription>
         </DialogHeader>
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="flex h-full">
-          <div className="flex h-full w-full">
-            <div className="w-48 border-r bg-muted/30">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 min-h-0 overflow-hidden">
+          <div className="flex h-full">
+            <div className="w-48 border-r bg-muted/30 flex-shrink-0">
               <TabsList className="flex flex-col h-full w-full rounded-none border-0 bg-transparent p-0">
                 <TabsTrigger
                   value="display"
@@ -98,8 +98,7 @@ const Settings = () => {
               </TabsList>
             </div>
 
-            <div className="flex-1 overflow-y-auto">
-              <div className="p-6">
+            <div className="flex-1 min-w-0 overflow-y-auto p-6">
                 <TabsContent value="display" className="mt-0">
                   <SettingsDisplay />
                 </TabsContent>
@@ -131,7 +130,6 @@ const Settings = () => {
                 <TabsContent value="updates" className="mt-0">
                   <SettingsUpdate />
                 </TabsContent>
-              </div>
             </div>
           </div>
         </Tabs>

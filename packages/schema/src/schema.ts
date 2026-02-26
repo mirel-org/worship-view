@@ -20,6 +20,7 @@ export const Song = co
       }),
     ),
     arrangement: z.array(z.string()),
+    key: z.optional(z.string()),
     searchText: z.string(), // Normalized searchable text (lowercase, diacritics removed)
   })
   .withPermissions({

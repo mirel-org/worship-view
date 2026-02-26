@@ -97,11 +97,11 @@ export function useSaveSong() {
   const [error, setError] = useState<Error | null>(null);
 
   const mutate = useCallback(
-    async ({ name, content }: { name: string; content: string }) => {
+    async ({ name, content, key }: { name: string; content: string; key?: string }) => {
     setIsLoading(true);
     setError(null);
     try {
-        const result = store.saveSong(activeOrganization, name, content);
+        const result = store.saveSong(activeOrganization, name, content, key);
       notifySongsDataChanged();
       return result;
     } catch (err) {
@@ -168,7 +168,7 @@ export function useUpdateSong() {
       updates,
     }: {
       id: string;
-      updates: { name?: string; fullText?: string };
+      updates: { name?: string; fullText?: string; key?: string };
     }) => {
     setIsLoading(true);
     setError(null);

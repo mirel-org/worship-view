@@ -50,6 +50,11 @@ export const nextSongSlideAtom = atom<SongSlide | null>((get) => {
   );
 });
 
+export const selectedSongKeyAtom = atom<string | null>((get) => {
+  const song = get(selectedSongAtom);
+  return song?.key ?? null;
+});
+
 export const songInputValueAtom = atom<string>('');
 export const songInputFocusAtom = atom<boolean>(false);
 

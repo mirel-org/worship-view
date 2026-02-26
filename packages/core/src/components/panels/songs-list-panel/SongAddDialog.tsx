@@ -26,6 +26,7 @@ const SongAddDialog = ({
   onSave,
 }: SongAddDialogProps) => {
   const [songName, setSongName] = useState('');
+  const [songKey, setSongKey] = useState('');
   const [content, setContent] = useState('');
   const [error, setError] = useState<string | null>(null);
   const saveSongMutation = useSaveSong();
@@ -34,6 +35,7 @@ const SongAddDialog = ({
   useEffect(() => {
     if (open) {
       setSongName('');
+      setSongKey('');
       setContent('');
       setError(null);
     }
@@ -63,6 +65,7 @@ const SongAddDialog = ({
       await saveSongMutation.mutateAsync({
         name: songName.trim(),
         content: content.trim(),
+        key: songKey.trim() || undefined,
       });
       
       onSave();
@@ -97,6 +100,16 @@ const SongAddDialog = ({
               onChange={(e) => { setSongName(e.target.value); setError(null); }}
               disabled={saving}
               placeholder="Introduceți numele cântecului"
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="song-key">Tonalitate</Label>
+            <Input
+              id="song-key"
+              value={songKey}
+              onChange={(e) => { setSongKey(e.target.value); }}
+              disabled={saving}
+              placeholder="ex: Am, C, G"
             />
           </div>
           <div className="flex-1 overflow-hidden flex flex-col space-y-2">

@@ -16,6 +16,56 @@
  *   - Multipliers: x3, (de N ori) after :/ for repeat count
  */
 
+// --- Metadata types & constants ---
+
+export const OPENSONG_METADATA_FIELDS = [
+  'key',
+  'author',
+  'ccli',
+  'capo',
+  'tempo',
+  'copyright',
+  'comments',
+] as const;
+
+export type OpenSongMetadataField = (typeof OPENSONG_METADATA_FIELDS)[number];
+
+export type OpenSongMetadata = Partial<Record<OpenSongMetadataField, string>>;
+
+export type OpenSongTargetField = 'key';
+
+export type OpenSongFieldMapping = Partial<
+  Record<OpenSongTargetField, OpenSongMetadataField[]>
+>;
+
+export const DEFAULT_OPENSONG_FIELD_MAPPING: OpenSongFieldMapping = {
+  key: ['key'],
+};
+
+/**
+ * Apply a field mapping to extracted OpenSong metadata.
+ *
+ * For each target field, iterates through the selected source fields in order
+ * and uses the first non-empty value found. This allows users to select
+ * multiple fallback sources (e.g. try `key` first, then `author`).
+ */
+export function applyOpenSongMapping(
+  metadata: OpenSongMetadata,
+  mapping: OpenSongFieldMapping,
+): { key?: string } {
+  const result: { key?: string } = {};
+  const sources = mapping.key;
+  if (sources && sources.length > 0) {
+    for (const field of sources) {
+      if (metadata[field]) {
+        result.key = metadata[field];
+        break;
+      }
+    }
+  }
+  return result;
+}
+
 const SECTION_TAG_MAP: Record<string, string> = {
   V: 'Verse',
   C: 'Chorus',
@@ -121,12 +171,12 @@ interface ParsedSection {
  *
  * @param content  - The OpenSong XML string
  * @param fallbackName - Filename to use when <title> is absent
- * @returns { name, fullText } ready for batchUpsertSongs
+ * @returns { name, fullText, metadata } ready for batchUpsertSongs
  */
 export function convertOpenSong(
   content: string,
   fallbackName: string,
-): { name: string; fullText: string } {
+): { name: string; fullText: string; metadata: OpenSongMetadata } {
   const cleaned = stripBOM(content).replace(/\r\n?/g, '\n');
   const parser = new DOMParser();
   const doc = parser.parseFromString(cleaned, 'text/xml');
@@ -139,6 +189,15 @@ export function convertOpenSong(
     root.querySelector('presentation')?.textContent?.trim() || '';
   const lyricsRaw = root.querySelector('lyrics')?.textContent || '';
 
+  // Extract metadata fields
+  const metadata: OpenSongMetadata = {};
+  for (const field of OPENSONG_METADATA_FIELDS) {
+    const value = root.querySelector(field)?.textContent?.trim();
+    if (value) {
+      metadata[field] = value;
+    }
+  }
+
   // Parse lyrics into sections
   const sections = parseLyrics(lyricsRaw);
 
@@ -147,6 +206,7 @@ export function convertOpenSong(
     return {
       name: title,
       fullText: `Verse\n${lyricsRaw.trim()}\n---\nVerse`,
+      metadata,
     };
   }
 
@@ -169,7 +229,7 @@ export function convertOpenSong(
 
   const fullText = parts.join('\n---\n') + '\n---\n' + arrangement.join(' ');
 
-  return { name: title, fullText };
+  return { name: title, fullText, metadata };
 }
 
 /**

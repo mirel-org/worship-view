@@ -76,6 +76,43 @@ Plain text chorus line one
 ---
 Verse Chorus`;
 
+const JSON_SONG_WITH_KEY = JSON.stringify({
+  format: 'worship-view-song',
+  version: 1,
+  name: 'JSON Song With Key',
+  key: 'Am',
+  parts: [
+    { key: 'Verse', slides: [{ lines: ['JSON verse line one', 'JSON verse line two'] }] },
+    { key: 'Chorus', slides: [{ lines: ['JSON chorus line one'] }] },
+  ],
+  arrangement: ['Verse', 'Chorus', 'Verse'],
+});
+
+const OPENSONG_WITH_KEY = `<?xml version="1.0" encoding="UTF-8"?>
+<song>
+  <title>Key Mapping Test Song</title>
+  <key>Am</key>
+  <author>Test Author</author>
+  <presentation>V1 C</presentation>
+  <lyrics>
+[V1]
+ Key mapping verse line one
+ Key mapping verse line two
+[C]
+ Key mapping chorus line
+</lyrics>
+</song>`;
+
+const JSON_SONG_NO_KEY = JSON.stringify({
+  format: 'worship-view-song',
+  version: 1,
+  name: 'JSON Song No Key',
+  parts: [
+    { key: 'Verse', slides: [{ lines: ['No key verse line', 'Second line here'] }] },
+  ],
+  arrangement: ['Verse'],
+});
+
 const OPENSONG_INLINE_REPEAT = `<?xml version="1.0" encoding="UTF-8"?>
 <song>
   <title>Inline Repeat Song</title>
@@ -472,5 +509,129 @@ test.describe('OpenSong Import', () => {
     await expect(
       mainWindow.locator('text=Line four of the verse'),
     ).toBeVisible({ timeout: 5000 });
+  });
+
+  test('can import a JSON song with key', async ({ mainWindow }) => {
+    await importFiles(mainWindow, [
+      { name: 'json-song-key.json', content: JSON_SONG_WITH_KEY },
+    ]);
+
+    // Search and select the song — name comes from the JSON, not the filename
+    await selectSongFromPalette(
+      mainWindow,
+      'json song with key',
+      'JSON Song With Key',
+    );
+
+    // Verify lyric content renders
+    await expect(
+      mainWindow.locator('text=JSON chorus line one'),
+    ).toBeVisible({ timeout: 5000 });
+  });
+
+  test('can import a JSON song without key', async ({ mainWindow }) => {
+    await importFiles(mainWindow, [
+      { name: 'json-song-no-key.json', content: JSON_SONG_NO_KEY },
+    ]);
+
+    await selectSongFromPalette(
+      mainWindow,
+      'json song no key',
+      'JSON Song No Key',
+    );
+
+    // Verify lyric content renders
+    await expect(
+      mainWindow.locator('text=No key verse line'),
+    ).toBeVisible({ timeout: 5000 });
+  });
+
+  test('can import JSON and other formats in same batch', async ({ mainWindow }) => {
+    await importFiles(mainWindow, [
+      { name: 'json-batch.json', content: JSON_SONG_WITH_KEY },
+      { name: 'opensong-batch.xml', content: OPENSONG_STANDARD },
+      { name: 'Plain Text Batch Song', content: PLAIN_TEXT_SONG },
+    ]);
+
+    // Verify the JSON song was imported
+    await searchSongInPalette(mainWindow, 'json song with key');
+    const jsonItem = mainWindow
+      .locator('[cmdk-item]')
+      .filter({ hasText: 'JSON Song With Key' });
+    await expect(jsonItem).toBeVisible({ timeout: 5000 });
+    await closeCommandPalette(mainWindow);
+
+    // Verify the OpenSong song was imported
+    await searchSongInPalette(mainWindow, 'amazing grace opensong');
+    const opensongItem = mainWindow
+      .locator('[cmdk-item]')
+      .filter({ hasText: 'Amazing Grace OpenSong' });
+    await expect(opensongItem).toBeVisible({ timeout: 5000 });
+    await closeCommandPalette(mainWindow);
+
+    // Verify the plain text song was imported
+    await searchSongInPalette(mainWindow, 'plain text batch');
+    const plainTextItem = mainWindow
+      .locator('[cmdk-item]')
+      .filter({ hasText: 'Plain Text Batch Song' });
+    await expect(plainTextItem).toBeVisible({ timeout: 5000 });
+    await closeCommandPalette(mainWindow);
+  });
+
+  test('imports OpenSong with default key mapping', async ({ mainWindow }) => {
+    // Import an OpenSong file that has <key>Am</key>
+    // The default mapping maps OpenSong key → song key
+    await importFiles(mainWindow, [
+      { name: 'key-mapping.xml', content: OPENSONG_WITH_KEY },
+    ]);
+
+    // Select the song
+    await selectSongFromPalette(
+      mainWindow,
+      'key mapping test song',
+      'Key Mapping Test Song',
+    );
+
+    // Open the edit dialog to verify the key field
+    await mainWindow.locator('button[aria-label="Edit song"]').click();
+    await expect(mainWindow.locator('text=Editează cântec')).toBeVisible({ timeout: 5000 });
+
+    // Verify the key input has the mapped value from <key>
+    const keyInput = mainWindow.locator('#song-key');
+    await expect(keyInput).toHaveValue('Am');
+
+    // Close the dialog
+    await mainWindow.keyboard.press('Escape');
+  });
+
+  test('shows OpenSong mapping UI only when OpenSong files are selected', async ({ mainWindow }) => {
+    // Open settings and go to import tab
+    await mainWindow.locator('[data-testid="settings-button"]').click();
+    await expect(mainWindow.locator('text=Importă cântece')).toBeVisible({ timeout: 5000 });
+    await mainWindow.locator('[role="tab"]:has-text("Importă cântece")').click();
+
+    // Select only a plain text file — mapping should NOT appear
+    await mainWindow.locator('#file-input').setInputFiles([
+      {
+        name: 'plain.txt',
+        mimeType: 'text/plain',
+        buffer: Buffer.from(PLAIN_TEXT_SONG, 'utf-8'),
+      },
+    ]);
+    await expect(mainWindow.locator('text=Fișiere selectate')).toBeVisible({ timeout: 5000 });
+    await expect(mainWindow.locator('[data-testid="opensong-mapping"]')).not.toBeVisible();
+
+    // Now select an OpenSong file — mapping should appear
+    await mainWindow.locator('#file-input').setInputFiles([
+      {
+        name: 'opensong.xml',
+        mimeType: 'text/xml',
+        buffer: Buffer.from(OPENSONG_WITH_KEY, 'utf-8'),
+      },
+    ]);
+    await expect(mainWindow.locator('[data-testid="opensong-mapping"]')).toBeVisible({ timeout: 5000 });
+
+    // Close settings
+    await mainWindow.keyboard.press('Escape');
   });
 });

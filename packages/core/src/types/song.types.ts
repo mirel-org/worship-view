@@ -3,6 +3,7 @@ export type Song = {
   name: string;
   parts: SongPart[];
   arrangement: SongArrangement;
+  key?: string;
   fullText: string;
 };
 

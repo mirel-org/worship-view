@@ -1,6 +1,7 @@
 import {
   selectedSongSlideReferenceAtom,
   selectedSongTextAtom,
+  selectedSongKeyAtom,
 } from '../../../state/song.atoms';
 import usePreventScroll from '../../../hooks/usePreventScroll';
 import { useAtom } from 'jotai';
@@ -12,6 +13,7 @@ const SlidesListPanel = () => {
     selectedSongSlideReferenceAtom,
   );
   const [selectedSongText] = useAtom(selectedSongTextAtom);
+  const [selectedSongKey] = useAtom(selectedSongKeyAtom);
 
   const handleOnSlideClick = (partIndex: number, slideIndex: number) => {
     setSelectedSongSlideReference({ partIndex, slideIndex });
@@ -49,6 +51,13 @@ const SlidesListPanel = () => {
       ref={containerRef}
       className="h-full overflow-y-auto px-4 py-[10px]"
     >
+      {selectedSongKey && (
+        <div className="mb-3 flex items-center gap-2">
+          <span className="inline-flex items-center rounded-md bg-primary/10 px-2.5 py-1 text-sm font-semibold text-primary">
+            Tonalitate: {selectedSongKey}
+          </span>
+        </div>
+      )}
       <div className="grid grid-cols-1 sm:grid-cols-[repeat(auto-fill,minmax(300px,1fr))] lg:grid-cols-[repeat(auto-fill,minmax(400px,1fr))] gap-3 content-start">
         {selectedSongText &&
           selectedSongText.map((part, partIndex) => (
