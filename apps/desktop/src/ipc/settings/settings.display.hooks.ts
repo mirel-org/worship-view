@@ -31,7 +31,15 @@ export const useDisplaySettings = () => {
     settingsDisplayScreenSelectionAtom,
   );
   useEffect(() => {
-    if (Object.keys(displayScreenSelection).length === 0)
+    const availableIds = new Set(
+      availableDisplays.map((d) => d.id.toString()),
+    );
+    const selectedIds = new Set(Object.keys(displayScreenSelection));
+    const needsUpdate =
+      selectedIds.size === 0 ||
+      availableIds.size !== selectedIds.size ||
+      [...availableIds].some((id) => !selectedIds.has(id));
+    if (needsUpdate)
       setDisplayScreenSelection(getDefaultInputGroups(availableDisplays));
   }, [availableDisplays, setDisplayScreenSelection, displayScreenSelection]);
   useEffect(() => {
