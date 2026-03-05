@@ -8,6 +8,7 @@ import {
 
 const CHECK_TIMEOUT_MS = 10000;
 let updateStateTrackingInitialized = false;
+let isCheckingForUpdates = false;
 let downloadedUpdateVersion: string | undefined;
 let downloadedUpdateReleaseName: string | undefined;
 let downloadedUpdateReleaseDate: string | undefined;
@@ -58,6 +59,17 @@ const setupUpdateStateTracking = () => {
   updateStateTrackingInitialized = true;
   const updater = getUpdater();
 
+  updater.on('checking-for-update', () => {
+    isCheckingForUpdates = true;
+  });
+
+  const onCheckFinished = () => {
+    isCheckingForUpdates = false;
+  };
+  updater.on('update-available', onCheckFinished);
+  updater.on('update-not-available', onCheckFinished);
+  updater.on('error', onCheckFinished);
+
   updater.on(
     'update-downloaded',
     (
@@ -89,6 +101,14 @@ const runManualUpdateCheck = (): Promise<UpdateCheckResult> => {
   }
 
   setupUpdateStateTracking();
+
+  if (isCheckingForUpdates) {
+    return Promise.resolve({
+      status: 'checking',
+      message:
+        'Verificarea este deja în curs. Așteaptă finalizarea verificării curente.',
+    });
+  }
 
   return new Promise<UpdateCheckResult>((resolve) => {
     const updater = getUpdater();
@@ -256,6 +276,13 @@ const updateHandlers = () => {
   ipcMain.handle(UpdateChannels.installDownloadedUpdate, async () => {
     return installDownloadedUpdate();
   });
+};
+
+export const safeCheckForUpdates = () => {
+  if (!app.isPackaged) return;
+  setupUpdateStateTracking();
+  if (isCheckingForUpdates) return;
+  getUpdater().checkForUpdates();
 };
 
 export default updateHandlers;
