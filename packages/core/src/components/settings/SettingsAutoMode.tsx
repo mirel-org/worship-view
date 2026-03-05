@@ -7,6 +7,7 @@ import {
   autoModeProgressAtom,
   sonioxApiKeyAtom,
   autoModeDeviceIdAtom,
+  autoModeOperatorOnlyAtom,
 } from '../../state/automode.atoms';
 import { Input, Label } from '@worship-view/ui';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@worship-view/ui';
@@ -25,6 +26,7 @@ export function SettingsAutoMode() {
   const [progress] = useAtom(autoModeProgressAtom);
   const [apiKey, setApiKey] = useAtom(sonioxApiKeyAtom);
   const [selectedDeviceId, setSelectedDeviceId] = useAtom(autoModeDeviceIdAtom);
+  const [operatorOnly, setOperatorOnly] = useAtom(autoModeOperatorOnlyAtom);
   const [devices, setDevices] = useState<MediaDeviceInfo[]>([]);
 
   // Load audio input devices
@@ -81,9 +83,10 @@ export function SettingsAutoMode() {
         </div>
         <button
           onClick={handleToggle}
+          disabled={!apiKey && !enabled}
           className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
             enabled ? 'bg-primary' : 'bg-muted-foreground/30'
-          }`}
+          } ${!apiKey && !enabled ? 'opacity-50 cursor-not-allowed' : ''}`}
         >
           <span
             className={`inline-block h-4 w-4 rounded-full bg-white transition-transform ${
@@ -92,6 +95,30 @@ export function SettingsAutoMode() {
           />
         </button>
       </div>
+
+      {/* Operator-Only Toggle */}
+      {enabled && (
+        <div className="flex items-center justify-between rounded-lg border p-3">
+          <div>
+            <Label className="text-sm font-medium">Doar operator</Label>
+            <p className="text-xs text-muted-foreground">
+              Slide-urile nu se schimbă automat, doar se evidențiază sugestia
+            </p>
+          </div>
+          <button
+            onClick={() => setOperatorOnly(!operatorOnly)}
+            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+              operatorOnly ? 'bg-primary' : 'bg-muted-foreground/30'
+            }`}
+          >
+            <span
+              className={`inline-block h-4 w-4 rounded-full bg-white transition-transform ${
+                operatorOnly ? 'translate-x-6' : 'translate-x-1'
+              }`}
+            />
+          </button>
+        </div>
+      )}
 
       {/* Status */}
       {enabled && (

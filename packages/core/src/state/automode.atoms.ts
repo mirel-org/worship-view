@@ -28,3 +28,15 @@ export const autoModeProgressAtom = atom<number>(0);
 export const autoModeWordStatusesAtom = atom<
   ('matched' | 'significant' | 'insignificant')[]
 >([]);
+
+/** When true, auto-mode tracks speech but only shows suggestions — no automatic slide changes */
+export const autoModeOperatorOnlyAtom = atomWithStorage<boolean>(
+  'worship-view-automode-operator-only',
+  false,
+);
+
+/** The slide auto-mode would jump to in operator-only mode */
+export const autoModeSuggestedSlideRefAtom = atom<{
+  partIndex: number;
+  slideIndex: number;
+} | null>(null);

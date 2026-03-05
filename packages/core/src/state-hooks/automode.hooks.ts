@@ -8,6 +8,8 @@ import {
   autoModeWordStatusesAtom,
   sonioxApiKeyAtom,
   autoModeDeviceIdAtom,
+  autoModeOperatorOnlyAtom,
+  autoModeSuggestedSlideRefAtom,
 } from '../state/automode.atoms';
 import {
   selectedSongAtom,
@@ -37,6 +39,8 @@ export const useAutoMode = () => {
   const [slideRef, setSlideRef] = useAtom(selectedSongSlideReferenceAtom);
   const [apiKey] = useAtom(sonioxApiKeyAtom);
   const [deviceId] = useAtom(autoModeDeviceIdAtom);
+  const [operatorOnly] = useAtom(autoModeOperatorOnlyAtom);
+  const [, setSuggestedSlideRef] = useAtom(autoModeSuggestedSlideRefAtom);
 
   const engineRef = useRef<SpeechEngine | null>(null);
   const queueRef = useRef<WordQueue>(new WordQueue());
@@ -54,6 +58,7 @@ export const useAutoMode = () => {
   // Refs for latest values (avoid stale closures in speech callbacks)
   const slideRefLatest = useRef(slideRef);
   const songTextLatest = useRef(selectedSongText);
+  const operatorOnlyRef = useRef(operatorOnly);
 
   useEffect(() => {
     slideRefLatest.current = slideRef;
@@ -61,6 +66,9 @@ export const useAutoMode = () => {
   useEffect(() => {
     songTextLatest.current = selectedSongText;
   }, [selectedSongText]);
+  useEffect(() => {
+    operatorOnlyRef.current = operatorOnly;
+  }, [operatorOnly]);
 
   // Rebuild slide index when song text changes
   useEffect(() => {
@@ -78,7 +86,8 @@ export const useAutoMode = () => {
     setLastTranscription('');
     setProgress(0);
     setWordStatuses([]);
-  }, [selectedSongText, setLastTranscription, setProgress, setWordStatuses]);
+    setSuggestedSlideRef(null);
+  }, [selectedSongText, setLastTranscription, setProgress, setWordStatuses, setSuggestedSlideRef]);
 
   // Sync on manual slide change — find matching IndexedSlide and reset position
   useEffect(() => {
@@ -109,7 +118,11 @@ export const useAutoMode = () => {
     slideChangedAtRef.current = Date.now();
     const nextSlide = allSlides[nextIdx];
     slideRefLatest.current = nextSlide.ref;
-    setSlideRef(nextSlide.ref);
+    if (operatorOnlyRef.current) {
+      setSuggestedSlideRef(nextSlide.ref);
+    } else {
+      setSlideRef(nextSlide.ref);
+    }
     setProgress(0);
     setWordStatuses([]);
   };
@@ -174,7 +187,11 @@ export const useAutoMode = () => {
             matchPositionRef.current = Math.max(pending.position, result.position);
             const newSlide = allSlides[result.slideIndex];
             slideRefLatest.current = newSlide.ref;
-            setSlideRef(newSlide.ref);
+            if (operatorOnlyRef.current) {
+              setSuggestedSlideRef(newSlide.ref);
+            } else {
+              setSlideRef(newSlide.ref);
+            }
             pendingJumpRef.current = null;
             madeProgress = true;
           }
@@ -313,11 +330,7 @@ export const useAutoMode = () => {
       setLastTranscription('');
       setProgress(0);
       setWordStatuses([]);
-      return;
-    }
-
-    if (!apiKey) {
-      setAutoModeState('error');
+      setSuggestedSlideRef(null);
       return;
     }
 
@@ -353,5 +366,6 @@ export const useAutoMode = () => {
     setLastTranscription,
     setProgress,
     setWordStatuses,
+    setSuggestedSlideRef,
   ]);
 };

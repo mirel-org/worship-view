@@ -16,7 +16,7 @@ export { openSidebar, closeSidebar } from './components/layout/Sidebar';
 export { settingsThemeAtom, settingsZoomLevelAtom } from './state/settings.theme.atoms';
 export type { AppTheme, AppZoomLevel } from './state/settings.theme.atoms';
 export { settingsSongSlideSizeAtom } from './state/settings.song.atoms';
-export { autoModeEnabledAtom, autoModeStateAtom, autoModeLastTranscriptionAtom, autoModeProgressAtom, autoModeWordStatusesAtom, sonioxApiKeyAtom, autoModeDeviceIdAtom } from './state/automode.atoms';
+export { autoModeEnabledAtom, autoModeStateAtom, autoModeLastTranscriptionAtom, autoModeProgressAtom, autoModeWordStatusesAtom, sonioxApiKeyAtom, autoModeDeviceIdAtom, autoModeOperatorOnlyAtom, autoModeSuggestedSlideRefAtom } from './state/automode.atoms';
 export type { AutoModeState } from './state/automode.atoms';
 
 // Types

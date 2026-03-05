@@ -3,7 +3,11 @@ import {
   selectedSongTextAtom,
   selectedSongKeyAtom,
 } from '../../../state/song.atoms';
-import { autoModeEnabledAtom } from '../../../state/automode.atoms';
+import {
+  autoModeEnabledAtom,
+  autoModeOperatorOnlyAtom,
+  autoModeSuggestedSlideRefAtom,
+} from '../../../state/automode.atoms';
 import usePreventScroll from '../../../hooks/usePreventScroll';
 import { useAtom } from 'jotai';
 import { useEffect, useRef } from 'react';
@@ -17,6 +21,8 @@ const SlidesListPanel = () => {
   const [selectedSongText] = useAtom(selectedSongTextAtom);
   const [selectedSongKey] = useAtom(selectedSongKeyAtom);
   const [autoModeEnabled] = useAtom(autoModeEnabledAtom);
+  const [operatorOnly] = useAtom(autoModeOperatorOnlyAtom);
+  const [suggestedSlideRef] = useAtom(autoModeSuggestedSlideRefAtom);
 
   const handleOnSlideClick = (partIndex: number, slideIndex: number) => {
     setSelectedSongSlideReference({ partIndex, slideIndex });
@@ -74,6 +80,13 @@ const SlidesListPanel = () => {
                 ? part.slides[selectedSlideIdx]?.lines
                 : undefined;
 
+            const suggestedSlideIdx =
+              autoModeEnabled &&
+              operatorOnly &&
+              suggestedSlideRef?.partIndex === partIndex
+                ? suggestedSlideRef.slideIndex
+                : undefined;
+
             return (
               <SlidesListColumn
                 key={partIndex}
@@ -81,6 +94,7 @@ const SlidesListPanel = () => {
                 slides={part.slides}
                 title={part.key}
                 selectedIndex={selectedSlideIdx}
+                suggestedIndex={suggestedSlideIdx}
                 onSelect={(slideIndex) =>
                   handleOnSlideClick(partIndex, slideIndex)
                 }
