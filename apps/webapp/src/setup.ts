@@ -4,6 +4,7 @@ import {
   useVerseShortcuts,
   useProjectionShortcuts,
   useCommandPaletteShortcuts,
+  useAutoModeShortcuts,
   useManageSongs,
   useVersesHistory,
   useThemeSettings,
@@ -22,4 +23,5 @@ const useSetupShortcuts = () => {
   useSongShortcuts();
   useProjectionShortcuts();
   useCommandPaletteShortcuts();
+  useAutoModeShortcuts();
 };

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useAtom } from 'jotai';
 import { useIsAuthenticated } from 'jazz-tools/react';
 import SettingsDisplay from './SettingsDisplay';
-import { areSettingsOpenAtom, SettingsAccount, SettingsOrganizations, SettingsImportSongs, SettingsAppearance, SettingsSongs } from '@worship-view/core';
+import { areSettingsOpenAtom, SettingsAccount, SettingsOrganizations, SettingsImportSongs, SettingsAppearance, SettingsSongs, SettingsAutoMode } from '@worship-view/core';
 import {
   Dialog,
   DialogContent,
@@ -48,6 +48,12 @@ const Settings = () => {
                   className="w-full justify-start rounded-none border-b px-4 py-3 data-[state=active]:bg-background data-[state=active]:shadow-none"
                 >
                   Aspect
+                </TabsTrigger>
+                <TabsTrigger
+                  value="automode"
+                  className="w-full justify-start rounded-none border-b px-4 py-3 data-[state=active]:bg-background data-[state=active]:shadow-none"
+                >
+                  Mod Auto
                 </TabsTrigger>
                 {isAuthenticated && (
                   <>
@@ -104,6 +110,9 @@ const Settings = () => {
                 </TabsContent>
                 <TabsContent value="aspect" className="mt-0">
                   <SettingsAppearance />
+                </TabsContent>
+                <TabsContent value="automode" className="mt-0">
+                  <SettingsAutoMode />
                 </TabsContent>
                 {isAuthenticated && (
                   <>

@@ -11,9 +11,11 @@ import {
   useVerseShortcuts,
   useProjectionShortcuts,
   useCommandPaletteShortcuts,
+  useAutoModeShortcuts,
   useManageSongs,
   useVersesHistory,
   setMediaCacheApi,
+  useAutoMode,
 } from '@worship-view/core';
 import { useDesktopSettings } from './settings/settings.hooks';
 import { useAutoBackup } from './backup/backup.hooks';
@@ -40,6 +42,7 @@ export const useSetup = () => {
   useSetupShortcuts();
   useDesktopSettings();
   useAutoBackup();
+  useAutoMode();
 };
 
 const useSetupShortcuts = () => {
@@ -47,4 +50,5 @@ const useSetupShortcuts = () => {
   useSongShortcuts();
   useProjectionShortcuts();
   useCommandPaletteShortcuts();
+  useAutoModeShortcuts();
 };

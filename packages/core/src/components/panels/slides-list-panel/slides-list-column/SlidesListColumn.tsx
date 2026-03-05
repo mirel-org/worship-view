@@ -1,3 +1,4 @@
+import { ReactNode } from 'react';
 import SlidesListItem from './slides-list-item/SlidesListItem';
 
 export type SlideItem = {
@@ -9,6 +10,8 @@ export type SlidesListColumnProps = {
   onSelect?: (index: number) => void;
   selectedIndex?: number;
   partIndex: number;
+  debugOverlayForIndex?: number;
+  debugOverlay?: ReactNode;
 };
 
 const SlidesListColumn = ({
@@ -17,6 +20,8 @@ const SlidesListColumn = ({
   onSelect,
   selectedIndex,
   partIndex,
+  debugOverlayForIndex,
+  debugOverlay,
 }: SlidesListColumnProps) => {
   const handleSelection = (slideIndex: number) => {
     if (!onSelect) return;
@@ -41,6 +46,9 @@ const SlidesListColumn = ({
             lines={slide.lines}
             onClick={() => handleSelection(slideIndex)}
             selected={slideIndex === selectedIndex}
+            debugOverlay={
+              slideIndex === debugOverlayForIndex ? debugOverlay : undefined
+            }
           />
         ))}
       </div>

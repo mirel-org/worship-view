@@ -53,6 +53,19 @@ app.on('ready', () => {
         { role: 'selectAll' },
       ],
     },
+    {
+      label: 'Dezvoltare',
+      submenu: [
+        {
+          label: 'DevTools',
+          accelerator: 'CmdOrCtrl+Shift+I',
+          click: () => {
+            const win = BrowserWindow.getFocusedWindow();
+            win?.webContents.toggleDevTools();
+          },
+        },
+      ],
+    },
   ]);
   Menu.setApplicationMenu(menu);
 

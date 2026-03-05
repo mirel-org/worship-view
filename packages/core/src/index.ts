@@ -16,6 +16,8 @@ export { openSidebar, closeSidebar } from './components/layout/Sidebar';
 export { settingsThemeAtom, settingsZoomLevelAtom } from './state/settings.theme.atoms';
 export type { AppTheme, AppZoomLevel } from './state/settings.theme.atoms';
 export { settingsSongSlideSizeAtom } from './state/settings.song.atoms';
+export { autoModeEnabledAtom, autoModeStateAtom, autoModeLastTranscriptionAtom, autoModeProgressAtom, autoModeWordStatusesAtom, sonioxApiKeyAtom, autoModeDeviceIdAtom } from './state/automode.atoms';
+export type { AutoModeState } from './state/automode.atoms';
 
 // Types
 export type { Song, SongPart, SongSlide, SongArrangement } from './types/song.types';
@@ -29,12 +31,14 @@ export { useVerseControll, useVersesHistory } from './state-hooks/verse.hooks';
 export { useManageProjection } from './state-hooks/projection.hooks';
 export { useCommandPaletteSearch, MIN_SONG_SEARCH_LENGTH } from './state-hooks/command.hooks';
 export { useThemeSettings } from './state-hooks/settings.theme.hooks';
+export { useAutoMode } from './state-hooks/automode.hooks';
 
 // Shortcuts
 export { default as useSongShortcuts } from './state-hooks/song.shortcuts';
 export { default as useVerseShortcuts } from './state-hooks/verse.shortcuts';
 export { default as useProjectionShortcuts } from './state-hooks/projection.shortcuts';
 export { useCommandPaletteShortcuts } from './state-hooks/command.shortcuts';
+export { useAutoModeShortcuts } from './state-hooks/automode.shortcuts';
 
 // Hooks
 export { useActiveOrganization } from './hooks/useActiveOrganization';
@@ -79,6 +83,9 @@ export { SettingsOrganizations } from './components/settings/SettingsOrganizatio
 export { SettingsImportSongs } from './components/settings/SettingsImportSongs';
 export { SettingsAppearance } from './components/settings/SettingsAppearance';
 export { SettingsSongs } from './components/settings/SettingsSongs';
+export { SettingsAutoMode } from './components/settings/SettingsAutoMode';
+export { AutoModeStatus } from './components/automode/AutoModeStatus';
+export { SlideDebugOverlay } from './components/automode/SlideDebugOverlay';
 export { default as AudienceScreen } from './components/screens/audience-screen/AudienceScreen';
 export { default as StageScreen } from './components/screens/stage-screen/StageScreen';
 export { default as Sidebar } from './components/layout/Sidebar';
