@@ -1,7 +1,8 @@
-import { app, autoUpdater, BrowserWindow, Menu } from 'electron';
+import { app, BrowserWindow, Menu } from 'electron';
 import started from 'electron-squirrel-startup';
 import { updateElectronApp } from 'update-electron-app';
 import { createAppWindow } from './main-window/mainWindow';
+import { safeCheckForUpdates } from '../ipc/update/update.handlers';
 
 const DEFAULT_UPDATE_REPO = 'mirel-org/worship-view';
 const UPDATE_REPO = process.env.WV_UPDATE_REPO || DEFAULT_UPDATE_REPO;
@@ -32,9 +33,7 @@ app.on('ready', () => {
         {
           label: 'Verifică actualizări',
           click: () => {
-            if (app.isPackaged) {
-              autoUpdater.checkForUpdates();
-            }
+            safeCheckForUpdates();
           },
         },
         { type: 'separator' },
@@ -51,6 +50,19 @@ app.on('ready', () => {
         { role: 'copy' },
         { role: 'paste' },
         { role: 'selectAll' },
+      ],
+    },
+    {
+      label: 'Dezvoltare',
+      submenu: [
+        {
+          label: 'DevTools',
+          accelerator: 'CmdOrCtrl+Shift+I',
+          click: () => {
+            const win = BrowserWindow.getFocusedWindow();
+            win?.webContents.toggleDevTools();
+          },
+        },
       ],
     },
   ]);

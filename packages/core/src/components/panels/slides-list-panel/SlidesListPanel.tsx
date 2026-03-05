@@ -3,10 +3,16 @@ import {
   selectedSongTextAtom,
   selectedSongKeyAtom,
 } from '../../../state/song.atoms';
+import {
+  autoModeEnabledAtom,
+  autoModeOperatorOnlyAtom,
+  autoModeSuggestedSlideRefAtom,
+} from '../../../state/automode.atoms';
 import usePreventScroll from '../../../hooks/usePreventScroll';
 import { useAtom } from 'jotai';
 import { useEffect, useRef } from 'react';
 import SlidesListColumn from './slides-list-column/SlidesListColumn';
+import { SlideDebugOverlay } from '../../automode/SlideDebugOverlay';
 
 const SlidesListPanel = () => {
   const [selectedSongSlideReference, setSelectedSongSlideReference] = useAtom(
@@ -14,6 +20,9 @@ const SlidesListPanel = () => {
   );
   const [selectedSongText] = useAtom(selectedSongTextAtom);
   const [selectedSongKey] = useAtom(selectedSongKeyAtom);
+  const [autoModeEnabled] = useAtom(autoModeEnabledAtom);
+  const [operatorOnly] = useAtom(autoModeOperatorOnlyAtom);
+  const [suggestedSlideRef] = useAtom(autoModeSuggestedSlideRefAtom);
 
   const handleOnSlideClick = (partIndex: number, slideIndex: number) => {
     setSelectedSongSlideReference({ partIndex, slideIndex });
@@ -60,20 +69,46 @@ const SlidesListPanel = () => {
       )}
       <div className="grid grid-cols-1 sm:grid-cols-[repeat(auto-fill,minmax(300px,1fr))] lg:grid-cols-[repeat(auto-fill,minmax(400px,1fr))] gap-3 content-start">
         {selectedSongText &&
-          selectedSongText.map((part, partIndex) => (
-            <SlidesListColumn
-              key={partIndex}
-              partIndex={partIndex}
-              slides={part.slides}
-              title={part.key}
-              selectedIndex={
-                partIndex === selectedSongSlideReference?.partIndex
-                  ? selectedSongSlideReference.slideIndex
-                  : -1
-              }
-              onSelect={(slideIndex) => handleOnSlideClick(partIndex, slideIndex)}
-            />
-          ))}
+          selectedSongText.map((part, partIndex) => {
+            const isSelectedPart =
+              partIndex === selectedSongSlideReference?.partIndex;
+            const selectedSlideIdx = isSelectedPart
+              ? selectedSongSlideReference!.slideIndex
+              : -1;
+            const selectedLines =
+              isSelectedPart && autoModeEnabled
+                ? part.slides[selectedSlideIdx]?.lines
+                : undefined;
+
+            const suggestedSlideIdx =
+              autoModeEnabled &&
+              operatorOnly &&
+              suggestedSlideRef?.partIndex === partIndex
+                ? suggestedSlideRef.slideIndex
+                : undefined;
+
+            return (
+              <SlidesListColumn
+                key={partIndex}
+                partIndex={partIndex}
+                slides={part.slides}
+                title={part.key}
+                selectedIndex={selectedSlideIdx}
+                suggestedIndex={suggestedSlideIdx}
+                onSelect={(slideIndex) =>
+                  handleOnSlideClick(partIndex, slideIndex)
+                }
+                debugOverlayForIndex={
+                  selectedLines ? selectedSlideIdx : undefined
+                }
+                debugOverlay={
+                  selectedLines ? (
+                    <SlideDebugOverlay lines={selectedLines} />
+                  ) : undefined
+                }
+              />
+            );
+          })}
       </div>
     </div>
   );
