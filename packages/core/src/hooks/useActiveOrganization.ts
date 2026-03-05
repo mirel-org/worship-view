@@ -13,7 +13,12 @@ export function useActiveOrganization() {
   const me = useAccount(WorshipViewAccount, {
     resolve: {
       root: {
-        organizations: { $each: true },
+        organizations: {
+          $each: {
+            songs: { $each: true },
+            serviceList: { $each: true },
+          },
+        },
       },
     },
   }) as {

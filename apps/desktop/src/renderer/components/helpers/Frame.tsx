@@ -1,14 +1,16 @@
 import { Display } from 'electron';
 import { FC, useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
+import { X } from 'lucide-react';
 import { injectFontCSS } from '../../lib/fonts';
 
 type FrameProps = {
   display: Display;
   children: React.ReactNode;
+  onClose?: () => void;
 };
 
-const Frame: FC<FrameProps> = ({ children, display }) => {
+const Frame: FC<FrameProps> = ({ children, display, onClose }) => {
   const [frame, setFrame] = useState<Window | null>(null);
 
   const displayId = display?.id;
@@ -58,7 +60,24 @@ const Frame: FC<FrameProps> = ({ children, display }) => {
 
   if (!frame) return null;
 
-  return createPortal(children, frame.document.body);
+  const content = onClose ? (
+    <div className="group relative h-full w-full">
+      {children}
+      <button
+        onMouseDown={(e) => {
+          e.stopPropagation();
+          onClose();
+        }}
+        className="absolute top-4 right-4 z-50 rounded-full bg-black/50 p-3 text-white opacity-0 transition-opacity hover:bg-black/70 group-hover:opacity-100"
+      >
+        <X className="h-6 w-6" />
+      </button>
+    </div>
+  ) : (
+    children
+  );
+
+  return createPortal(content, frame.document.body);
 };
 
 export default Frame;

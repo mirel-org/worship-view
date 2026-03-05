@@ -262,7 +262,7 @@ const CommandPalette: FC = () => {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="h-[80vh] md:h-[560px] md:max-h-[560px] w-[calc(100%-2rem)] md:w-[768px] lg:w-[896px] max-w-[896px] flex flex-col gap-0 overflow-hidden rounded-xl border border-border bg-background p-0 text-foreground shadow-[0_16px_24px_-4px_rgba(0,0,0,0.25),0_8px_12px_-4px_rgba(0,0,0,0.12)] [&>button]:hidden">
+      <DialogContent disableAnimation className="h-[80vh] md:h-[560px] md:max-h-[560px] w-[calc(100%-2rem)] md:w-[768px] lg:w-[896px] max-w-[896px] flex flex-col gap-0 overflow-hidden rounded-xl border border-border bg-background p-0 text-foreground shadow-[0_16px_24px_-4px_rgba(0,0,0,0.25),0_8px_12px_-4px_rgba(0,0,0,0.12)] [&>button]:hidden">
         <DialogHeader className="sr-only">
           <DialogTitle>Paleta de comenzi</DialogTitle>
           <DialogDescription>
