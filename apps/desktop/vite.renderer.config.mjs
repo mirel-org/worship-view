@@ -4,7 +4,9 @@ import tailwindcss from '@tailwindcss/vite';
 import wasm from 'vite-plugin-wasm';
 import topLevelAwait from 'vite-plugin-top-level-await';
 import { resolve } from 'path';
-import { readdirSync, statSync } from 'fs';
+import { readFileSync, readdirSync, statSync } from 'fs';
+
+const pkg = JSON.parse(readFileSync(resolve(__dirname, 'package.json'), 'utf-8'));
 
 // Compute the latest mtime across workspace package source files.
 // Vite's dep optimizer cache hash is based on config + lockfile only,
@@ -29,6 +31,9 @@ function getWorkspaceSourceTimestamp() {
 
 export default defineConfig({
   plugins: [react(), tailwindcss(), wasm(), topLevelAwait()],
+  define: {
+    __APP_VERSION__: JSON.stringify(pkg.version),
+  },
   base: './',
   root: resolve(__dirname, 'src/renderer'),
   build: {

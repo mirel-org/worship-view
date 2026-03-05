@@ -23,6 +23,7 @@ declare module '*.json' {
 // Vite-specific declarations
 declare const APP_WINDOW_VITE_DEV_SERVER_URL: string;
 declare const APP_WINDOW_VITE_NAME: string;
+declare const __APP_VERSION__: string;
 
 // Vite HMR types
 interface ImportMeta {

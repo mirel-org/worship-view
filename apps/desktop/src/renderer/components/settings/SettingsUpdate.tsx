@@ -80,6 +80,9 @@ export const SettingsUpdate = () => {
     <div className="space-y-4">
       <h3 className="text-lg font-medium">Actualizări</h3>
       <p className="text-sm text-muted-foreground">
+        Versiune curentă: v{__APP_VERSION__}
+      </p>
+      <p className="text-sm text-muted-foreground">
         Aplicația verifică automat actualizările la fiecare 10 minute.
         Poți verifica manual apăsând butonul de mai jos.
       </p>
