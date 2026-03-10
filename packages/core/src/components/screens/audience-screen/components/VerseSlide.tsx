@@ -1,5 +1,5 @@
 import { FC } from 'react';
-import type { TextStyleData } from '../../../../jazz/text-style-store';
+import { buildTextShadowStyle, type TextStyleData } from '../../../../jazz/text-style-store';
 
 type VerseSlideProps = {
   text: string;
@@ -19,9 +19,7 @@ const VerseSlide: FC<VerseSlideProps> = ({
   // Scale verse and reference sizes proportionally from the base style
   const verseFontSize = textStyle ? textStyle.fontSize * (450 / 410) : undefined;
   const refFontSize = textStyle ? textStyle.fontSize * (350 / 410) : undefined;
-  const textShadow = textStyle
-    ? `${textStyle.shadowOffsetX}em ${textStyle.shadowOffsetY}em ${textStyle.shadowBlur}px ${textStyle.shadowColor}`
-    : undefined;
+  const textShadow = textStyle ? buildTextShadowStyle(textStyle) : undefined;
 
   return (
     <div className={isStage ? 'w-[95%]' : 'w-[80%]'}>

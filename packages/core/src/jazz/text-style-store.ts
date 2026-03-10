@@ -27,6 +27,8 @@ export type TextStyleData = {
   lineHeight: number;
   textAlign: 'left' | 'center' | 'right';
   songSlideSize: SongSlideSize;
+  verticalAlign: 'top' | 'center' | 'bottom';
+  shadowEnabled: boolean;
 };
 
 /** Template used when creating the initial style for an organization. */
@@ -45,6 +47,8 @@ export const DEFAULT_TEXT_STYLE_TEMPLATE: Omit<TextStyleData, 'id'> = {
   lineHeight: 1.2,
   textAlign: 'center',
   songSlideSize: 4,
+  verticalAlign: 'center',
+  shadowEnabled: true,
 };
 
 /** Last-resort fallback when no organization is loaded. */
@@ -81,6 +85,8 @@ function textStyleToData(item: TextStyleType | null | undefined): TextStyleData 
     lineHeight: item.lineHeight,
     textAlign: item.textAlign as 'left' | 'center' | 'right',
     songSlideSize: (item.songSlideSize === 0 ? 'full' : item.songSlideSize || 4) as SongSlideSize,
+    verticalAlign: (item.verticalAlign as 'top' | 'center' | 'bottom') ?? 'center',
+    shadowEnabled: item.shadowEnabled ?? true,
   };
 }
 
@@ -132,6 +138,8 @@ export function createTextStyle(
       lineHeight: data.lineHeight,
       textAlign: data.textAlign,
       songSlideSize: data.songSlideSize === 'full' ? 0 : data.songSlideSize,
+      verticalAlign: data.verticalAlign,
+      shadowEnabled: data.shadowEnabled,
     },
     { owner: orgGroup },
   );
@@ -193,5 +201,10 @@ export function deleteTextStyle(
   );
 
   return { success: true };
+}
+
+export function buildTextShadowStyle(style: TextStyleData): string {
+  if (!style.shadowEnabled) return 'none';
+  return `${style.shadowOffsetX}em ${style.shadowOffsetY}em ${style.shadowBlur}px ${style.shadowColor}`;
 }
 

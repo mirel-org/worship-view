@@ -95,7 +95,7 @@ const Settings = () => {
               </TabsList>
             </div>
 
-            <div className='flex-1 overflow-y-auto min-h-0'>
+            {/* <div className='flex-1 overflow-y-auto min-h-0'>
               <div className='p-6'>
                 <TabsContent value='aspect' className='mt-0'>
                   <SettingsAppearance />
@@ -120,7 +120,7 @@ const Settings = () => {
                   </>
                 )}
               </div>
-            </div>
+            </div> */}
             <div className='flex-1 min-h-0 flex flex-col p-6'>
               <TabsContent
                 value='aspect'

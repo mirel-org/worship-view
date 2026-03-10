@@ -8,8 +8,10 @@ import {
   deleteTextStyle,
 } from '../../jazz/text-style-store';
 import type { TextStyleData } from '../../jazz/text-style-store';
-import { Label, Button, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@worship-view/ui';
-import { CheckCircle2, Trash2, Plus, Save } from 'lucide-react';
+import { Label, Button, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, cn } from '@worship-view/ui';
+import { CheckCircle2, Trash2, Plus, Save, ImageOff } from 'lucide-react';
+import { useGetMediaItems, useMediaBlobUrl } from '../../hooks/useMedia';
+import type { MediaItemResponse } from '../../jazz/media-store';
 
 const FONT_WEIGHT_OPTIONS = [
   { value: 100, label: '100 - Thin' },
@@ -29,6 +31,12 @@ const TEXT_ALIGN_OPTIONS: { value: 'left' | 'center' | 'right'; label: string }[
   { value: 'right', label: 'Dreapta' },
 ];
 
+const VERTICAL_ALIGN_OPTIONS: { value: 'top' | 'center' | 'bottom'; label: string }[] = [
+  { value: 'top', label: 'Sus' },
+  { value: 'center', label: 'Centru' },
+  { value: 'bottom', label: 'Jos' },
+];
+
 const SONG_SLIDE_SIZE_OPTIONS = [
   { value: '1', label: '1 linie' },
   { value: '2', label: '2 linii' },
@@ -45,30 +53,90 @@ const PREVIEW_LINES = [
 ];
 
 function buildTextShadow(style: TextStyleData): string {
+  if (!style.shadowEnabled) return 'none';
   return `${style.shadowOffsetX}em ${style.shadowOffsetY}em ${style.shadowBlur}px ${style.shadowColor}`;
 }
 
-function StylePreview({ style }: { style: TextStyleData }) {
+function PreviewBackgroundThumb({
+  mediaItem,
+  selected,
+  onSelect,
+}: {
+  mediaItem: MediaItemResponse;
+  selected: boolean;
+  onSelect: () => void;
+}) {
+  const { blobUrl } = useMediaBlobUrl(mediaItem.fileStreamId);
+  return (
+    <button
+      type="button"
+      onClick={onSelect}
+      className={cn(
+        'flex-shrink-0 w-16 h-12 rounded border overflow-hidden bg-muted',
+        selected ? 'border-2 border-ring' : 'border-border hover:border-ring/60',
+      )}
+    >
+      {blobUrl && (
+        mediaItem.mediaType === 'image' ? (
+          <img src={blobUrl} className="w-full h-full object-cover" alt={mediaItem.name} />
+        ) : (
+          <video src={blobUrl} className="w-full h-full object-cover" muted playsInline preload="metadata" />
+        )
+      )}
+    </button>
+  );
+}
+
+function PreviewBackgroundImage({ fileStreamId, mediaType }: { fileStreamId: string; mediaType: 'image' | 'video' }) {
+  const { blobUrl } = useMediaBlobUrl(fileStreamId);
+  if (!blobUrl) return null;
+  return (
+    <div className="absolute inset-0 z-0">
+      {mediaType === 'image' ? (
+        <img src={blobUrl} className="w-full h-full object-cover" alt="" />
+      ) : (
+        <video src={blobUrl} autoPlay muted loop playsInline className="w-full h-full object-cover" />
+      )}
+    </div>
+  );
+}
+
+function StylePreview({ style, backgroundMedia }: { style: TextStyleData; backgroundMedia?: MediaItemResponse | null }) {
   const lineCount = style.songSlideSize === 'full' ? PREVIEW_LINES.length : Math.min(style.songSlideSize, PREVIEW_LINES.length);
   const visibleLines = PREVIEW_LINES.slice(0, lineCount);
+
+  const verticalAlignClass = {
+    top: 'items-start',
+    center: 'items-center',
+    bottom: 'items-end',
+  }[style.verticalAlign ?? 'center'];
 
   return (
     <div className="mt-4 rounded-lg overflow-hidden border">
       <div className="text-xs text-muted-foreground px-3 py-1.5 bg-muted/30 border-b">
         Previzualizare
       </div>
-      <div className="bg-black p-8 flex items-center justify-center min-h-[120px]">
+      <div
+        className={`bg-black flex ${verticalAlignClass} justify-center relative overflow-hidden w-full p-4`}
+        style={{ aspectRatio: '16 / 9' }}
+      >
+        {backgroundMedia && (
+          <PreviewBackgroundImage fileStreamId={backgroundMedia.fileStreamId} mediaType={backgroundMedia.mediaType} />
+        )}
         <div
+          className="relative z-10 w-full"
           style={{
             fontFamily: style.fontFamily,
-            fontSize: `${style.fontSize / 100}rem`,
+            fontSize: `${style.fontSize / 200}rem`,
             fontWeight: style.fontWeight,
             fontStyle: style.italic ? 'italic' : 'normal',
             textTransform: style.uppercase ? 'uppercase' : 'none',
             color: style.fontColor,
             textAlign: style.textAlign,
             lineHeight: style.lineHeight,
-            textShadow: buildTextShadow(style),
+            textShadow: style.shadowEnabled
+              ? `${style.shadowOffsetX}em ${style.shadowOffsetY}em ${style.shadowBlur * 0.5}px ${style.shadowColor}`
+              : 'none',
           }}
         >
           {visibleLines.map((line, i) => (
@@ -85,6 +153,8 @@ export function SettingsTextStyles() {
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
   const [editValues, setEditValues] = useState<TextStyleData | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [previewBackground, setPreviewBackground] = useState<MediaItemResponse | null>(null);
+  const { data: mediaItems } = useGetMediaItems();
 
   // Set initial selection
   useEffect(() => {
@@ -362,19 +432,38 @@ export function SettingsTextStyles() {
             {/* Aspect slide */}
             <div>
               <h4 className="text-2xl font-semibold text-foreground mb-4">Aspect slide</h4>
-              <div className="grid grid-cols-3 gap-4">
+              <div className="grid grid-cols-4 gap-4">
                 <div className="space-y-1.5">
                   <Label htmlFor="style-align">Aliniere</Label>
                   <Select
                     value={editValues.textAlign}
                     onValueChange={(v) => handleFieldChange('textAlign', v as 'left' | 'center' | 'right')}
-  
+
                   >
                     <SelectTrigger id="style-align">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
                       {TEXT_ALIGN_OPTIONS.map((opt) => (
+                        <SelectItem key={opt.value} value={opt.value}>
+                          {opt.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-1.5">
+                  <Label htmlFor="style-vertical-align">Aliniere verticală</Label>
+                  <Select
+                    value={editValues.verticalAlign}
+                    onValueChange={(v) => handleFieldChange('verticalAlign', v as 'top' | 'center' | 'bottom')}
+                  >
+                    <SelectTrigger id="style-vertical-align">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {VERTICAL_ALIGN_OPTIONS.map((opt) => (
                         <SelectItem key={opt.value} value={opt.value}>
                           {opt.label}
                         </SelectItem>
@@ -391,7 +480,7 @@ export function SettingsTextStyles() {
                     step="0.1"
                     value={editValues.lineHeight}
                     onChange={(e) => handleFieldChange('lineHeight', Number(e.target.value))}
-  
+
                   />
                 </div>
 
@@ -400,7 +489,7 @@ export function SettingsTextStyles() {
                   <Select
                     value={String(editValues.songSlideSize)}
                     onValueChange={(v) => handleFieldChange('songSlideSize', v === 'full' ? 'full' : Number(v))}
-  
+
                   >
                     <SelectTrigger id="style-slide-size">
                       <SelectValue />
@@ -420,7 +509,18 @@ export function SettingsTextStyles() {
             {/* Umbră */}
             <div>
               <h4 className="text-2xl font-semibold text-foreground mb-4">Umbră</h4>
-              <div className="grid grid-cols-4 gap-4">
+              <div className="mb-4">
+                <label className="flex items-center gap-2 text-sm">
+                  <input
+                    type="checkbox"
+                    checked={editValues.shadowEnabled}
+                    onChange={(e) => handleFieldChange('shadowEnabled', e.target.checked)}
+                    className="rounded"
+                  />
+                  Activare umbră
+                </label>
+              </div>
+              <div className={cn('grid grid-cols-4 gap-4', !editValues.shadowEnabled && 'opacity-50 pointer-events-none')}>
                 <div className="space-y-1.5">
                   <Label htmlFor="style-shadow-x">X (em)</Label>
                   <Input
@@ -429,7 +529,7 @@ export function SettingsTextStyles() {
                     step="0.01"
                     value={editValues.shadowOffsetX}
                     onChange={(e) => handleFieldChange('shadowOffsetX', Number(e.target.value))}
-  
+
                   />
                 </div>
 
@@ -441,7 +541,7 @@ export function SettingsTextStyles() {
                     step="0.01"
                     value={editValues.shadowOffsetY}
                     onChange={(e) => handleFieldChange('shadowOffsetY', Number(e.target.value))}
-  
+
                   />
                 </div>
 
@@ -453,7 +553,7 @@ export function SettingsTextStyles() {
                     step="1"
                     value={editValues.shadowBlur}
                     onChange={(e) => handleFieldChange('shadowBlur', Number(e.target.value))}
-  
+
                   />
                 </div>
 
@@ -463,14 +563,39 @@ export function SettingsTextStyles() {
                     id="style-shadow-color"
                     value={editValues.shadowColor}
                     onChange={(e) => handleFieldChange('shadowColor', e.target.value)}
-  
+
                   />
                 </div>
               </div>
             </div>
 
+            {/* Fundal previzualizare */}
+            <div>
+              <h4 className="text-2xl font-semibold text-foreground mb-4">Fundal previzualizare</h4>
+              <div className="flex gap-2 overflow-x-auto pb-2">
+                <button
+                  type="button"
+                  onClick={() => setPreviewBackground(null)}
+                  className={cn(
+                    'flex-shrink-0 w-16 h-12 rounded border bg-black flex items-center justify-center',
+                    previewBackground === null ? 'border-2 border-ring' : 'border-border hover:border-ring/60',
+                  )}
+                >
+                  <ImageOff className="h-4 w-4 text-muted-foreground" />
+                </button>
+                {mediaItems.map((item) => (
+                  <PreviewBackgroundThumb
+                    key={item.id}
+                    mediaItem={item}
+                    selected={previewBackground?.id === item.id}
+                    onSelect={() => setPreviewBackground(item)}
+                  />
+                ))}
+              </div>
+            </div>
+
             {/* Preview */}
-            <StylePreview style={previewStyle} />
+            <StylePreview style={previewStyle} backgroundMedia={previewBackground} />
           </>
         ) : (
           <div className="text-sm text-muted-foreground">

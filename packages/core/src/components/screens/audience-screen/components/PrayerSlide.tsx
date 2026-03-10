@@ -1,6 +1,6 @@
 import { prayerRequestFontSizeAtom } from '../../../../state/prayer.atoms';
 import { useAtom } from 'jotai';
-import type { TextStyleData } from '../../../../jazz/text-style-store';
+import { buildTextShadowStyle, type TextStyleData } from '../../../../jazz/text-style-store';
 
 type PrayerSlideProps = {
   prayerRequests: string[];
@@ -36,7 +36,7 @@ export function PrayerSlide({ prayerRequests, textStyle }: PrayerSlideProps) {
               fontStyle: textStyle.italic ? 'italic' : 'normal',
               color: textStyle.fontColor,
               textAlign: textStyle.textAlign,
-              textShadow: `${textStyle.shadowOffsetX}em ${textStyle.shadowOffsetY}em ${textStyle.shadowBlur}px ${textStyle.shadowColor}`,
+              textShadow: buildTextShadowStyle(textStyle),
             }
           : {
               fontSize: `${prayerFontSize}%`,

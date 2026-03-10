@@ -78,6 +78,8 @@ export const TextStyle = co
     lineHeight: z.number(),
     textAlign: z.enum(['left', 'center', 'right']),
     songSlideSize: z.number(), // 1, 2, 4, 8, or 0 (0 = full verse)
+    verticalAlign: z.optional(z.enum(['top', 'center', 'bottom'])),
+    shadowEnabled: z.optional(z.boolean()),
   })
   .withPermissions({
     onInlineCreate: 'sameAsContainer',
@@ -145,18 +147,6 @@ export const WorshipViewAccount = co
       });
     }
 
-    // Backfill textStyles on existing organizations that were created before the field existed
-    const { root } = await account.$jazz.ensureLoaded({
-      resolve: { root: { organizations: { $each: true } } },
-    });
-
-    const orgs = root.organizations;
-    for (let i = 0; i < orgs.length; i++) {
-      const org = orgs[i];
-      if (org && !org.$jazz.has('textStyles')) {
-        org.$jazz.set('textStyles', []);
-      }
-    }
   });
 
 // Export types for use throughout the application

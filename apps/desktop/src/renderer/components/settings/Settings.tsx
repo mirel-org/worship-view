@@ -122,7 +122,7 @@ const Settings = () => {
               </TabsList>
             </div>
 
-            <div className='flex-1 min-w-0 overflow-y-auto p-6'>
+            {/* <div className='flex-1 min-w-0 overflow-y-auto p-6'>
               <TabsContent value='display' className='mt-0'>
                 <SettingsDisplay />
               </TabsContent>
@@ -157,7 +157,7 @@ const Settings = () => {
               <TabsContent value='updates' className='mt-0'>
                 <SettingsUpdate />
               </TabsContent>
-            </div>
+            </div> */}
             <div className='flex-1 min-h-0 flex flex-col p-6'>
               <TabsContent
                 value='display'

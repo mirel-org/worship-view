@@ -22,6 +22,18 @@ import { formatBibleReference } from '../../../../utils/verse.utils';
 import { PrayerSlide } from './PrayerSlide';
 import { prayerRequestsAtom } from '../../../../state/prayer.atoms';
 import { useActiveTextStyle } from '../../../../hooks/useTextStyle';
+import { buildTextShadowStyle } from '../../../../jazz/text-style-store';
+
+function getVerticalPositionClasses(align: 'top' | 'center' | 'bottom'): string {
+  switch (align) {
+    case 'top':
+      return 'absolute top-0 left-1/2 -translate-x-1/2 pt-16';
+    case 'bottom':
+      return 'absolute bottom-0 left-1/2 -translate-x-1/2 pb-16';
+    default:
+      return 'absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2';
+  }
+}
 
 const SlideText: FC = () => {
   const [currentProjectionType] = useAtom(currentProjectionTypeAtom);
@@ -67,14 +79,14 @@ const SlideText: FC = () => {
     <div className='z-10 relative w-full h-full'>
       {currentProjectionType === 'song' && (
         <CrossFade nodeKey={songNodeKey}>
-          <div className='w-full flex justify-center absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2'>
+          <div className={`w-full flex justify-center ${getVerticalPositionClasses(activeStyle.verticalAlign)}`}>
             <SongSlide lines={songLinesSnapshot} textStyle={activeStyle} />
           </div>
         </CrossFade>
       )}
       {currentProjectionType === 'verse' && verseProjectionEnabled && (
         <CrossFade nodeKey={verseNodeKey}>
-          <div className='w-full flex justify-center absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2'>
+          <div className={`w-full flex justify-center ${getVerticalPositionClasses(activeStyle.verticalAlign)}`}>
             <VerseSlide
               text={verseTextSnapshot}
               reference={verseReferenceSnapshot}
@@ -84,7 +96,7 @@ const SlideText: FC = () => {
         </CrossFade>
       )}
       {currentProjectionType === 'prayer' && (
-        <div className='w-full flex justify-center absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2'>
+        <div className={`w-full flex justify-center ${getVerticalPositionClasses(activeStyle.verticalAlign)}`}>
           <PrayerSlide
             prayerRequests={prayerRequests}
             textStyle={activeStyle}
@@ -109,7 +121,7 @@ const SlideText: FC = () => {
             style={{
               fontFamily: activeStyle.fontFamily,
               color: activeStyle.fontColor,
-              textShadow: `${activeStyle.shadowOffsetX}em ${activeStyle.shadowOffsetY}em ${activeStyle.shadowBlur}px ${activeStyle.shadowColor}`,
+              textShadow: buildTextShadowStyle(activeStyle),
             }}
           >
             {currentSongSlideNumber}/{totalSongSlides}
