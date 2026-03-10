@@ -4,6 +4,7 @@ import settingsZoomHandlers from '../../ipc/settings/settings.zoom.handlers';
 import settingsResetHandlers from '../../ipc/settings/settings.reset.handlers';
 import backupHandlers from '../../ipc/backup/backup.handlers';
 import mediaCacheHandlers from '../../ipc/media/media-cache.handlers';
+import presentationHandlers from '../../ipc/presentation/presentation.handlers';
 import { app, BrowserWindow } from 'electron';
 import path from 'path';
 
@@ -96,4 +97,5 @@ function registerMainIPC() {
   settingsResetHandlers();
   backupHandlers();
   mediaCacheHandlers();
+  presentationHandlers();
 }

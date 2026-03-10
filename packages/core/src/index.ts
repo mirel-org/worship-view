@@ -4,6 +4,7 @@ export { selectedVerseReferenceAtom, selectedVerseTextAtom, verseInputReferenceA
 export { currentProjectionTypeAtom, verseProjectionEnabledAtom } from './state/projection.atoms';
 export { prayerRequestsAtom, prayerRequestFontSizeAtom } from './state/prayer.atoms';
 export { selectedBackgroundMediaItemAtom } from './state/media.atoms';
+export { selectedPresentationAtom, selectedPresentationSlideIndexAtom, selectedPresentationSlideAtom, totalPresentationSlidesAtom, presentationInputFocusAtom, videoPlayingAtom, videoVolumeAtom, videoSeekRequestAtom, videoCurrentTimeAtom, videoDurationAtom } from './state/presentation.atoms';
 export { areScreensEnabledAtom } from './state/screen.atoms';
 export { selectedTabTypeAtom } from './state/tab.atoms';
 export type { TabType } from './state/tab.atoms';
@@ -25,11 +26,13 @@ export type { Song, SongPart, SongSlide, SongArrangement } from './types/song.ty
 export type { BibleReferenceType, BibleTextType } from './types/verse.types';
 export type { ProjectionType } from './types/projection.types';
 export type { SongSlideSize } from './types/settings.song.types';
+export type { PresentationData, PresentationSlideData } from './types/presentation.types';
 
 // State hooks
 export { useSongControll, useManageSongs } from './state-hooks/song.hooks';
 export { useVerseControll, useVersesHistory } from './state-hooks/verse.hooks';
 export { useManageProjection } from './state-hooks/projection.hooks';
+export { usePresentationControl, useManagePresentations } from './state-hooks/presentation.hooks';
 export { useCommandPaletteSearch, MIN_SONG_SEARCH_LENGTH } from './state-hooks/command.hooks';
 export { useThemeSettings } from './state-hooks/settings.theme.hooks';
 export { useAutoMode } from './state-hooks/automode.hooks';
@@ -40,12 +43,14 @@ export { default as useVerseShortcuts } from './state-hooks/verse.shortcuts';
 export { default as useProjectionShortcuts } from './state-hooks/projection.shortcuts';
 export { useCommandPaletteShortcuts } from './state-hooks/command.shortcuts';
 export { useAutoModeShortcuts } from './state-hooks/automode.shortcuts';
+export { default as usePresentationShortcuts } from './state-hooks/presentation.shortcuts';
 
 // Hooks
 export { useActiveOrganization } from './hooks/useActiveOrganization';
 export { useActiveTextStyle, useTextStyles } from './hooks/useTextStyle';
 export { default as useInputFocus } from './hooks/useInputFocus';
 export { useGetMediaItems, useUploadMediaItem, useRenameMediaItem, useDeleteMediaItem, useMediaBlobUrl } from './hooks/useMedia';
+export { useGetPresentations, useUploadPresentation, useRenamePresentation, useDeletePresentation, useDeletePresentationSlide, usePresentationSlideBlobUrl } from './hooks/usePresentation';
 export { usePassphraseConfirmed } from './hooks/usePassphraseConfirmed';
 export { default as usePreventScroll } from './hooks/usePreventScroll';
 export { useSongValidation } from './hooks/useSongValidation';
@@ -74,6 +79,7 @@ export type { MediaItemResponse } from './jazz/media-store';
 export { validateMediaFile } from './jazz/media-store';
 export type { TextStyleData } from './jazz/text-style-store';
 export { DEFAULT_TEXT_STYLE_TEMPLATE, FALLBACK_TEXT_STYLE, AVAILABLE_FONTS, createTextStyle } from './jazz/text-style-store';
+export type { PresentationResponse, PresentationSlideResponse, UploadSlideInput } from './jazz/presentation-store';
 
 // Components
 export { default as CommandPalette } from './components/command-palette/CommandPalette';

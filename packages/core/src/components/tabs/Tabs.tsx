@@ -2,11 +2,13 @@ import { useAtom } from 'jotai';
 import { FC } from 'react';
 import TabsBible from './TabsBible';
 import TabsSongs from './TabsSongs';
+import TabsPresentations from './TabsPresentations';
 import { selectedTabTypeAtom } from '../../state/tab.atoms';
 
 const TabsMap = {
   songs: <TabsSongs />,
   bible: <TabsBible />,
+  presentations: <TabsPresentations />,
 };
 
 export type TabType = keyof typeof TabsMap;

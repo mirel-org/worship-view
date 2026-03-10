@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { useAccount } from 'jazz-tools/react';
 import { WorshipViewAccount, Organization } from '@worship-view/schema';
-import { setCoMapProperty, pushCoListItem } from '@worship-view/schema';
 import { Button } from '@worship-view/ui';
 import { Input } from '@worship-view/ui';
 import { Label } from '@worship-view/ui';
@@ -50,9 +49,8 @@ export function CreateOrganizationDialog({
     try {
       setIsCreating(true);
 
-      // Ensure organizations list exists
       if (!me.root.organizations) {
-        setCoMapProperty(me.root, 'organizations', []);
+        throw new Error('Account root not loaded');
       }
 
       // Create the organization inline in the list
@@ -65,12 +63,12 @@ export function CreateOrganizationDialog({
           serviceList: [],
           media: [],
           textStyles: [],
+          presentations: [],
         },
       );
 
-      // Add to user's organizations list (this will trigger the newGroup permission)
-      // The creator is automatically added as admin by Jazz
-      pushCoListItem(me.root.organizations, newOrg);
+      // Add to user's organizations list
+      (me.root.organizations.$jazz as any).push(newOrg);
 
       // Seed the default text style so slides have styling from the start
       createTextStyle(newOrg, DEFAULT_TEXT_STYLE_TEMPLATE);

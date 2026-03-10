@@ -6,6 +6,7 @@ import {
   verseProjectionEnabledAtom,
 } from '../state/projection.atoms';
 import { selectedVerseTextAtom } from '../state/verse.atoms';
+import { selectedPresentationSlideAtom } from '../state/presentation.atoms';
 import { useSongControll } from './song.hooks';
 import { selectedTabTypeAtom } from '../state/tab.atoms';
 export const useManageProjection = () => {
@@ -16,6 +17,7 @@ const useProjectionType = () => {
   const [selectedTabType] = useAtom(selectedTabTypeAtom);
   const [selectedSongSlide] = useAtom(selectedSongSlideAtom);
   const [selectedVerseText] = useAtom(selectedVerseTextAtom);
+  const [selectedPresentationSlide] = useAtom(selectedPresentationSlideAtom);
   const [, setCurrentProjectionType] = useAtom(currentProjectionTypeAtom);
 
   useEffect(() => {
@@ -27,11 +29,16 @@ const useProjectionType = () => {
   }, [selectedVerseText, setCurrentProjectionType]);
 
   useEffect(() => {
-    if (!selectedSongSlide && !selectedVerseText)
+    if (selectedPresentationSlide) setCurrentProjectionType('presentation');
+  }, [selectedPresentationSlide, setCurrentProjectionType]);
+
+  useEffect(() => {
+    if (!selectedSongSlide && !selectedVerseText && !selectedPresentationSlide)
       setCurrentProjectionType('none');
   }, [
     selectedSongSlide,
     selectedVerseText,
+    selectedPresentationSlide,
     setCurrentProjectionType,
     selectedTabType,
   ]);

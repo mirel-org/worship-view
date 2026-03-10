@@ -1,5 +1,5 @@
 import { Group } from 'jazz-tools';
-import { OrganizationType, SongType, ServiceListItemType, MediaItemType, TextStyleType } from './schema';
+import { OrganizationType, SongType, ServiceListItemType, MediaItemType, TextStyleType, PresentationType } from './schema';
 import { OrganizationWithOwner, CoMapWithSet } from './types';
 
 /**
@@ -111,6 +111,19 @@ export function getTextStylesArray(
   if (!organization?.textStyles) return [];
   if (isCoListLoaded<TextStyleType>(organization.textStyles)) {
     return organization.textStyles;
+  }
+  return [];
+}
+
+/**
+ * Get presentations from organization as an array (when loaded)
+ */
+export function getPresentationsArray(
+  organization: OrganizationType | null | undefined,
+): (PresentationType | null)[] {
+  if (!organization?.presentations) return [];
+  if (isCoListLoaded<PresentationType>(organization.presentations)) {
+    return organization.presentations;
   }
   return [];
 }

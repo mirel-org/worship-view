@@ -47,6 +47,9 @@ export default defineConfig({
     alias: {
       '@assets': resolve(__dirname, '../../assets'),
       '@ipc': resolve(__dirname, 'src/ipc'),
+      // Force pdfjs-dist to resolve from core's node_modules (v4.x)
+      // instead of the hoisted root node_modules (v5.x which needs Uint8Array.toHex)
+      'pdfjs-dist': resolve(__dirname, '../../packages/core/node_modules/pdfjs-dist'),
     },
   },
   server: {

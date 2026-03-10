@@ -9,7 +9,6 @@ import {
 import {
   getOrganizationGroup,
   setCoMapProperty,
-  pushCoListItem,
   removeCoListItem,
   getSongsArray,
   getServiceListArray,
@@ -140,11 +139,10 @@ export function saveSong(
     { owner: orgGroup },
   );
 
-  // Ensure songs list exists and add to it
   if (!organization.songs) {
-    setCoMapProperty(organization, 'songs', []);
+    throw new Error('Organization songs not loaded');
   }
-  pushCoListItem(organization.songs, newSong);
+  (organization.songs.$jazz as any).push(newSong);
 
   const response = songToResponse(newSong);
   if (!response) throw new Error('Failed to create song response');
@@ -265,9 +263,8 @@ export function batchUpsertSongs(
   let createdCount = 0;
   let updatedCount = 0;
 
-  // Ensure songs list exists
   if (!organization.songs) {
-    setCoMapProperty(organization, 'songs', []);
+    throw new Error('Organization songs not loaded');
   }
 
   for (const songData of songs) {
@@ -315,7 +312,7 @@ export function batchUpsertSongs(
           },
           { owner: orgGroup },
         );
-        pushCoListItem(organization.songs, newSong);
+        (organization.songs.$jazz as any).push(newSong);
         const response = songToResponse(newSong);
         if (response) {
           results.push(response);
@@ -428,9 +425,8 @@ export function addToServiceList(
     throw new Error('Song not found');
   }
 
-  // Ensure service list exists
   if (!organization.serviceList) {
-    setCoMapProperty(organization, 'serviceList', []);
+    throw new Error('Organization service list not loaded');
   }
 
   // Check if already in service list
@@ -459,8 +455,7 @@ export function addToServiceList(
     { owner: orgGroup },
   );
 
-  // Add to service list
-  pushCoListItem(organization.serviceList, newItem);
+  (organization.serviceList.$jazz as any).push(newItem);
 
   const songResponse = songToResponse(song);
   if (!songResponse) throw new Error('Failed to create song response');
@@ -543,9 +538,9 @@ export function reorderServiceList(
         { owner: orgGroup },
       );
       if (!organization.serviceList) {
-        setCoMapProperty(organization, 'serviceList', []);
+        throw new Error('Organization service list not loaded');
       }
-      pushCoListItem(organization.serviceList, newItem);
+      (organization.serviceList.$jazz as any).push(newItem);
     }
   });
 

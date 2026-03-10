@@ -1,1 +1,1 @@
-export type ProjectionType = 'none' | 'song' | 'verse' | 'prayer';
+export type ProjectionType = 'none' | 'song' | 'verse' | 'prayer' | 'presentation';

@@ -3,6 +3,7 @@ import { useSongControll } from './song.hooks';
 import { selectedTabTypeAtom } from '../state/tab.atoms';
 import { verseInputFocusAtom } from '../state/verse.atoms';
 import { commandPaletteOpenAtom } from '../state/command.atoms';
+import { selectedPresentationAtom, selectedPresentationSlideIndexAtom } from '../state/presentation.atoms';
 import { useVerseControll } from './verse.hooks';
 import { useAtom } from 'jotai';
 import { useCallback } from 'react';
@@ -40,13 +41,17 @@ const useClearScreenShortcut = () => {
   const { clearSong } = useSongControll();
   const { disableVerse } = useVerseControll();
   const [commandPaletteOpen] = useAtom(commandPaletteOpenAtom);
+  const [, setSelectedPresentation] = useAtom(selectedPresentationAtom);
+  const [, setSelectedPresentationSlideIndex] = useAtom(selectedPresentationSlideIndexAtom);
   const clear = useCallback((event: KeyboardEvent) => {
     if (event.defaultPrevented) return;
     if (shouldIgnoreNavigationShortcut(event)) return;
     if (commandPaletteOpen) return;
     clearSong();
     disableVerse();
-  }, [clearSong, disableVerse, commandPaletteOpen]);
+    setSelectedPresentation(null);
+    setSelectedPresentationSlideIndex(null);
+  }, [clearSong, disableVerse, commandPaletteOpen, setSelectedPresentation, setSelectedPresentationSlideIndex]);
 
   useShortcut('Escape', clear);
 };

@@ -35,6 +35,7 @@ import {
   Settings,
   X,
   Search,
+  Presentation,
 } from 'lucide-react';
 import { useCommandPaletteSearch, MIN_SONG_SEARCH_LENGTH } from '../../state-hooks/command.hooks';
 import { selectedTabTypeAtom } from '../../state/tab.atoms';
@@ -46,10 +47,12 @@ import {
   useClearServiceList,
 } from '../../hooks/useSongs';
 import { areSettingsOpenAtom } from '../../state/settings.atoms';
+import { selectedPresentationAtom, selectedPresentationSlideIndexAtom } from '../../state/presentation.atoms';
 import SongEditorDialog from '../panels/songs-list-panel/SongEditorDialog';
 import SongDeleteDialog from '../panels/songs-list-panel/SongDeleteDialog';
 import SongAddDialog from '../panels/songs-list-panel/SongAddDialog';
 import type { CommandAction } from '../../state/command.atoms';
+import type { PresentationResponse } from '../../jazz/presentation-store';
 
 const CommandPalette: FC = () => {
   const [open, setOpen] = useAtom(commandPaletteOpenAtom);
@@ -59,6 +62,8 @@ const CommandPalette: FC = () => {
   const [, setSelectedSong] = useAtom(selectedSongAtom);
   const [, setSelectedVerseReference] = useAtom(selectedVerseReferenceAtom);
   const [, setVersesHistory] = useAtom(versesHistoryAtom);
+  const [, setSelectedPresentation] = useAtom(selectedPresentationAtom);
+  const [, setSelectedPresentationSlideIndex] = useAtom(selectedPresentationSlideIndexAtom);
   const [selectedValue, setSelectedValue] = useState<string>('');
   const [searchValue, setSearchValue] = useState<string>('');
   const [editingSong, setEditingSong] = useState<Song | null>(null);
@@ -96,6 +101,8 @@ const CommandPalette: FC = () => {
       } else if (result.type === 'verse') {
         const verse = result.data as BibleReferenceType;
         key = `verse-${verse.book}-${verse.chapter}-${verse.verse}`;
+      } else if (result.type === 'presentation') {
+        key = `presentation-${(result.data as PresentationResponse).id}`;
       } else {
         key = `command-${(result.data as { id: CommandAction }).id}`;
       }
@@ -143,6 +150,8 @@ const CommandPalette: FC = () => {
       } else if (r.type === 'verse') {
         const verse = r.data as BibleReferenceType;
         key = `verse-${verse.book}-${verse.chapter}-${verse.verse}`;
+      } else if (r.type === 'presentation') {
+        key = `presentation-${(r.data as PresentationResponse).id}`;
       } else {
         key = `command-${(r.data as { id: CommandAction }).id}`;
       }
@@ -154,6 +163,11 @@ const CommandPalette: FC = () => {
     if (result.type === 'song') {
       setSelectedTabType('songs');
       setSelectedSong(result.data);
+      setOpen(false);
+    } else if (result.type === 'presentation') {
+      setSelectedTabType('presentations');
+      setSelectedPresentation(result.data as PresentationResponse);
+      setSelectedPresentationSlideIndex(0);
       setOpen(false);
     } else if (result.type === 'verse') {
       const verseReference = result.data as BibleReferenceType;
@@ -255,8 +269,12 @@ const CommandPalette: FC = () => {
     results.filter(r => r.type === 'verse'),
     [results]
   );
-  const commandResults = useMemo(() => 
+  const commandResults = useMemo(() =>
     results.filter(r => r.type === 'command'),
+    [results]
+  );
+  const presentationResults = useMemo(() =>
+    results.filter(r => r.type === 'presentation'),
     [results]
   );
 
@@ -396,6 +414,41 @@ const CommandPalette: FC = () => {
                                     <Trash2 className="h-4 w-4" />
                                   </button>
                                 </div>
+                              </div>
+                            </CommandItem>
+                          );
+                        })}
+                      </CommandGroup>
+                    </div>
+                  </>
+                )}
+                {presentationResults.length > 0 && (
+                  <>
+                    <div className="h-px bg-border mx-1 my-1" />
+                    <div className="px-1 pb-1">
+                      <div className="px-1 pb-1 text-xs font-medium text-muted-foreground">
+                        Prezentări
+                      </div>
+                      <CommandGroup className="p-0">
+                        {presentationResults.map((result) => {
+                          const pres = result.data as PresentationResponse;
+                          const value = `presentation-${pres.id}`;
+                          return (
+                            <CommandItem
+                              key={value}
+                              value={value}
+                              keywords={[pres.name]}
+                              onSelect={() => handleSelect(value)}
+                              className={`${baseItemClass} items-center`}
+                            >
+                              <Presentation className="h-4 w-4 text-muted-foreground" />
+                              <div className="flex flex-col min-w-0">
+                                <span className="truncate text-sm text-foreground">
+                                  {pres.name}
+                                </span>
+                                <span className="text-xs text-muted-foreground">
+                                  {pres.slideCount} slide{pres.slideCount !== 1 ? '-uri' : ''}
+                                </span>
                               </div>
                             </CommandItem>
                           );

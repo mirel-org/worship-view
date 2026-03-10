@@ -3,6 +3,8 @@ export {
   ServiceListItem,
   MediaItem,
   TextStyle,
+  PresentationSlide,
+  Presentation,
   Organization,
   WorshipViewRoot,
   WorshipViewAccount,
@@ -13,6 +15,8 @@ export type {
   ServiceListItemType,
   TextStyleType,
   MediaItemType,
+  PresentationSlideType,
+  PresentationType,
   OrganizationType,
   WorshipViewAccountType,
   WorshipViewAccountWithOrganizationsType,
@@ -39,6 +43,7 @@ export {
   getMediaArray,
   getServiceListArray,
   getTextStylesArray,
+  getPresentationsArray,
 } from './helpers';
 
 export { wordlist } from './wordlist';

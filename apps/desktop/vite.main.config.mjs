@@ -28,6 +28,7 @@ export default defineConfig({
         'net',
         'tls',
         'child_process',
+        'adm-zip',
       ],
     },
     outDir: '.vite/build',
