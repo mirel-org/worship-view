@@ -47,9 +47,9 @@ export default defineConfig({
     alias: {
       '@assets': resolve(__dirname, '../../assets'),
       '@ipc': resolve(__dirname, 'src/ipc'),
-      // Force pdfjs-dist to resolve from core's node_modules (v4.x)
-      // instead of the hoisted root node_modules (v5.x which needs Uint8Array.toHex)
-      'pdfjs-dist': resolve(__dirname, '../../packages/core/node_modules/pdfjs-dist'),
+      // Pin pdfjs-dist to v4.x (declared in @worship-view/core) —
+      // pnpm hoists it to the workspace root node_modules.
+      'pdfjs-dist': resolve(__dirname, '../../node_modules/pdfjs-dist'),
     },
   },
   server: {
