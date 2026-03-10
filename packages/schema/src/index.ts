@@ -2,6 +2,7 @@ export {
   Song,
   ServiceListItem,
   MediaItem,
+  TextStyle,
   Organization,
   WorshipViewRoot,
   WorshipViewAccount,
@@ -10,6 +11,7 @@ export {
 export type {
   SongType,
   ServiceListItemType,
+  TextStyleType,
   MediaItemType,
   OrganizationType,
   WorshipViewAccountType,
@@ -36,6 +38,7 @@ export {
   getSongsArray,
   getMediaArray,
   getServiceListArray,
+  getTextStylesArray,
 } from './helpers';
 
 export { wordlist } from './wordlist';

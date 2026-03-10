@@ -21,6 +21,19 @@ import {
 import { formatBibleReference } from '../../../../utils/verse.utils';
 import { PrayerSlide } from './PrayerSlide';
 import { prayerRequestsAtom } from '../../../../state/prayer.atoms';
+import { useActiveTextStyle } from '../../../../hooks/useTextStyle';
+import { buildTextShadowStyle } from '../../../../jazz/text-style-store';
+
+function getVerticalPositionClasses(align: 'top' | 'center' | 'bottom'): string {
+  switch (align) {
+    case 'top':
+      return 'absolute top-0 left-1/2 -translate-x-1/2 pt-16';
+    case 'bottom':
+      return 'absolute bottom-0 left-1/2 -translate-x-1/2 pb-16';
+    default:
+      return 'absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2';
+  }
+}
 
 const SlideText: FC = () => {
   const [currentProjectionType] = useAtom(currentProjectionTypeAtom);
@@ -33,6 +46,7 @@ const SlideText: FC = () => {
   const [verseProjectionEnabled] = useAtom(verseProjectionEnabledAtom);
   const [prayerRequests] = useAtom(prayerRequestsAtom);
   const [selectedSongKey] = useAtom(selectedSongKeyAtom);
+  const activeStyle = useActiveTextStyle();
 
   const songContentKey = selectedSongSlide?.lines?.join('\n') ?? '';
   const songNodeKey = selectedSongSlideReference
@@ -41,7 +55,7 @@ const SlideText: FC = () => {
   const songLinesSnapshot = useMemo(
     () => [...(selectedSongSlide?.lines ?? [])],
     // eslint-disable-next-line react-hooks/exhaustive-deps -- songNodeKey is an intentional stabiliser
-    [songNodeKey]
+    [songNodeKey],
   );
 
   const verseNodeKey = selectedVerseReference
@@ -50,7 +64,7 @@ const SlideText: FC = () => {
   const verseTextSnapshot = useMemo(
     () => selectedVerseText ?? '',
     // eslint-disable-next-line react-hooks/exhaustive-deps -- verseNodeKey is an intentional stabiliser
-    [verseNodeKey]
+    [verseNodeKey],
   );
   const verseReferenceSnapshot = useMemo(
     () =>
@@ -58,36 +72,40 @@ const SlideText: FC = () => {
         ? formatBibleReference(selectedVerseReference)
         : '',
     // eslint-disable-next-line react-hooks/exhaustive-deps -- verseNodeKey is an intentional stabiliser
-    [verseNodeKey]
+    [verseNodeKey],
   );
 
   return (
-    <div className="z-10 relative w-full h-full">
+    <div className='z-10 relative w-full h-full'>
       {currentProjectionType === 'song' && (
         <CrossFade nodeKey={songNodeKey}>
-          <div className="w-full flex justify-center absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
-            <SongSlide lines={songLinesSnapshot} />
+          <div className={`w-full flex justify-center ${getVerticalPositionClasses(activeStyle.verticalAlign)}`}>
+            <SongSlide lines={songLinesSnapshot} textStyle={activeStyle} />
           </div>
         </CrossFade>
       )}
       {currentProjectionType === 'verse' && verseProjectionEnabled && (
         <CrossFade nodeKey={verseNodeKey}>
-          <div className="w-full flex justify-center absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+          <div className={`w-full flex justify-center ${getVerticalPositionClasses(activeStyle.verticalAlign)}`}>
             <VerseSlide
               text={verseTextSnapshot}
               reference={verseReferenceSnapshot}
+              textStyle={activeStyle}
             />
           </div>
         </CrossFade>
       )}
       {currentProjectionType === 'prayer' && (
-        <div className="w-full flex justify-center absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
-          <PrayerSlide prayerRequests={prayerRequests} />
+        <div className={`w-full flex justify-center ${getVerticalPositionClasses(activeStyle.verticalAlign)}`}>
+          <PrayerSlide
+            prayerRequests={prayerRequests}
+            textStyle={activeStyle}
+          />
         </div>
       )}
       {currentProjectionType === 'song' && selectedSongKey && (
         <div
-          className="absolute bottom-10 left-10 pb-4 pl-4 font-montserrat text-[300%] font-bold text-white z-20"
+          className='absolute bottom-10 left-10 pb-4 pl-4 font-montserrat text-[300%] font-bold text-white z-20'
           style={{ textShadow: '0.06em 0.06em 1px #00000094' }}
         >
           {selectedSongKey}
@@ -99,8 +117,12 @@ const SlideText: FC = () => {
         currentSongSlideNumber > 0 &&
         totalSongSlides > 0 && (
           <div
-            className="absolute bottom-10 right-10 pb-4 pr-4 font-montserrat text-[300%] font-bold text-white z-20"
-            style={{ textShadow: '0.06em 0.06em 1px #00000094' }}
+            className='absolute bottom-10 right-10 pb-4 pr-4 text-[300%] font-bold z-20'
+            style={{
+              fontFamily: activeStyle.fontFamily,
+              color: activeStyle.fontColor,
+              textShadow: buildTextShadowStyle(activeStyle),
+            }}
           >
             {currentSongSlideNumber}/{totalSongSlides}
           </div>

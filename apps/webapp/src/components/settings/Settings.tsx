@@ -1,7 +1,14 @@
 import { useState } from 'react';
 import { useAtom } from 'jotai';
 import { useIsAuthenticated } from 'jazz-tools/react';
-import { areSettingsOpenAtom, SettingsAccount, SettingsOrganizations, SettingsImportSongs, SettingsAppearance, SettingsSongs } from '@worship-view/core';
+import {
+  areSettingsOpenAtom,
+  SettingsAccount,
+  SettingsOrganizations,
+  SettingsImportSongs,
+  SettingsAppearance,
+  SettingsTextStyles,
+} from '@worship-view/core';
 import {
   Dialog,
   DialogContent,
@@ -22,53 +29,63 @@ const Settings = () => {
 
   return (
     <Dialog open={areSettingsOpen} onOpenChange={setAreSettingsOpen}>
-      <DialogContent className="w-[calc(100%-2rem)] max-w-[900px] h-[85vh] md:h-[600px] max-h-[90vh] p-0 overflow-hidden">
-        <DialogHeader className="sr-only">
+      <DialogContent className='w-[90vw] max-w-[90vw] h-[90vh] max-h-[90vh] p-0 overflow-hidden'>
+        <DialogHeader className='sr-only'>
           <DialogTitle>Setări</DialogTitle>
           <DialogDescription>
             Configurați setările aplicației, inclusiv preferințele de afișare,
             contul și organizațiile.
           </DialogDescription>
         </DialogHeader>
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="flex h-full flex-col md:flex-row">
-          <div className="flex h-full w-full flex-col md:flex-row">
-            <div className="md:w-48 border-b md:border-b-0 md:border-r bg-muted/30 flex-shrink-0">
-              <TabsList className="flex md:flex-col md:h-full w-full rounded-none border-0 bg-transparent p-0 overflow-x-auto md:overflow-x-visible">
+        <Tabs
+          value={activeTab}
+          onValueChange={setActiveTab}
+          className='flex h-full flex-col md:flex-row'
+        >
+          <div className='flex h-full w-full flex-col md:flex-row'>
+            <div className='md:w-48 border-b md:border-b-0 md:border-r bg-muted/30 flex-shrink-0'>
+              <TabsList className='flex md:flex-col md:h-full w-full rounded-none border-0 bg-transparent p-0 overflow-x-auto md:overflow-x-visible'>
                 <TabsTrigger
-                  value="aspect"
-                  className="flex-shrink-0 md:w-full justify-start rounded-none border-b px-4 py-3 data-[state=active]:bg-background data-[state=active]:shadow-none"
+                  value='aspect'
+                  className='flex-shrink-0 md:w-full justify-start rounded-none border-b px-4 py-3 data-[state=active]:bg-background data-[state=active]:shadow-none'
                 >
                   Aspect
                 </TabsTrigger>
                 {isAuthenticated && (
                   <>
                     <TabsTrigger
-                      value="jazz-token"
-                      className="flex-shrink-0 md:w-full justify-start rounded-none border-b px-4 py-3 data-[state=active]:bg-background data-[state=active]:shadow-none"
+                      value='text-styles'
+                      className='flex-shrink-0 md:w-full justify-start rounded-none border-b px-4 py-3 data-[state=active]:bg-background data-[state=active]:shadow-none'
+                    >
+                      Stiluri text
+                    </TabsTrigger>
+                    <TabsTrigger
+                      value='jazz-token'
+                      className='flex-shrink-0 md:w-full justify-start rounded-none border-b px-4 py-3 data-[state=active]:bg-background data-[state=active]:shadow-none'
                     >
                       Token Jazz
                     </TabsTrigger>
                     <TabsTrigger
-                      value="account"
-                      className="flex-shrink-0 md:w-full justify-start rounded-none border-b px-4 py-3 data-[state=active]:bg-background data-[state=active]:shadow-none"
+                      value='account'
+                      className='flex-shrink-0 md:w-full justify-start rounded-none border-b px-4 py-3 data-[state=active]:bg-background data-[state=active]:shadow-none'
                     >
                       Cont
                     </TabsTrigger>
                     <TabsTrigger
-                      value="organizations"
-                      className="flex-shrink-0 md:w-full justify-start rounded-none border-b px-4 py-3 data-[state=active]:bg-background data-[state=active]:shadow-none"
+                      value='organizations'
+                      className='flex-shrink-0 md:w-full justify-start rounded-none border-b px-4 py-3 data-[state=active]:bg-background data-[state=active]:shadow-none'
                     >
                       Organizații
                     </TabsTrigger>
                     <TabsTrigger
-                      value="songs"
-                      className="flex-shrink-0 md:w-full justify-start rounded-none border-b px-4 py-3 data-[state=active]:bg-background data-[state=active]:shadow-none"
+                      value='songs'
+                      className='flex-shrink-0 md:w-full justify-start rounded-none border-b px-4 py-3 data-[state=active]:bg-background data-[state=active]:shadow-none'
                     >
                       Cântece
                     </TabsTrigger>
                     <TabsTrigger
-                      value="import-songs"
-                      className="flex-shrink-0 md:w-full justify-start rounded-none border-b px-4 py-3 data-[state=active]:bg-background data-[state=active]:shadow-none"
+                      value='import-songs'
+                      className='flex-shrink-0 md:w-full justify-start rounded-none border-b px-4 py-3 data-[state=active]:bg-background data-[state=active]:shadow-none'
                     >
                       Importă cântece
                     </TabsTrigger>
@@ -76,32 +93,47 @@ const Settings = () => {
                 )}
               </TabsList>
             </div>
-
-            <div className="flex-1 overflow-y-auto min-h-0">
-              <div className="p-6">
-                <TabsContent value="aspect" className="mt-0">
-                  <SettingsAppearance />
-                </TabsContent>
-                {isAuthenticated && (
-                  <>
-                    <TabsContent value="jazz-token" className="mt-0">
-                      <SettingsJazzToken />
-                    </TabsContent>
-                    <TabsContent value="account" className="mt-0">
-                      <SettingsAccount />
-                    </TabsContent>
-                    <TabsContent value="organizations" className="mt-0">
-                      <SettingsOrganizations />
-                    </TabsContent>
-                    <TabsContent value="songs" className="mt-0">
-                      <SettingsSongs />
-                    </TabsContent>
-                    <TabsContent value="import-songs" className="mt-0">
-                      <SettingsImportSongs />
-                    </TabsContent>
-                  </>
-                )}
-              </div>
+            <div className='flex-1 min-h-0 flex flex-col p-6'>
+              <TabsContent
+                value='aspect'
+                className='mt-0 flex-1 min-h-0 overflow-y-auto'
+              >
+                <SettingsAppearance />
+              </TabsContent>
+              {isAuthenticated && (
+                <>
+                  <TabsContent
+                    value='text-styles'
+                    className='mt-0 flex-1 min-h-0 overflow-hidden'
+                  >
+                    <SettingsTextStyles />
+                  </TabsContent>
+                  <TabsContent
+                    value='jazz-token'
+                    className='mt-0 flex-1 min-h-0 overflow-y-auto'
+                  >
+                    <SettingsJazzToken />
+                  </TabsContent>
+                  <TabsContent
+                    value='account'
+                    className='mt-0 flex-1 min-h-0 overflow-y-auto'
+                  >
+                    <SettingsAccount />
+                  </TabsContent>
+                  <TabsContent
+                    value='organizations'
+                    className='mt-0 flex-1 min-h-0 overflow-y-auto'
+                  >
+                    <SettingsOrganizations />
+                  </TabsContent>
+                  <TabsContent
+                    value='import-songs'
+                    className='mt-0 flex-1 min-h-0 overflow-y-auto'
+                  >
+                    <SettingsImportSongs />
+                  </TabsContent>
+                </>
+              )}
             </div>
           </div>
         </Tabs>

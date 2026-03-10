@@ -13,6 +13,7 @@ import {
   DialogTitle,
 } from '@worship-view/ui';
 import { useActiveOrganization } from '../../hooks/useActiveOrganization';
+import { createTextStyle, DEFAULT_TEXT_STYLE_TEMPLATE } from '../../jazz/text-style-store';
 
 interface CreateOrganizationDialogProps {
   open: boolean;
@@ -63,12 +64,16 @@ export function CreateOrganizationDialog({
           songs: [],
           serviceList: [],
           media: [],
+          textStyles: [],
         },
       );
 
       // Add to user's organizations list (this will trigger the newGroup permission)
       // The creator is automatically added as admin by Jazz
       pushCoListItem(me.root.organizations, newOrg);
+
+      // Seed the default text style so slides have styling from the start
+      createTextStyle(newOrg, DEFAULT_TEXT_STYLE_TEMPLATE);
 
       // Switch to the new organization
       switchToOrganization(newOrg);
