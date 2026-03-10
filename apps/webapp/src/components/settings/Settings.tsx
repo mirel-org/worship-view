@@ -94,33 +94,6 @@ const Settings = () => {
                 )}
               </TabsList>
             </div>
-
-            {/* <div className='flex-1 overflow-y-auto min-h-0'>
-              <div className='p-6'>
-                <TabsContent value='aspect' className='mt-0'>
-                  <SettingsAppearance />
-                </TabsContent>
-                {isAuthenticated && (
-                  <>
-                    <TabsContent value='jazz-token' className='mt-0'>
-                      <SettingsJazzToken />
-                    </TabsContent>
-                    <TabsContent value='account' className='mt-0'>
-                      <SettingsAccount />
-                    </TabsContent>
-                    <TabsContent value='organizations' className='mt-0'>
-                      <SettingsOrganizations />
-                    </TabsContent>
-                    <TabsContent value='songs' className='mt-0'>
-                      <SettingsSongs />
-                    </TabsContent>
-                    <TabsContent value='import-songs' className='mt-0'>
-                      <SettingsImportSongs />
-                    </TabsContent>
-                  </>
-                )}
-              </div>
-            </div> */}
             <div className='flex-1 min-h-0 flex flex-col p-6'>
               <TabsContent
                 value='aspect'

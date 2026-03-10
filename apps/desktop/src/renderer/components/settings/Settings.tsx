@@ -121,43 +121,6 @@ const Settings = () => {
                 </TabsTrigger>
               </TabsList>
             </div>
-
-            {/* <div className='flex-1 min-w-0 overflow-y-auto p-6'>
-              <TabsContent value='display' className='mt-0'>
-                <SettingsDisplay />
-              </TabsContent>
-              <TabsContent value='aspect' className='mt-0'>
-                <SettingsAppearance />
-              </TabsContent>
-                <TabsContent value="automode" className="mt-0">
-                  <SettingsAutoMode />
-                </TabsContent>
-              {isAuthenticated && (
-                <>
-                  <TabsContent value='jazz-token' className='mt-0'>
-                    <SettingsJazzToken />
-                  </TabsContent>
-                  <TabsContent value='account' className='mt-0'>
-                    <SettingsAccount />
-                  </TabsContent>
-                  <TabsContent value='organizations' className='mt-0'>
-                    <SettingsOrganizations />
-                  </TabsContent>
-                  <TabsContent value='songs' className='mt-0'>
-                    <SettingsSongs />
-                  </TabsContent>
-                  <TabsContent value='import-songs' className='mt-0'>
-                    <SettingsImportSongs />
-                  </TabsContent>
-                  <TabsContent value='backup' className='mt-0'>
-                    <SettingsBackup />
-                  </TabsContent>
-                </>
-              )}
-              <TabsContent value='updates' className='mt-0'>
-                <SettingsUpdate />
-              </TabsContent>
-            </div> */}
             <div className='flex-1 min-h-0 flex flex-col p-6'>
               <TabsContent
                 value='display'
