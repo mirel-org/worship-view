@@ -7,7 +7,6 @@ import {
   SettingsOrganizations,
   SettingsImportSongs,
   SettingsAppearance,
-  SettingsSongs,
   SettingsTextStyles,
 } from '@worship-view/core';
 import {

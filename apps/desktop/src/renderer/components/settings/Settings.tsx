@@ -8,7 +8,6 @@ import {
   SettingsOrganizations,
   SettingsImportSongs,
   SettingsAppearance,
-  SettingsSongs, SettingsAutoMode,
   SettingsTextStyles,
 } from '@worship-view/core';
 import {
@@ -62,8 +61,8 @@ const Settings = () => {
                   Aspect
                 </TabsTrigger>
                 <TabsTrigger
-                  value="automode"
-                  className="w-full justify-start rounded-none border-b px-4 py-3 data-[state=active]:bg-background data-[state=active]:shadow-none"
+                  value='automode'
+                  className='w-full justify-start rounded-none border-b px-4 py-3 data-[state=active]:bg-background data-[state=active]:shadow-none'
                 >
                   Mod Auto
                 </TabsTrigger>
