@@ -1,18 +1,11 @@
 import { availableDisplaysAtom, mainWindowDisplayIdAtom } from '../../../ipc/display/display.atoms';
 import { getApiClient } from '../../../ipc';
-import { settingsSongSlideSizeAtom, SongSlideSize } from '@worship-view/core';
 import { useAtom } from 'jotai';
 import { useEffect } from 'react';
 import { settingsDisplayScreenSelectionAtom } from '../../../ipc/settings/settings.display.atoms';
 import {
   RadioValueType,
   useRadioGroups,
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-  Label,
 } from '@worship-view/ui';
 
 const getCheckedValue = (inputs: RadioValueType[] | undefined) =>
@@ -37,18 +30,10 @@ const SettingsDisplay = () => {
   const [displayScreenSelection, setDisplayScreenSelection] = useAtom(
     settingsDisplayScreenSelectionAtom,
   );
-  const [settingsSongSlideSize, setSettingsSongSlideSize] = useAtom(
-    settingsSongSlideSizeAtom,
-  );
   const { onChange } = useRadioGroups(
     displayScreenSelection,
     setDisplayScreenSelection,
   );
-
-  const handleSongSlideSizeChange = (value: string) => {
-    const parsed = value === 'full' ? 'full' : Number(value);
-    setSettingsSongSlideSize(parsed as SongSlideSize);
-  };
 
   return (
     <div className="space-y-6">
@@ -93,28 +78,6 @@ const SettingsDisplay = () => {
             })}
           </div>
         )}
-      </div>
-
-      <div>
-        <h3 className="text-lg font-semibold mb-4">Cântece</h3>
-        <div className="space-y-2">
-          <Label htmlFor="song-slide-size">Dimensiune slide cântec</Label>
-          <Select
-            value={String(settingsSongSlideSize)}
-            onValueChange={handleSongSlideSizeChange}
-          >
-            <SelectTrigger id="song-slide-size" className="w-full">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="1">1 linie</SelectItem>
-              <SelectItem value="2">2 linii</SelectItem>
-              <SelectItem value="4">4 linii</SelectItem>
-              <SelectItem value="8">8 linii</SelectItem>
-              <SelectItem value="full">Strofa întreagă</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
       </div>
     </div>
   );

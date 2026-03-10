@@ -11,6 +11,7 @@ export { commandPaletteOpenAtom, commandPaletteSearchAtom, commandPaletteResults
 export type { CommandPaletteResultType, CommandAction, CommandPaletteResult } from './state/command.atoms';
 export { jazzApiKeyAtom, passphraseConfirmedByAccountAtom, activeOrgIdAtom } from './state/jazz.atoms';
 export { areSettingsOpenAtom } from './state/settings.atoms';
+export { selectedTextStyleIdAtom } from './state/text-style.atoms';
 export { sidebarOpenAtom } from './state/sidebar.atoms';
 export { openSidebar, closeSidebar } from './components/layout/Sidebar';
 export { settingsThemeAtom, settingsZoomLevelAtom } from './state/settings.theme.atoms';
@@ -42,6 +43,7 @@ export { useAutoModeShortcuts } from './state-hooks/automode.shortcuts';
 
 // Hooks
 export { useActiveOrganization } from './hooks/useActiveOrganization';
+export { useActiveTextStyle, useTextStyles } from './hooks/useTextStyle';
 export { default as useInputFocus } from './hooks/useInputFocus';
 export { useGetMediaItems, useUploadMediaItem, useRenameMediaItem, useDeleteMediaItem, useMediaBlobUrl } from './hooks/useMedia';
 export { usePassphraseConfirmed } from './hooks/usePassphraseConfirmed';
@@ -70,6 +72,8 @@ export { getCachedBlobUrl, setCachedBlobUrl, revokeCachedBlobUrl, setMediaCacheA
 export type { SongResponse, ServiceListSongResponse } from './jazz/store';
 export type { MediaItemResponse } from './jazz/media-store';
 export { validateMediaFile } from './jazz/media-store';
+export type { TextStyleData } from './jazz/text-style-store';
+export { DEFAULT_TEXT_STYLE_TEMPLATE, FALLBACK_TEXT_STYLE, AVAILABLE_FONTS, createTextStyle } from './jazz/text-style-store';
 
 // Components
 export { default as CommandPalette } from './components/command-palette/CommandPalette';
@@ -86,6 +90,7 @@ export { SettingsSongs } from './components/settings/SettingsSongs';
 export { SettingsAutoMode } from './components/settings/SettingsAutoMode';
 export { AutoModeStatus } from './components/automode/AutoModeStatus';
 export { SlideDebugOverlay } from './components/automode/SlideDebugOverlay';
+export { SettingsTextStyles } from './components/settings/SettingsTextStyles';
 export { default as AudienceScreen } from './components/screens/audience-screen/AudienceScreen';
 export { default as StageScreen } from './components/screens/stage-screen/StageScreen';
 export { default as Sidebar } from './components/layout/Sidebar';

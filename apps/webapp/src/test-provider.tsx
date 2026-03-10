@@ -6,7 +6,7 @@ import {
 import { Account } from 'jazz-tools';
 import { WorshipViewAccount, Organization, pushCoListItem } from '@worship-view/schema';
 import { useAtom } from 'jotai';
-import { songInputFocusAtom, verseInputFocusAtom } from '@worship-view/core';
+import { songInputFocusAtom, verseInputFocusAtom, createTextStyle, DEFAULT_TEXT_STYLE_TEMPLATE } from '@worship-view/core';
 
 /**
  * Check if the app is running in test mode.
@@ -88,8 +88,11 @@ export function TestAppWrapper({ children }: { children: ReactNode }) {
           songs: [],
           serviceList: [],
           media: [],
+          textStyles: [],
         });
         pushCoListItem(testAccount.root.organizations, org);
+        // Seed the default text style so slides have styling from the start
+        createTextStyle(org, DEFAULT_TEXT_STYLE_TEMPLATE);
         // Pre-set the active org ID so useActiveOrganization resolves immediately
         // without waiting for the auto-select useEffect to fire.
         localStorage.setItem(

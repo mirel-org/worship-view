@@ -2,7 +2,15 @@ import { useState } from 'react';
 import { useAtom } from 'jotai';
 import { useIsAuthenticated } from 'jazz-tools/react';
 import SettingsDisplay from './SettingsDisplay';
-import { areSettingsOpenAtom, SettingsAccount, SettingsOrganizations, SettingsImportSongs, SettingsAppearance, SettingsSongs, SettingsAutoMode } from '@worship-view/core';
+import {
+  areSettingsOpenAtom,
+  SettingsAccount,
+  SettingsOrganizations,
+  SettingsImportSongs,
+  SettingsAppearance,
+  SettingsSongs, SettingsAutoMode,
+  SettingsTextStyles,
+} from '@worship-view/core';
 import {
   Dialog,
   DialogContent,
@@ -25,27 +33,31 @@ const Settings = () => {
 
   return (
     <Dialog open={areSettingsOpen} onOpenChange={setAreSettingsOpen}>
-      <DialogContent className="w-[900px] max-w-[900px] h-[600px] max-h-[90vh] p-0 overflow-hidden flex flex-col">
-        <DialogHeader className="sr-only">
+      <DialogContent className='w-[90vw] max-w-[90vw] h-[90vh] max-h-[90vh] p-0 overflow-hidden flex flex-col'>
+        <DialogHeader className='sr-only'>
           <DialogTitle>Setări</DialogTitle>
           <DialogDescription>
             Configurați setările aplicației, inclusiv preferințele de afișare,
             contul și organizațiile.
           </DialogDescription>
         </DialogHeader>
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 min-h-0 overflow-hidden">
-          <div className="flex h-full">
-            <div className="w-48 border-r bg-muted/30 flex-shrink-0">
-              <TabsList className="flex flex-col h-full w-full rounded-none border-0 bg-transparent p-0">
+        <Tabs
+          value={activeTab}
+          onValueChange={setActiveTab}
+          className='flex-1 min-h-0 overflow-hidden'
+        >
+          <div className='flex h-full'>
+            <div className='w-48 border-r bg-muted/30 flex-shrink-0'>
+              <TabsList className='flex flex-col h-full w-full rounded-none border-0 bg-transparent p-0'>
                 <TabsTrigger
-                  value="display"
-                  className="w-full justify-start rounded-none border-b px-4 py-3 data-[state=active]:bg-background data-[state=active]:shadow-none"
+                  value='display'
+                  className='w-full justify-start rounded-none border-b px-4 py-3 data-[state=active]:bg-background data-[state=active]:shadow-none'
                 >
                   Afișare
                 </TabsTrigger>
                 <TabsTrigger
-                  value="aspect"
-                  className="w-full justify-start rounded-none border-b px-4 py-3 data-[state=active]:bg-background data-[state=active]:shadow-none"
+                  value='aspect'
+                  className='w-full justify-start rounded-none border-b px-4 py-3 data-[state=active]:bg-background data-[state=active]:shadow-none'
                 >
                   Aspect
                 </TabsTrigger>
@@ -58,87 +70,153 @@ const Settings = () => {
                 {isAuthenticated && (
                   <>
                     <TabsTrigger
-                      value="jazz-token"
-                      className="w-full justify-start rounded-none border-b px-4 py-3 data-[state=active]:bg-background data-[state=active]:shadow-none"
+                      value='text-styles'
+                      className='w-full justify-start rounded-none border-b px-4 py-3 data-[state=active]:bg-background data-[state=active]:shadow-none'
+                    >
+                      Stiluri text
+                    </TabsTrigger>
+                    <TabsTrigger
+                      value='jazz-token'
+                      className='w-full justify-start rounded-none border-b px-4 py-3 data-[state=active]:bg-background data-[state=active]:shadow-none'
                     >
                       Token Jazz
                     </TabsTrigger>
                     <TabsTrigger
-                      value="account"
-                      className="w-full justify-start rounded-none border-b px-4 py-3 data-[state=active]:bg-background data-[state=active]:shadow-none"
+                      value='account'
+                      className='w-full justify-start rounded-none border-b px-4 py-3 data-[state=active]:bg-background data-[state=active]:shadow-none'
                     >
                       Cont
                     </TabsTrigger>
                     <TabsTrigger
-                      value="organizations"
-                      className="w-full justify-start rounded-none border-b px-4 py-3 data-[state=active]:bg-background data-[state=active]:shadow-none"
+                      value='organizations'
+                      className='w-full justify-start rounded-none border-b px-4 py-3 data-[state=active]:bg-background data-[state=active]:shadow-none'
                     >
                       Organizații
                     </TabsTrigger>
                     <TabsTrigger
-                      value="songs"
-                      className="w-full justify-start rounded-none border-b px-4 py-3 data-[state=active]:bg-background data-[state=active]:shadow-none"
+                      value='songs'
+                      className='w-full justify-start rounded-none border-b px-4 py-3 data-[state=active]:bg-background data-[state=active]:shadow-none'
                     >
                       Cântece
                     </TabsTrigger>
                     <TabsTrigger
-                      value="import-songs"
-                      className="w-full justify-start rounded-none border-b px-4 py-3 data-[state=active]:bg-background data-[state=active]:shadow-none"
+                      value='import-songs'
+                      className='w-full justify-start rounded-none border-b px-4 py-3 data-[state=active]:bg-background data-[state=active]:shadow-none'
                     >
                       Importă cântece
                     </TabsTrigger>
                     <TabsTrigger
-                      value="backup"
-                      className="w-full justify-start rounded-none border-b px-4 py-3 data-[state=active]:bg-background data-[state=active]:shadow-none"
+                      value='backup'
+                      className='w-full justify-start rounded-none border-b px-4 py-3 data-[state=active]:bg-background data-[state=active]:shadow-none'
                     >
                       Backup
                     </TabsTrigger>
                   </>
                 )}
                 <TabsTrigger
-                  value="updates"
-                  className="w-full justify-start rounded-none border-b px-4 py-3 data-[state=active]:bg-background data-[state=active]:shadow-none"
+                  value='updates'
+                  className='w-full justify-start rounded-none border-b px-4 py-3 data-[state=active]:bg-background data-[state=active]:shadow-none'
                 >
                   Actualizări
                 </TabsTrigger>
               </TabsList>
             </div>
 
-            <div className="flex-1 min-w-0 overflow-y-auto p-6">
-                <TabsContent value="display" className="mt-0">
-                  <SettingsDisplay />
-                </TabsContent>
-                <TabsContent value="aspect" className="mt-0">
-                  <SettingsAppearance />
-                </TabsContent>
+            <div className='flex-1 min-w-0 overflow-y-auto p-6'>
+              <TabsContent value='display' className='mt-0'>
+                <SettingsDisplay />
+              </TabsContent>
+              <TabsContent value='aspect' className='mt-0'>
+                <SettingsAppearance />
+              </TabsContent>
                 <TabsContent value="automode" className="mt-0">
                   <SettingsAutoMode />
                 </TabsContent>
-                {isAuthenticated && (
-                  <>
-                    <TabsContent value="jazz-token" className="mt-0">
-                      <SettingsJazzToken />
-                    </TabsContent>
-                    <TabsContent value="account" className="mt-0">
-                      <SettingsAccount />
-                    </TabsContent>
-                    <TabsContent value="organizations" className="mt-0">
-                      <SettingsOrganizations />
-                    </TabsContent>
-                    <TabsContent value="songs" className="mt-0">
-                      <SettingsSongs />
-                    </TabsContent>
-                    <TabsContent value="import-songs" className="mt-0">
-                      <SettingsImportSongs />
-                    </TabsContent>
-                    <TabsContent value="backup" className="mt-0">
-                      <SettingsBackup />
-                    </TabsContent>
-                  </>
-                )}
-                <TabsContent value="updates" className="mt-0">
-                  <SettingsUpdate />
-                </TabsContent>
+              {isAuthenticated && (
+                <>
+                  <TabsContent value='jazz-token' className='mt-0'>
+                    <SettingsJazzToken />
+                  </TabsContent>
+                  <TabsContent value='account' className='mt-0'>
+                    <SettingsAccount />
+                  </TabsContent>
+                  <TabsContent value='organizations' className='mt-0'>
+                    <SettingsOrganizations />
+                  </TabsContent>
+                  <TabsContent value='songs' className='mt-0'>
+                    <SettingsSongs />
+                  </TabsContent>
+                  <TabsContent value='import-songs' className='mt-0'>
+                    <SettingsImportSongs />
+                  </TabsContent>
+                  <TabsContent value='backup' className='mt-0'>
+                    <SettingsBackup />
+                  </TabsContent>
+                </>
+              )}
+              <TabsContent value='updates' className='mt-0'>
+                <SettingsUpdate />
+              </TabsContent>
+            </div>
+            <div className='flex-1 min-h-0 flex flex-col p-6'>
+              <TabsContent
+                value='display'
+                className='mt-0 flex-1 min-h-0 overflow-y-auto'
+              >
+                <SettingsDisplay />
+              </TabsContent>
+              <TabsContent
+                value='aspect'
+                className='mt-0 flex-1 min-h-0 overflow-y-auto'
+              >
+                <SettingsAppearance />
+              </TabsContent>
+              {isAuthenticated && (
+                <>
+                  <TabsContent
+                    value='text-styles'
+                    className='mt-0 flex-1 min-h-0 overflow-hidden'
+                  >
+                    <SettingsTextStyles />
+                  </TabsContent>
+                  <TabsContent
+                    value='jazz-token'
+                    className='mt-0 flex-1 min-h-0 overflow-y-auto'
+                  >
+                    <SettingsJazzToken />
+                  </TabsContent>
+                  <TabsContent
+                    value='account'
+                    className='mt-0 flex-1 min-h-0 overflow-y-auto'
+                  >
+                    <SettingsAccount />
+                  </TabsContent>
+                  <TabsContent
+                    value='organizations'
+                    className='mt-0 flex-1 min-h-0 overflow-y-auto'
+                  >
+                    <SettingsOrganizations />
+                  </TabsContent>
+                  <TabsContent
+                    value='import-songs'
+                    className='mt-0 flex-1 min-h-0 overflow-y-auto'
+                  >
+                    <SettingsImportSongs />
+                  </TabsContent>
+                  <TabsContent
+                    value='backup'
+                    className='mt-0 flex-1 min-h-0 overflow-y-auto'
+                  >
+                    <SettingsBackup />
+                  </TabsContent>
+                </>
+              )}
+              <TabsContent
+                value='updates'
+                className='mt-0 flex-1 min-h-0 overflow-y-auto'
+              >
+                <SettingsUpdate />
+              </TabsContent>
             </div>
           </div>
         </Tabs>

@@ -58,7 +58,33 @@ export const MediaItem = co
   });
 
 /**
- * Organization schema - contains songs, service lists, and media for a worship organization
+ * TextStyle schema - represents a text style for audience slide projections
+ * Uses sameAsContainer permissions so styles inherit organization's group
+ */
+export const TextStyle = co
+  .map({
+    id: z.string(),
+    name: z.string(),
+    fontFamily: z.string(),
+    fontSize: z.number(),
+    fontWeight: z.number(),
+    italic: z.boolean(),
+    uppercase: z.boolean(),
+    fontColor: z.string(),
+    shadowOffsetX: z.number(),
+    shadowOffsetY: z.number(),
+    shadowBlur: z.number(),
+    shadowColor: z.string(),
+    lineHeight: z.number(),
+    textAlign: z.enum(['left', 'center', 'right']),
+    songSlideSize: z.number(), // 1, 2, 4, 8, or 0 (0 = full verse)
+  })
+  .withPermissions({
+    onInlineCreate: 'sameAsContainer',
+  });
+
+/**
+ * Organization schema - contains songs, service lists, media, and text styles for a worship organization
  * Uses newGroup permissions so each organization gets its own group for access control
  */
 export const Organization = co
@@ -71,6 +97,9 @@ export const Organization = co
       onInlineCreate: 'sameAsContainer',
     }),
     media: co.list(MediaItem).withPermissions({
+      onInlineCreate: 'sameAsContainer',
+    }),
+    textStyles: co.list(TextStyle).withPermissions({
       onInlineCreate: 'sameAsContainer',
     }),
   })
@@ -115,11 +144,25 @@ export const WorshipViewAccount = co
         organizations: [],
       });
     }
+
+    // Backfill textStyles on existing organizations that were created before the field existed
+    const { root } = await account.$jazz.ensureLoaded({
+      resolve: { root: { organizations: { $each: true } } },
+    });
+
+    const orgs = root.organizations;
+    for (let i = 0; i < orgs.length; i++) {
+      const org = orgs[i];
+      if (org && !org.$jazz.has('textStyles')) {
+        org.$jazz.set('textStyles', []);
+      }
+    }
   });
 
 // Export types for use throughout the application
 export type SongType = co.loaded<typeof Song>;
 export type ServiceListItemType = co.loaded<typeof ServiceListItem>;
+export type TextStyleType = co.loaded<typeof TextStyle>;
 export type MediaItemType = co.loaded<typeof MediaItem>;
 export type OrganizationType = co.loaded<typeof Organization>;
 export type WorshipViewAccountType = co.loaded<typeof WorshipViewAccount>;

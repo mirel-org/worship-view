@@ -6,9 +6,13 @@ import { WorshipViewAccount } from '@worship-view/schema';
 import { useAtom } from 'jotai';
 import { jazzApiKeyAtom, JazzApiKeyModal } from '@worship-view/core';
 import { isTestMode, TestAppWrapper } from './test-provider';
+import { injectFontCSS } from './lib/fonts';
 import './index.css';
 
 console.log('[Worship View Webapp] : Renderer execution started');
+
+// Inject fonts before rendering
+injectFontCSS();
 
 const container = document.getElementById('app');
 if (!container) {
