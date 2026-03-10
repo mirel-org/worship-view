@@ -47,6 +47,9 @@ export default defineConfig({
     alias: {
       '@assets': resolve(__dirname, '../../assets'),
       '@ipc': resolve(__dirname, 'src/ipc'),
+      // Pin pdfjs-dist to v4.x (declared in @worship-view/core) —
+      // pnpm hoists it to the workspace root node_modules.
+      'pdfjs-dist': resolve(__dirname, '../../node_modules/pdfjs-dist'),
     },
   },
   server: {

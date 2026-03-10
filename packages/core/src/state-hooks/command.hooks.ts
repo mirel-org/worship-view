@@ -7,6 +7,7 @@ import {
 } from '../state/command.atoms';
 import { makeVerseKey, normalizeForSearch } from '../utils/command.search.utils';
 import { useGetSongs } from '../hooks/useSongs';
+import { useGetPresentations } from '../hooks/usePresentation';
 import { Song } from '../types/song.types';
 import { BibleReferenceType, BibleTextType } from '../types/verse.types';
 import bibleText from '@assets/bibles/VDC.json';
@@ -25,10 +26,13 @@ type VerseSearchIndexEntry = {
   normalizedCombinedText: string;
 };
 
+const MIN_PRESENTATION_SEARCH_LENGTH = 3;
+
 export const useCommandPaletteSearch = (searchValue?: string) => {
   const [searchAtom, setSearchAtom] = useAtom(commandPaletteSearchAtom);
   const [, setResultsAtom] = useAtom(commandPaletteResultsAtom);
   const { data: songs = [] } = useGetSongs();
+  const { data: presentations = [] } = useGetPresentations();
   
   // Stabilize setResults to prevent infinite loops
   const setResultsRef = useRef(setResultsAtom);
@@ -275,6 +279,17 @@ export const useCommandPaletteSearch = (searchValue?: string) => {
       });
     }
     
+    // Search presentations
+    if (search.trim().length >= MIN_PRESENTATION_SEARCH_LENGTH) {
+      const queryLower = search.toLocaleLowerCase();
+      const matchingPresentations = presentations.filter((p) =>
+        p.name.toLocaleLowerCase().includes(queryLower),
+      );
+      matchingPresentations.forEach((p) => {
+        results.push({ type: 'presentation', data: p });
+      });
+    }
+
     const referenceVerseResults = /\d/.test(search) ? searchVerses(search) : [];
     const textVerseResults = searchVersesByText(search);
     const mergedVerseResults: BibleReferenceType[] = [];
@@ -314,6 +329,7 @@ export const useCommandPaletteSearch = (searchValue?: string) => {
   }, [
     search,
     songsKey,
+    presentations,
     searchVerses,
     searchVersesByText,
     searchCommands,

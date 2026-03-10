@@ -6,6 +6,7 @@ import { FC, useMemo } from 'react';
 import CrossFade from './CrossFade';
 import SongSlide from './SongSlide';
 import VerseSlide from './VerseSlide';
+import PresentationSlideView from './PresentationSlideView';
 import { useAtom } from 'jotai';
 import {
   selectedSongSlideReferenceAtom,
@@ -18,6 +19,11 @@ import {
   selectedVerseReferenceAtom,
   selectedVerseTextAtom,
 } from '../../../../state/verse.atoms';
+import {
+  selectedPresentationSlideAtom,
+  selectedPresentationSlideIndexAtom,
+  totalPresentationSlidesAtom,
+} from '../../../../state/presentation.atoms';
 import { formatBibleReference } from '../../../../utils/verse.utils';
 import { PrayerSlide } from './PrayerSlide';
 import { prayerRequestsAtom } from '../../../../state/prayer.atoms';
@@ -47,6 +53,9 @@ const SlideText: FC = () => {
   const [prayerRequests] = useAtom(prayerRequestsAtom);
   const [selectedSongKey] = useAtom(selectedSongKeyAtom);
   const activeStyle = useActiveTextStyle();
+  const [selectedPresentationSlide] = useAtom(selectedPresentationSlideAtom);
+  const [selectedPresentationSlideIndex] = useAtom(selectedPresentationSlideIndexAtom);
+  const [totalPresentationSlides] = useAtom(totalPresentationSlidesAtom);
 
   const songContentKey = selectedSongSlide?.lines?.join('\n') ?? '';
   const songNodeKey = selectedSongSlideReference
@@ -125,6 +134,24 @@ const SlideText: FC = () => {
             }}
           >
             {currentSongSlideNumber}/{totalSongSlides}
+          </div>
+        )}
+      {currentProjectionType === 'presentation' && selectedPresentationSlide && (
+        <div className="w-full h-full absolute inset-0">
+          <PresentationSlideView
+            fileStreamId={selectedPresentationSlide.fileStreamId}
+            slideType={selectedPresentationSlide.slideType}
+          />
+        </div>
+      )}
+      {currentProjectionType === 'presentation' &&
+        selectedPresentationSlideIndex !== null &&
+        totalPresentationSlides > 0 && (
+          <div
+            className="absolute bottom-10 right-10 pb-4 pr-4 font-montserrat text-[300%] font-bold text-white z-20"
+            style={{ textShadow: '0.06em 0.06em 1px #00000094' }}
+          >
+            {selectedPresentationSlideIndex + 1}/{totalPresentationSlides}
           </div>
         )}
     </div>

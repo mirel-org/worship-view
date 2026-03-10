@@ -86,7 +86,41 @@ export const TextStyle = co
   });
 
 /**
- * Organization schema - contains songs, service lists, media, and text styles for a worship organization
+ * PresentationSlide schema - represents a single slide (image or video) in a presentation
+ * Uses sameAsContainer permissions so slides inherit organization's group
+ */
+export const PresentationSlide = co
+  .map({
+    index: z.number(),
+    slideType: z.enum(['image', 'video']),
+    mimeType: z.string(),
+    file: co.fileStream(),
+  })
+  .withPermissions({
+    onInlineCreate: 'sameAsContainer',
+  });
+
+/**
+ * Presentation schema - represents a PowerPoint presentation converted to slides
+ * Uses sameAsContainer permissions so presentations inherit organization's group
+ */
+export const Presentation = co
+  .map({
+    id: z.string(),
+    name: z.string(),
+    searchText: z.string(),
+    slideCount: z.number(),
+    slides: co.list(PresentationSlide).withPermissions({
+      onInlineCreate: 'sameAsContainer',
+    }),
+    createdAt: z.number(),
+  })
+  .withPermissions({
+    onInlineCreate: 'sameAsContainer',
+  });
+
+/**
+ * Organization schema - contains songs, service lists, media, text styles, and presentations for a worship organization
  * Uses newGroup permissions so each organization gets its own group for access control
  */
 export const Organization = co
@@ -104,9 +138,29 @@ export const Organization = co
     textStyles: co.list(TextStyle).withPermissions({
       onInlineCreate: 'sameAsContainer',
     }),
+    presentations: co.list(Presentation).withPermissions({
+      onInlineCreate: 'sameAsContainer',
+    }),
   })
   .withPermissions({
     onInlineCreate: 'newGroup',
+  })
+  .withMigration((org) => {
+    if (!org.$jazz.has('songs')) {
+      org.$jazz.set('songs', []);
+    }
+    if (!org.$jazz.has('serviceList')) {
+      org.$jazz.set('serviceList', []);
+    }
+    if (!org.$jazz.has('media')) {
+      org.$jazz.set('media', []);
+    }
+    if (!org.$jazz.has('textStyles')) {
+      org.$jazz.set('textStyles', []);
+    }
+    if (!org.$jazz.has('presentations')) {
+      org.$jazz.set('presentations', []);
+    }
   });
 
 /**
@@ -154,6 +208,8 @@ export type SongType = co.loaded<typeof Song>;
 export type ServiceListItemType = co.loaded<typeof ServiceListItem>;
 export type TextStyleType = co.loaded<typeof TextStyle>;
 export type MediaItemType = co.loaded<typeof MediaItem>;
+export type PresentationSlideType = co.loaded<typeof PresentationSlide>;
+export type PresentationType = co.loaded<typeof Presentation>;
 export type OrganizationType = co.loaded<typeof Organization>;
 export type WorshipViewAccountType = co.loaded<typeof WorshipViewAccount>;
 

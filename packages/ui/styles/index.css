@@ -224,3 +224,31 @@
   );
   background-size: 32px 32px;
 }
+
+/* Video controls range inputs */
+.video-range-progress::-webkit-slider-thumb,
+.video-range-volume::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: hsl(var(--primary));
+  cursor: pointer;
+  border: none;
+}
+
+.video-range-progress::-webkit-slider-thumb:hover,
+.video-range-volume::-webkit-slider-thumb:hover {
+  background: hsl(var(--primary) / 0.8);
+}
+
+.video-range-progress:disabled::-webkit-slider-thumb {
+  background: hsl(var(--muted-foreground));
+  cursor: default;
+}
+
+.video-range-volume::-webkit-slider-thumb {
+  width: 10px;
+  height: 10px;
+}

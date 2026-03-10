@@ -150,7 +150,7 @@ test.describe('Text Styles Settings', () => {
     await openTextStylesTab(mainWindow);
 
     // The preview label should be visible
-    await expect(mainWindow.locator('text=Previzualizare')).toBeVisible();
+    await expect(mainWindow.getByText('Previzualizare', { exact: true })).toBeVisible();
 
     // The preview area should show sample lines (default is 4 lines)
     await expect(mainWindow.locator('text=Binecuvântat este Domnul')).toBeVisible();
@@ -182,6 +182,10 @@ test.describe('Text Styles Settings', () => {
     await nameInput.clear();
     await nameInput.fill('Stil test');
     await mainWindow.waitForTimeout(400);
+
+    // Save the changes so the sidebar updates
+    await mainWindow.locator('button:has-text("Salvează")').click();
+    await mainWindow.waitForTimeout(300);
 
     // Switch back to Implicit
     await mainWindow.locator('button:has-text("Implicit")').click();

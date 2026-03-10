@@ -16,6 +16,7 @@
     "jazz-tools": "^0.19.18",
     "jotai": "^1.4.3",
     "lucide-react": "^0.556.0",
+    "pdfjs-dist": "4.10.38",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-resizable-panels": "^3.0.6",

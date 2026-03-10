@@ -89,6 +89,7 @@ export function TestAppWrapper({ children }: { children: ReactNode }) {
           serviceList: [],
           media: [],
           textStyles: [],
+          presentations: [],
         });
         pushCoListItem(testAccount.root.organizations, org);
         // Seed the default text style so slides have styling from the start

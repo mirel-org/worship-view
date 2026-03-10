@@ -124,6 +124,20 @@ const Application: React.FC = () => {
                 >
                   Biblie
                 </button>
+                <button
+                  type="button"
+                  role="tab"
+                  aria-selected={selectedTabType === 'presentations'}
+                  data-state={selectedTabType === 'presentations' ? 'active' : 'inactive'}
+                  onClick={() => setSelectedTabType('presentations')}
+                  className={
+                    selectedTabType === 'presentations'
+                      ? 'h-8 px-3 rounded-[2px] bg-background text-foreground text-sm font-medium shadow-[0_1px_1.75px_rgba(0,0,0,0.05)]'
+                      : 'h-8 px-3 rounded-[2px] text-muted-foreground text-sm font-medium'
+                  }
+                >
+                  Prezentări
+                </button>
               </div>
 
               <button

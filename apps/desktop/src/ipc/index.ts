@@ -5,6 +5,7 @@ import { SettingsZoomPreloadType } from './settings/settings.zoom.types';
 import { SettingsResetPreloadType } from './settings/settings.reset.types';
 import { BackupPreloadType } from './backup/backup.types';
 import { MediaCachePreloadType } from './media/media-cache.types';
+import { PresentationPreloadType } from './presentation/presentation.types';
 import {
   useManageProjection,
   useSongShortcuts,
@@ -13,6 +14,8 @@ import {
   useCommandPaletteShortcuts,
   useAutoModeShortcuts,
   useManageSongs,
+  useManagePresentations,
+  usePresentationShortcuts,
   useVersesHistory,
   setMediaCacheApi,
   useAutoMode,
@@ -25,7 +28,8 @@ export type MyAPIType = DisplayPreloadType &
   SettingsZoomPreloadType &
   SettingsResetPreloadType &
   BackupPreloadType &
-  MediaCachePreloadType;
+  MediaCachePreloadType &
+  PresentationPreloadType;
 
 type MainWindow = typeof window & { myAPI: MyAPIType };
 
@@ -37,6 +41,7 @@ export const useSetup = () => {
   setMediaCacheApi(getApiClient());
   useManageProjection();
   useManageSongs();
+  useManagePresentations();
   useVersesHistory();
   useGetDisplays();
   useSetupShortcuts();
@@ -48,6 +53,7 @@ export const useSetup = () => {
 const useSetupShortcuts = () => {
   useVerseShortcuts();
   useSongShortcuts();
+  usePresentationShortcuts();
   useProjectionShortcuts();
   useCommandPaletteShortcuts();
   useAutoModeShortcuts();
