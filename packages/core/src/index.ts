@@ -18,6 +18,8 @@ export { openSidebar, closeSidebar } from './components/layout/Sidebar';
 export { settingsThemeAtom, settingsZoomLevelAtom } from './state/settings.theme.atoms';
 export type { AppTheme, AppZoomLevel } from './state/settings.theme.atoms';
 export { settingsSongSlideSizeAtom } from './state/settings.song.atoms';
+export { clockOverlayEnabledAtom, clockFormatAtom, clockPositionAtom, clockFontSizeAtom } from './state/clock.atoms';
+export type { ClockFormat, ClockPosition, ClockFontSize } from './state/clock.atoms';
 export { autoModeEnabledAtom, autoModeStateAtom, autoModeLastTranscriptionAtom, autoModeProgressAtom, autoModeWordStatusesAtom, sonioxApiKeyAtom, autoModeDeviceIdAtom, autoModeOperatorOnlyAtom, autoModeSuggestedSlideRefAtom } from './state/automode.atoms';
 export type { AutoModeState } from './state/automode.atoms';
 
@@ -104,6 +106,7 @@ export { SettingsAutoMode } from './components/settings/SettingsAutoMode';
 export { AutoModeStatus } from './components/automode/AutoModeStatus';
 export { SlideDebugOverlay } from './components/automode/SlideDebugOverlay';
 export { SettingsTextStyles } from './components/settings/SettingsTextStyles';
+export { SettingsClock } from './components/settings/SettingsClock';
 export { default as AudienceScreen } from './components/screens/audience-screen/AudienceScreen';
 export { default as StageScreen } from './components/screens/stage-screen/StageScreen';
 export { default as Sidebar } from './components/layout/Sidebar';
