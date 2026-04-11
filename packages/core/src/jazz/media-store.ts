@@ -197,28 +197,38 @@ export function deleteMediaItem(
 /**
  * Attaches JPEG poster streams to video items that were created before preview support.
  * Runs sequentially to limit decoder load.
+ * Returns the set of item IDs where poster extraction permanently failed
+ * (e.g. unsupported codec) so callers can avoid retrying them.
  */
 export async function backfillVideoPreviews(
   organization: OrganizationType | null | undefined,
   options?: { signal?: AbortSignal },
-): Promise<void> {
-  if (!organization) return;
+): Promise<Set<string>> {
+  const failed = new Set<string>();
+  if (!organization) return failed;
   const orgGroup = getOrganizationGroup(organization);
   const items = getMediaFromOrg(organization);
   for (const item of items) {
-    if (options?.signal?.aborted) return;
+    if (options?.signal?.aborted) return failed;
     if (!item || item.mediaType !== 'video') continue;
     const previewId = getFileStreamIdFromField(item.previewFile);
     if (previewId) continue;
     const mainId = getFileStreamIdFromField(item.file);
     if (!mainId) continue;
     const blob = await co.fileStream().loadAsBlob(mainId);
-    if (!blob) continue;
+    if (!blob) {
+      failed.add(item.id);
+      continue;
+    }
     const posterBlob = await extractVideoPosterBlob(blob);
-    if (!posterBlob) continue;
+    if (!posterBlob) {
+      failed.add(item.id);
+      continue;
+    }
     const previewStream = await co.fileStream().createFromBlob(posterBlob, {
       owner: orgGroup,
     });
     setCoMapProperty(item as MediaItemType, 'previewFile', previewStream);
   }
+  return failed;
 }

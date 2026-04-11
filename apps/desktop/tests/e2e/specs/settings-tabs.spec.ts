@@ -10,7 +10,7 @@ test.describe('Settings Tab Content', () => {
     await openSettings(mainWindow);
     await mainWindow.getByRole('tab', { name: 'Mod Auto', exact: true }).click();
 
-    await expect(mainWindow.getByText('Mod Auto', { exact: true })).toBeVisible();
+    await expect(mainWindow.getByRole('heading', { name: 'Mod Auto' })).toBeVisible();
     await expect(mainWindow.locator('label:has-text("Cheie API Soniox")')).toBeVisible();
     await expect(mainWindow.getByText('Activează Mod Auto', { exact: true })).toBeVisible();
   });

@@ -14,7 +14,14 @@ const MediaBox: FC<MediaBoxProps> = ({ mediaItem }) => {
       ? mediaItem.previewFileStreamId
       : undefined;
 
-  const { blobUrl } = useMediaBlobUrl(mediaItem.fileStreamId);
+  // Only load the full video blob when we'll actually play it;
+  // otherwise just load the lightweight poster image.
+  const mainStreamId =
+    mediaItem.mediaType === 'image' || showVideo
+      ? mediaItem.fileStreamId
+      : undefined;
+
+  const { blobUrl } = useMediaBlobUrl(mainStreamId);
   const { blobUrl: posterUrl } = useMediaBlobUrl(posterStreamId);
   const videoRef = useRef<HTMLVideoElement>(null);
 
@@ -39,14 +46,14 @@ const MediaBox: FC<MediaBoxProps> = ({ mediaItem }) => {
     };
   }, []);
 
-  if (!blobUrl) return null;
+  if (!blobUrl && !posterUrl) return null;
 
   return (
     <div className='w-full h-full'>
-      {mediaItem.mediaType === 'image' && (
+      {mediaItem.mediaType === 'image' && blobUrl && (
         <img src={blobUrl} className='w-full h-auto' alt={mediaItem.name} />
       )}
-      {mediaItem.mediaType === 'video' && showVideo && (
+      {mediaItem.mediaType === 'video' && showVideo && blobUrl && (
         <video
           ref={videoRef}
           src={blobUrl}

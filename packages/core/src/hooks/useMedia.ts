@@ -248,16 +248,22 @@ export function useMediaBlobUrl(fileStreamId: string | undefined) {
 /**
  * Generates JPEG posters for video items missing `previewFile` (legacy data).
  * Runs once when the media list loads; refreshes the list when done.
+ * Tracks permanently failed items to avoid an infinite retry loop that would
+ * re-download full video blobs on every cycle.
  */
 export function useMediaPreviewBackfill() {
   const { activeOrganization } = useActiveOrganization();
   const { data: mediaItems, refresh } = useGetMediaItems();
   const inFlightRef = useRef(false);
+  const failedIdsRef = useRef<Set<string>>(new Set());
 
   useEffect(() => {
     if (!activeOrganization || !mediaItems.length) return;
     const needs = mediaItems.filter(
-      (m) => m.mediaType === 'video' && !m.previewFileStreamId,
+      (m) =>
+        m.mediaType === 'video' &&
+        !m.previewFileStreamId &&
+        !failedIdsRef.current.has(m.id),
     );
     if (needs.length === 0) return;
     if (inFlightRef.current) return;
@@ -266,7 +272,13 @@ export function useMediaPreviewBackfill() {
     const ac = new AbortController();
     void (async () => {
       try {
-        await mediaStore.backfillVideoPreviews(activeOrganization, { signal: ac.signal });
+        const failed = await mediaStore.backfillVideoPreviews(
+          activeOrganization,
+          { signal: ac.signal },
+        );
+        for (const id of failed) {
+          failedIdsRef.current.add(id);
+        }
         refresh();
       } finally {
         inFlightRef.current = false;
