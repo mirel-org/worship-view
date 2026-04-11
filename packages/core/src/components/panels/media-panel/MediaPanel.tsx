@@ -9,14 +9,21 @@ import {
   useRenameMediaItem,
 } from '../../../hooks/useMedia';
 import { validateMediaFile, type MediaItemResponse } from '../../../jazz/media-store';
+import { isVideoEnabled } from '../../../config/video-feature';
 import { useAtom } from 'jotai';
 import { FC, useRef, useState } from 'react';
-import { ImageOff, Pencil, Trash2, Upload } from 'lucide-react';
+import { Film, ImageOff, Pencil, Trash2, Upload } from 'lucide-react';
 import { Progress } from '@worship-view/ui';
 import { cn } from '@worship-view/ui';
 import MediaDeleteDialog from './MediaDeleteDialog';
 import MediaRenameDialog from './MediaRenameDialog';
 import { Button } from '@worship-view/ui';
+
+const VideoPlaceholder: FC = () => (
+  <div className="h-full w-full flex items-center justify-center">
+    <Film className="h-6 w-6 text-muted-foreground" />
+  </div>
+);
 
 const MediaGridItem: FC<{
   mediaItem: MediaItemResponse;
@@ -25,8 +32,12 @@ const MediaGridItem: FC<{
   onRename: () => void;
   onDelete: () => void;
 }> = ({ mediaItem, selected, onSelect, onRename, onDelete }) => {
-  const thumbStreamId =
-    mediaItem.mediaType === 'video' && mediaItem.previewFileStreamId
+  const videoWithoutPoster =
+    mediaItem.mediaType === 'video' && !mediaItem.previewFileStreamId;
+  const skipLoad = videoWithoutPoster && !isVideoEnabled();
+  const thumbStreamId = skipLoad
+    ? undefined
+    : mediaItem.mediaType === 'video' && mediaItem.previewFileStreamId
       ? mediaItem.previewFileStreamId
       : mediaItem.fileStreamId;
   const { blobUrl } = useMediaBlobUrl(thumbStreamId);
@@ -43,7 +54,9 @@ const MediaGridItem: FC<{
       )}
     >
       <div className="h-20 w-full bg-muted">
-        {blobUrl ? (
+        {skipLoad ? (
+          <VideoPlaceholder />
+        ) : blobUrl ? (
           mediaItem.mediaType === 'image' ? (
             <img
               src={blobUrl}
@@ -56,7 +69,7 @@ const MediaGridItem: FC<{
               alt={mediaItem.name}
               className="h-full w-full object-cover"
             />
-          ) : (
+          ) : isVideoEnabled() ? (
             <video
               src={blobUrl}
               className="h-full w-full object-cover"
@@ -64,6 +77,8 @@ const MediaGridItem: FC<{
               playsInline
               preload="metadata"
             />
+          ) : (
+            <VideoPlaceholder />
           )
         ) : (
           <div className="h-full w-full" />

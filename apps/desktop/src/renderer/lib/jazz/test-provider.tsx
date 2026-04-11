@@ -4,8 +4,9 @@ import {
   createJazzTestAccount,
 } from 'jazz-tools/react/testing';
 import { Account } from 'jazz-tools';
-import { WorshipViewAccount, Organization, pushCoListItem } from '@worship-view/schema';
+import { WorshipViewAccount, Organization, ServiceList, pushCoListItem } from '@worship-view/schema';
 import { useAtom } from 'jotai';
+import { v4 as uuidv4 } from 'uuid';
 import { songInputFocusAtom, verseInputFocusAtom, createTextStyle, DEFAULT_TEXT_STYLE_TEMPLATE } from '@worship-view/core';
 
 /**
@@ -92,6 +93,13 @@ export function TestAppWrapper({ children }: { children: ReactNode }) {
           presentations: [],
         });
         pushCoListItem(testAccount.root.organizations, org);
+        // Seed a default service list so service-list tests can add songs
+        const defaultList = ServiceList.create({
+          id: uuidv4(),
+          name: 'Lista de melodii',
+          items: [],
+        });
+        (org.serviceLists.$jazz as any).push(defaultList);
         // Seed the default text style so slides have styling from the start
         createTextStyle(org, DEFAULT_TEXT_STYLE_TEMPLATE);
         // Pre-set the active org ID so useActiveOrganization resolves immediately

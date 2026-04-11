@@ -9,9 +9,10 @@ import {
 } from '../../jazz/text-style-store';
 import type { TextStyleData } from '../../jazz/text-style-store';
 import { Label, Button, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, cn } from '@worship-view/ui';
-import { CheckCircle2, Trash2, Plus, Save, ImageOff } from 'lucide-react';
+import { CheckCircle2, Film, Trash2, Plus, Save, ImageOff } from 'lucide-react';
 import { useGetMediaItems, useMediaBlobUrl } from '../../hooks/useMedia';
 import type { MediaItemResponse } from '../../jazz/media-store';
+import { isVideoEnabled } from '../../config/video-feature';
 
 const FONT_WEIGHT_OPTIONS = [
   { value: 100, label: '100 - Thin' },
@@ -66,8 +67,12 @@ function PreviewBackgroundThumb({
   selected: boolean;
   onSelect: () => void;
 }) {
-  const thumbStreamId =
-    mediaItem.mediaType === 'video' && mediaItem.previewFileStreamId
+  const videoWithoutPoster =
+    mediaItem.mediaType === 'video' && !mediaItem.previewFileStreamId;
+  const skipLoad = videoWithoutPoster && !isVideoEnabled();
+  const thumbStreamId = skipLoad
+    ? undefined
+    : mediaItem.mediaType === 'video' && mediaItem.previewFileStreamId
       ? mediaItem.previewFileStreamId
       : mediaItem.fileStreamId;
   const { blobUrl } = useMediaBlobUrl(thumbStreamId);
@@ -80,13 +85,21 @@ function PreviewBackgroundThumb({
         selected ? 'border-2 border-ring' : 'border-border hover:border-ring/60',
       )}
     >
-      {blobUrl &&
+      {skipLoad ? (
+        <div className="w-full h-full flex items-center justify-center">
+          <Film className="h-4 w-4 text-muted-foreground" />
+        </div>
+      ) : blobUrl &&
         (mediaItem.mediaType === 'image' ? (
           <img src={blobUrl} className="w-full h-full object-cover" alt={mediaItem.name} />
         ) : mediaItem.previewFileStreamId ? (
           <img src={blobUrl} className="w-full h-full object-cover" alt={mediaItem.name} />
-        ) : (
+        ) : isVideoEnabled() ? (
           <video src={blobUrl} className="w-full h-full object-cover" muted playsInline preload="metadata" />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center">
+            <Film className="h-4 w-4 text-muted-foreground" />
+          </div>
         ))}
     </button>
   );
@@ -101,13 +114,16 @@ function PreviewBackgroundImage({
   previewFileStreamId?: string;
   mediaType: 'image' | 'video';
 }) {
+  const skipVideoFallback =
+    mediaType === 'video' && !previewFileStreamId && !isVideoEnabled();
+
   const { blobUrl: posterUrl } = useMediaBlobUrl(
     mediaType === 'video' && previewFileStreamId ? previewFileStreamId : undefined,
   );
   const { blobUrl: fallbackUrl } = useMediaBlobUrl(
     mediaType === 'image'
       ? fileStreamId
-      : mediaType === 'video' && !previewFileStreamId
+      : mediaType === 'video' && !previewFileStreamId && !skipVideoFallback
         ? fileStreamId
         : undefined,
   );
@@ -121,7 +137,7 @@ function PreviewBackgroundImage({
         <img src={fallbackUrl!} className="w-full h-full object-cover" alt="" />
       ) : posterUrl ? (
         <img src={posterUrl} className="w-full h-full object-cover" alt="" />
-      ) : (
+      ) : isVideoEnabled() ? (
         <video
           src={fallbackUrl!}
           muted
@@ -129,7 +145,7 @@ function PreviewBackgroundImage({
           preload="metadata"
           className="w-full h-full object-cover"
         />
-      )}
+      ) : null}
     </div>
   );
 }

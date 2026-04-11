@@ -39,7 +39,6 @@ test.describe('Command Palette', () => {
 
     // Default commands should be visible when search is empty
     await expect(appPage.locator('[cmdk-item]').filter({ hasText: 'Creează cântec nou' })).toBeVisible();
-    await expect(appPage.locator('[cmdk-item]').filter({ hasText: 'Golește lista de melodii' })).toBeVisible();
     await expect(appPage.locator('[cmdk-item]').filter({ hasText: 'Deschide setările' })).toBeVisible();
 
     await closeCommandPalette(appPage);

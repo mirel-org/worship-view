@@ -179,6 +179,26 @@ export const Organization = co
     if (!org.$jazz.has('presentations')) {
       org.$jazz.set('presentations', []);
     }
+
+    // Migrate old singular "serviceList" (co.list(ServiceListItem)) →
+    // new "serviceLists" (co.list(ServiceList)) structure
+    const orgAny = org as any;
+    if (orgAny.$jazz.has('serviceList')) {
+      const oldItems = orgAny.serviceList;
+      if (oldItems) {
+        const owner = orgAny.$jazz.owner;
+        const migrated = ServiceList.create(
+          {
+            id: crypto.randomUUID(),
+            name: 'Lista serviciu',
+            items: oldItems,
+          },
+          { owner },
+        );
+        orgAny.serviceLists.$jazz.push(migrated);
+      }
+      // orgAny.$jazz.set('serviceList', undefined);
+    }
   });
 
 /**

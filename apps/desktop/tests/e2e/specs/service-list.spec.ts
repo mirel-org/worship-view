@@ -78,14 +78,14 @@ test.describe('Service List', () => {
 
     // Hover the service list item and click the remove button
     await serviceListItem.hover();
-    await mainWindow.locator(`button[aria-label="Elimină ${SONG_NAME} din lista de melodii"]`).click();
+    await mainWindow.locator(`button[aria-label="Elimină ${SONG_NAME} din listă"]`).click();
     await mainWindow.waitForTimeout(500);
 
     // Song should be gone from service list
     await expect(serviceListItem).not.toBeVisible({ timeout: 5000 });
 
     // Empty state text should appear
-    await expect(mainWindow.locator('text=Niciun cântec în lista de melodii')).toBeVisible();
+    await expect(mainWindow.locator('text=Niciun cântec în această listă')).toBeVisible();
   });
 
   test('service list persists after tab switch', async ({ mainWindow }) => {
@@ -116,6 +116,6 @@ test.describe('Service List', () => {
 
   test('empty state shows when no songs in service list', async ({ mainWindow }) => {
     // Initially, service list should be empty
-    await expect(mainWindow.locator('text=Niciun cântec în lista de melodii')).toBeVisible({ timeout: 5000 });
+    await expect(mainWindow.locator('text=Niciun cântec în această listă')).toBeVisible({ timeout: 5000 });
   });
 });

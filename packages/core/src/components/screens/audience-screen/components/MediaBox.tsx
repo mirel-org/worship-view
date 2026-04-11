@@ -1,5 +1,6 @@
 import type { MediaItemResponse } from '../../../../jazz/media-store';
 import { useMediaBlobUrl } from '../../../../hooks/useMedia';
+import { isVideoEnabled } from '../../../../config/video-feature';
 import { FC, useRef, useEffect } from 'react';
 
 type MediaBoxProps = {
@@ -7,14 +8,20 @@ type MediaBoxProps = {
 };
 
 const MediaBox: FC<MediaBoxProps> = ({ mediaItem }) => {
+  const showVideo = mediaItem.mediaType === 'video' && isVideoEnabled();
+  const posterStreamId =
+    mediaItem.mediaType === 'video' && !showVideo
+      ? mediaItem.previewFileStreamId
+      : undefined;
+
   const { blobUrl } = useMediaBlobUrl(mediaItem.fileStreamId);
+  const { blobUrl: posterUrl } = useMediaBlobUrl(posterStreamId);
   const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
 
-    // Ensure video plays
     const playVideo = () => {
       if (video.paused) {
         video.play().catch(console.error);
@@ -27,7 +34,6 @@ const MediaBox: FC<MediaBoxProps> = ({ mediaItem }) => {
     return () => {
       video.removeEventListener('canplay', playVideo);
       video.removeEventListener('loadeddata', playVideo);
-      // Cleanup on unmount
       video.pause();
       video.src = '';
     };
@@ -40,7 +46,7 @@ const MediaBox: FC<MediaBoxProps> = ({ mediaItem }) => {
       {mediaItem.mediaType === 'image' && (
         <img src={blobUrl} className='w-full h-auto' alt={mediaItem.name} />
       )}
-      {mediaItem.mediaType === 'video' && (
+      {mediaItem.mediaType === 'video' && showVideo && (
         <video
           ref={videoRef}
           src={blobUrl}
@@ -51,6 +57,9 @@ const MediaBox: FC<MediaBoxProps> = ({ mediaItem }) => {
           preload='auto'
           className='w-full h-full object-cover'
         />
+      )}
+      {mediaItem.mediaType === 'video' && !showVideo && posterUrl && (
+        <img src={posterUrl} className='w-full h-full object-cover' alt={mediaItem.name} />
       )}
     </div>
   );

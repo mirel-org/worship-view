@@ -82,6 +82,9 @@ export { songToJson, songFromJson, isSongJsonFormat } from './parsers/songJsonFo
 export type { SongJsonFormat } from './parsers/songJsonFormat';
 export { getCachedBlobUrl, setCachedBlobUrl, revokeCachedBlobUrl, setMediaCacheApi } from './parsers/media-cache';
 
+// Config
+export { setVideoEnabled, isVideoEnabled } from './config/video-feature';
+
 // Jazz CRUD
 export type { SongResponse, ServiceListSongResponse, ServiceListResponse } from './jazz/store';
 export type { MediaItemResponse } from './jazz/media-store';

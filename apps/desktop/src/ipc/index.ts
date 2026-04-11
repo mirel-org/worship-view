@@ -18,6 +18,7 @@ import {
   usePresentationShortcuts,
   useVersesHistory,
   setMediaCacheApi,
+  setVideoEnabled,
   useAutoMode,
 } from '@worship-view/core';
 import { useDesktopSettings } from './settings/settings.hooks';
@@ -38,6 +39,7 @@ export const getApiClient = () => {
 };
 
 export const useSetup = () => {
+  setVideoEnabled(true);
   setMediaCacheApi(getApiClient());
   useManageProjection();
   useManageSongs();
