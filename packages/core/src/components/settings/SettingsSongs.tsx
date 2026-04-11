@@ -3,7 +3,7 @@ import { useAtom } from 'jotai';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { Input } from '@worship-view/ui';
 import { Music, ListPlus, Pencil, Trash2, Search } from 'lucide-react';
-import { useGetSongs, useDeleteSong, useAddToServiceList } from '../../hooks/useSongs';
+import { useGetSongs, useDeleteSong, useAddToServiceList, useGetServiceLists } from '../../hooks/useSongs';
 import { settingsSongSlideSizeAtom } from '../../state/settings.song.atoms';
 import { selectedTabTypeAtom } from '../../state/tab.atoms';
 import { selectedSongAtom } from '../../state/song.atoms';
@@ -29,6 +29,7 @@ export function SettingsSongs() {
   const [, setSettingsOpen] = useAtom(areSettingsOpenAtom);
   const deleteSongMutation = useDeleteSong();
   const addToServiceListMutation = useAddToServiceList();
+  const { data: serviceLists = [] } = useGetServiceLists();
 
   const [searchValue, setSearchValue] = useState('');
   const [hoveredSongId, setHoveredSongId] = useState<string | null>(null);
@@ -112,8 +113,10 @@ export function SettingsSongs() {
   const handleAddToServiceList = useCallback(
     async (e: { stopPropagation: () => void }, song: Song) => {
       e.stopPropagation();
+      if (serviceLists.length === 0) return;
+      const targetList = serviceLists[0];
       try {
-        await addToServiceListMutation.mutateAsync(song.id);
+        await addToServiceListMutation.mutateAsync({ serviceListId: targetList.id, songId: song.id });
       } catch (error: any) {
         if (error.message?.includes('already')) {
           alert(error.message);
@@ -122,7 +125,7 @@ export function SettingsSongs() {
         }
       }
     },
-    [addToServiceListMutation],
+    [addToServiceListMutation, serviceLists],
   );
 
   const handleEditClick = useCallback(

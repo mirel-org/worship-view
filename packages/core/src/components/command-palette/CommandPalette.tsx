@@ -33,7 +33,6 @@ import {
   Trash2,
   Plus,
   Settings,
-  X,
   Search,
   Presentation,
 } from 'lucide-react';
@@ -44,7 +43,7 @@ import { selectedVerseReferenceAtom, versesHistoryAtom } from '../../state/verse
 import {
   useDeleteSong,
   useAddToServiceList,
-  useClearServiceList,
+  useGetServiceLists,
 } from '../../hooks/useSongs';
 import { areSettingsOpenAtom } from '../../state/settings.atoms';
 import { selectedPresentationAtom, selectedPresentationSlideIndexAtom } from '../../state/presentation.atoms';
@@ -71,10 +70,11 @@ const CommandPalette: FC = () => {
   const [addDialogOpen, setAddDialogOpen] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [listPickerSongId, setListPickerSongId] = useState<string | null>(null);
   const [, setSettingsOpen] = useAtom(areSettingsOpenAtom);
   const deleteSongMutation = useDeleteSong();
   const addToServiceListMutation = useAddToServiceList();
-  const clearServiceListMutation = useClearServiceList();
+  const { data: serviceLists = [] } = useGetServiceLists();
   const commandRef = useRef<HTMLDivElement>(null);
   const baseItemClass =
     'group rounded-md !px-2 !py-2 text-sm text-foreground data-[selected=true]:!bg-accent hover:!bg-accent/70';
@@ -82,11 +82,11 @@ const CommandPalette: FC = () => {
   // Trigger search when search term changes
   useCommandPaletteSearch(searchValue);
 
-  // Reset selected value when dialog closes
   useEffect(() => {
     if (!open) {
       setSelectedValue('');
       setSearchValue('');
+      setListPickerSongId(null);
     }
   }, [open]);
 
@@ -196,16 +196,6 @@ const CommandPalette: FC = () => {
         setAddDialogOpen(true);
         setOpen(false);
         break;
-      case 'clear-service-list':
-        if (window.confirm('Sigur doriți să goliți întreaga listă de melodii?')) {
-          try {
-            await clearServiceListMutation.mutateAsync();
-            setOpen(false);
-          } catch (error) {
-            console.error('Failed to clear service list:', error);
-          }
-        }
-        break;
       case 'open-settings':
         setSettingsOpen(true);
         setOpen(false);
@@ -227,22 +217,32 @@ const CommandPalette: FC = () => {
     setDeleteDialogOpen(true);
   };
 
-  const handleAddToServiceList = async (
+  const handleAddToServiceList = (
     e: React.MouseEvent,
     song: Song,
   ) => {
     e.stopPropagation();
     e.preventDefault();
+    if (serviceLists.length === 0) return;
+
+    if (serviceLists.length === 1) {
+      addToSpecificList(serviceLists[0].id, song.id);
+    } else {
+      setListPickerSongId(song.id);
+    }
+  };
+
+  const addToSpecificList = async (serviceListId: string, songId: string) => {
     try {
-      await addToServiceListMutation.mutateAsync(song.id);
+      await addToServiceListMutation.mutateAsync({ serviceListId, songId });
     } catch (error: any) {
-      // Show error message if song already exists
       if (error.message?.includes('already')) {
         alert(error.message);
       } else {
         console.error('Failed to add song to service list:', error);
       }
     }
+    setListPickerSongId(null);
   };
 
   const handleSave = async () => {
@@ -343,7 +343,6 @@ const CommandPalette: FC = () => {
                             className={`${baseItemClass} items-start`}
                           >
                             {command.id === 'create-song' && <Plus className="mt-0.5 h-4 w-4 text-muted-foreground shrink-0" />}
-                            {command.id === 'clear-service-list' && <X className="mt-0.5 h-4 w-4 text-muted-foreground shrink-0" />}
                             {command.id === 'open-settings' && <Settings className="mt-0.5 h-4 w-4 text-muted-foreground shrink-0" />}
                             <div className="flex min-w-0 flex-col gap-0.5 leading-none">
                               <span className="text-sm text-foreground truncate">
@@ -391,14 +390,41 @@ const CommandPalette: FC = () => {
                                   className="ml-2 flex items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100 group-data-[selected=true]:opacity-100"
                                   onClick={(e) => e.stopPropagation()}
                                 >
-                                  <button
-                                    onClick={(e) => handleAddToServiceList(e, song)}
-                                    className="text-muted-foreground hover:text-foreground"
-                                    aria-label={`Adaugă ${song.name} la lista de melodii`}
-                                    disabled={addToServiceListMutation.isLoading}
-                                  >
-                                    <ListPlus className="h-4 w-4" />
-                                  </button>
+                                  {serviceLists.length > 0 && (
+                                    <div className="relative">
+                                      <button
+                                        onClick={(e) => handleAddToServiceList(e, song)}
+                                        className="text-muted-foreground hover:text-foreground"
+                                        aria-label={`Adaugă ${song.name} la lista de melodii`}
+                                        disabled={addToServiceListMutation.isLoading}
+                                      >
+                                        <ListPlus className="h-4 w-4" />
+                                      </button>
+                                      {listPickerSongId === song.id && serviceLists.length > 1 && (
+                                        <>
+                                          <div
+                                            className="fixed inset-0 z-[60]"
+                                            onClick={(e) => { e.stopPropagation(); setListPickerSongId(null); }}
+                                          />
+                                          <div className="absolute right-0 top-full mt-1 z-[70] bg-popover border border-border rounded-md shadow-lg py-1 min-w-[180px]">
+                                            <div className="px-3 py-1.5 text-[10px] font-medium text-muted-foreground uppercase tracking-wider">
+                                              Adaugă în lista...
+                                            </div>
+                                            {serviceLists.map((list) => (
+                                              <button
+                                                key={list.id}
+                                                onClick={(e) => { e.stopPropagation(); addToSpecificList(list.id, song.id); }}
+                                                className="flex items-center gap-2 w-full px-3 py-1.5 text-xs text-foreground hover:bg-accent transition-colors"
+                                              >
+                                                <ListPlus className="h-3 w-3 flex-shrink-0" />
+                                                <span className="truncate">{list.name}</span>
+                                              </button>
+                                            ))}
+                                          </div>
+                                        </>
+                                      )}
+                                    </div>
+                                  )}
                                   <button
                                     onClick={(e) => handleEditClick(e, song)}
                                     className="text-muted-foreground hover:text-foreground"

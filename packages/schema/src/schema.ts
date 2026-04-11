@@ -41,6 +41,22 @@ export const ServiceListItem = co
   });
 
 /**
+ * ServiceList schema - a named collection of service list items
+ * Each organization can have multiple service lists (e.g. "Sunday Morning", "Wednesday")
+ */
+export const ServiceList = co
+  .map({
+    id: z.string(),
+    name: z.string(),
+    items: co.list(ServiceListItem).withPermissions({
+      onInlineCreate: 'sameAsContainer',
+    }),
+  })
+  .withPermissions({
+    onInlineCreate: 'sameAsContainer',
+  });
+
+/**
  * MediaItem schema - represents a media file (image or video) stored via Jazz FileStream
  * Uses sameAsContainer permissions so media items inherit organization's group
  */
@@ -131,7 +147,7 @@ export const Organization = co
     songs: co.list(Song).withPermissions({
       onInlineCreate: 'sameAsContainer',
     }),
-    serviceList: co.list(ServiceListItem).withPermissions({
+    serviceLists: co.list(ServiceList).withPermissions({
       onInlineCreate: 'sameAsContainer',
     }),
     media: co.list(MediaItem).withPermissions({
@@ -151,8 +167,8 @@ export const Organization = co
     if (!org.$jazz.has('songs')) {
       org.$jazz.set('songs', []);
     }
-    if (!org.$jazz.has('serviceList')) {
-      org.$jazz.set('serviceList', []);
+    if (!org.$jazz.has('serviceLists')) {
+      org.$jazz.set('serviceLists', []);
     }
     if (!org.$jazz.has('media')) {
       org.$jazz.set('media', []);
@@ -208,6 +224,7 @@ export const WorshipViewAccount = co
 // Export types for use throughout the application
 export type SongType = co.loaded<typeof Song>;
 export type ServiceListItemType = co.loaded<typeof ServiceListItem>;
+export type ServiceListType = co.loaded<typeof ServiceList>;
 export type TextStyleType = co.loaded<typeof TextStyle>;
 export type MediaItemType = co.loaded<typeof MediaItem>;
 export type PresentationSlideType = co.loaded<typeof PresentationSlide>;

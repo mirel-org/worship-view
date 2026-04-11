@@ -213,7 +213,6 @@ export const useCommandPaletteSearch = (searchValue?: string) => {
   // Available commands
   const availableCommands = useMemo(() => [
     { id: 'create-song' as const, label: 'Creează cântec nou', description: 'Adaugă un cântec nou în bibliotecă' },
-    { id: 'clear-service-list' as const, label: 'Golește lista de melodii', description: 'Șterge toate cântecele din lista de melodii' },
     { id: 'open-settings' as const, label: 'Deschide setările', description: 'Deschide setările aplicației' },
   ], []);
 

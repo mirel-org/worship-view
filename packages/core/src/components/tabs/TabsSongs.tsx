@@ -1,14 +1,14 @@
 import { FC, useEffect, useState } from 'react';
 import { PanelGroup, Panel, PanelResizeHandle } from 'react-resizable-panels';
-import { ListPlus, Pencil, Trash2, X } from 'lucide-react';
+import { ListPlus, Pencil, Trash2 } from 'lucide-react';
 import { useAtom } from 'jotai';
 import { selectedSongAtom } from '../../state/song.atoms';
 import { Song } from '../../types/song.types';
 import {
   useAddToServiceList,
-  useClearServiceList,
   useDeleteSong,
   useGetSongs,
+  useGetServiceLists,
 } from '../../hooks/useSongs';
 import MediaPanel from '../panels/media-panel/MediaPanel';
 import SlidesListPanel from '../panels/slides-list-panel/SlidesListPanel';
@@ -18,11 +18,77 @@ import SongEditorDialog from '../panels/songs-list-panel/SongEditorDialog';
 import Sidebar from '../layout/Sidebar';
 import { Button } from '@worship-view/ui';
 
+const AddToServiceListButton: FC<{ songId: string }> = ({ songId }) => {
+  const { data: serviceLists = [] } = useGetServiceLists();
+  const addToServiceListMutation = useAddToServiceList();
+  const [showPicker, setShowPicker] = useState(false);
+
+  const handleAdd = async (serviceListId: string) => {
+    try {
+      await addToServiceListMutation.mutateAsync({ serviceListId, songId });
+    } catch (error: any) {
+      if (error.message?.includes('already')) {
+        alert(error.message);
+      } else {
+        console.error('Failed to add song to service list:', error);
+      }
+    }
+    setShowPicker(false);
+  };
+
+  if (serviceLists.length === 0) return null;
+
+  if (serviceLists.length === 1) {
+    return (
+      <Button
+        onClick={() => handleAdd(serviceLists[0].id)}
+        disabled={addToServiceListMutation.isLoading}
+        variant="outline"
+        size="icon"
+        className="h-8 w-8"
+        aria-label="Add to service list"
+      >
+        <ListPlus className="h-4 w-4" />
+      </Button>
+    );
+  }
+
+  return (
+    <div className="relative">
+      <Button
+        onClick={() => setShowPicker(!showPicker)}
+        disabled={addToServiceListMutation.isLoading}
+        variant="outline"
+        size="icon"
+        className="h-8 w-8"
+        aria-label="Add to service list"
+      >
+        <ListPlus className="h-4 w-4" />
+      </Button>
+      {showPicker && (
+        <>
+          <div className="fixed inset-0 z-40" onClick={() => setShowPicker(false)} />
+          <div className="absolute right-0 top-full mt-1 z-50 bg-popover border border-border rounded-md shadow-md py-1 min-w-[160px]">
+            {serviceLists.map((list) => (
+              <button
+                key={list.id}
+                onClick={() => handleAdd(list.id)}
+                className="flex items-center gap-2 w-full px-3 py-1.5 text-xs text-foreground hover:bg-accent transition-colors"
+              >
+                <ListPlus className="h-3 w-3" />
+                {list.name}
+              </button>
+            ))}
+          </div>
+        </>
+      )}
+    </div>
+  );
+};
+
 const TabsSongs: FC = () => {
   const [selectedSong, setSelectedSong] = useAtom(selectedSongAtom);
   const { data: songs = [] } = useGetSongs();
-  const clearServiceListMutation = useClearServiceList();
-  const addToServiceListMutation = useAddToServiceList();
   const deleteSongMutation = useDeleteSong();
   const [editingSong, setEditingSong] = useState<Song | null>(null);
   const [deletingSong, setDeletingSong] = useState<Song | null>(null);
@@ -40,31 +106,6 @@ const TabsSongs: FC = () => {
       setSelectedSong(updatedSong);
     }
   }, [songs, selectedSong, setSelectedSong]);
-
-  const handleClearServiceList = async () => {
-    if (!window.confirm('Sigur doriți să goliți întreaga listă de melodii?')) {
-      return;
-    }
-
-    try {
-      await clearServiceListMutation.mutateAsync();
-    } catch (error) {
-      console.error('Failed to clear service list:', error);
-    }
-  };
-
-  const handleHeaderAddToServiceList = async () => {
-    if (!selectedSong) return;
-    try {
-      await addToServiceListMutation.mutateAsync(selectedSong.id);
-    } catch (error: any) {
-      if (error.message?.includes('already')) {
-        alert(error.message);
-      } else {
-        console.error('Failed to add song to service list:', error);
-      }
-    }
-  };
 
   const handleHeaderEdit = () => {
     if (!selectedSong) return;
@@ -103,18 +144,8 @@ const TabsSongs: FC = () => {
         <PanelGroup direction="vertical" autoSaveId="songs-tabs-panels">
           <Panel defaultSize={55} minSize={20}>
             <div className="h-full flex flex-col border-b border-border">
-              <div className="flex h-10 items-center justify-between bg-muted border-b border-border pl-3 pr-2 flex-shrink-0">
-                <span className="text-sm font-semibold text-foreground">Listă Serviciu</span>
-                <Button
-                  onClick={handleClearServiceList}
-                  disabled={clearServiceListMutation.isLoading}
-                  variant="outline"
-                  size="sm"
-                  className="h-7 gap-1.5 px-2.5 text-xs"
-                >
-                  <X className="h-3.5 w-3.5" />
-                  {clearServiceListMutation.isLoading ? 'Se golește...' : 'Golește'}
-                </Button>
+              <div className="flex h-10 items-center bg-muted border-b border-border pl-3 pr-2 flex-shrink-0">
+                <span className="text-sm font-semibold text-foreground">Liste Serviciu</span>
               </div>
               <div className="flex-1 overflow-hidden">
                 <ServiceListSection />
@@ -141,16 +172,7 @@ const TabsSongs: FC = () => {
               {selectedSong.name}
             </span>
             <div className="flex items-center gap-2">
-              <Button
-                onClick={handleHeaderAddToServiceList}
-                disabled={addToServiceListMutation.isLoading}
-                variant="outline"
-                size="icon"
-                className="h-8 w-8"
-                aria-label="Add to service list"
-              >
-                <ListPlus className="h-4 w-4" />
-              </Button>
+              <AddToServiceListButton songId={selectedSong.id} />
               <Button
                 onClick={handleHeaderEdit}
                 variant="outline"

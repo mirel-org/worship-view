@@ -1,5 +1,5 @@
 import { Group } from 'jazz-tools';
-import { OrganizationType, SongType, ServiceListItemType, MediaItemType, TextStyleType, PresentationType } from './schema';
+import { OrganizationType, SongType, ServiceListItemType, ServiceListType, MediaItemType, TextStyleType, PresentationType } from './schema';
 import { OrganizationWithOwner, CoMapWithSet } from './types';
 
 /**
@@ -90,14 +90,27 @@ export function getMediaArray(
 }
 
 /**
- * Get service list from organization as an array (when loaded)
+ * Get all service lists from organization as an array (when loaded)
  */
-export function getServiceListArray(
+export function getServiceListsArray(
   organization: OrganizationType | null | undefined,
+): (ServiceListType | null)[] {
+  if (!organization?.serviceLists) return [];
+  if (isCoListLoaded<ServiceListType>(organization.serviceLists)) {
+    return organization.serviceLists;
+  }
+  return [];
+}
+
+/**
+ * Get items from a specific service list as an array (when loaded)
+ */
+export function getServiceListItemsArray(
+  serviceList: ServiceListType | null | undefined,
 ): (ServiceListItemType | null)[] {
-  if (!organization?.serviceList) return [];
-  if (isCoListLoaded<ServiceListItemType>(organization.serviceList)) {
-    return organization.serviceList;
+  if (!serviceList?.items) return [];
+  if (isCoListLoaded<ServiceListItemType>(serviceList.items)) {
+    return serviceList.items;
   }
   return [];
 }

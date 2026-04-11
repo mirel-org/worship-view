@@ -1,6 +1,7 @@
 export {
   Song,
   ServiceListItem,
+  ServiceList,
   MediaItem,
   TextStyle,
   PresentationSlide,
@@ -13,6 +14,7 @@ export {
 export type {
   SongType,
   ServiceListItemType,
+  ServiceListType,
   TextStyleType,
   MediaItemType,
   PresentationSlideType,
@@ -41,7 +43,8 @@ export {
   isCoListLoaded,
   getSongsArray,
   getMediaArray,
-  getServiceListArray,
+  getServiceListsArray,
+  getServiceListItemsArray,
   getTextStylesArray,
   getPresentationsArray,
 } from './helpers';

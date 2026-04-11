@@ -16,7 +16,7 @@ export function useActiveOrganization() {
         organizations: {
           $each: {
             songs: { $each: true },
-            serviceList: { $each: true },
+            serviceLists: { $each: { items: { $each: true } } },
             textStyles: { $each: true },
             presentations: { $each: { slides: { $each: true } } },
             $onError: 'catch',

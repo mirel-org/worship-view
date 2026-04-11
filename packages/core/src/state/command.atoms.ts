@@ -7,7 +7,6 @@ export type CommandPaletteResultType = 'song' | 'verse' | 'command' | 'presentat
 
 export type CommandAction =
   | 'create-song'
-  | 'clear-service-list'
   | 'open-settings';
 
 export type CommandPaletteResult =

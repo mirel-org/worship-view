@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useSyncExternalStore } from 'react';
 import * as store from '../jazz/store';
 import type { Song } from '../types/song.types';
-import type { ServiceListSongResponse } from '../jazz/store';
+import type { ServiceListSongResponse, ServiceListResponse } from '../jazz/store';
 import { useActiveOrganization } from './useActiveOrganization';
 
 let songsDataRevision = 0;
@@ -228,10 +228,126 @@ export function useDeleteSong() {
   };
 }
 
-// Service List Hooks
+// Service List Management Hooks
 
-// Hook to get service list
-export function useGetServiceList() {
+// Hook to get all service lists (metadata)
+export function useGetServiceLists() {
+  const { activeOrganization } = useActiveOrganization();
+  const revision = useSongsDataRevision();
+  const [serviceLists, setServiceLists] = useState<ServiceListResponse[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
+
+  useEffect(() => {
+    if (!activeOrganization) {
+      setServiceLists([]);
+      setIsLoading(false);
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+      const lists = store.getAllServiceLists(activeOrganization);
+      setServiceLists(lists);
+      setError(null);
+      setIsLoading(false);
+    } catch (err) {
+      setError(err instanceof Error ? err : new Error('Failed to load service lists'));
+      setIsLoading(false);
+    }
+  }, [activeOrganization, revision]);
+
+  return { data: serviceLists, isLoading, error };
+}
+
+// Hook to create a new service list
+export function useCreateServiceList() {
+  const { activeOrganization } = useActiveOrganization();
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
+
+  const mutate = useCallback(
+    async (name: string) => {
+      setIsLoading(true);
+      setError(null);
+      try {
+        const result = store.createServiceList(activeOrganization, name);
+        notifySongsDataChanged();
+        return result;
+      } catch (err) {
+        const error = err instanceof Error ? err : new Error('Failed to create service list');
+        setError(error);
+        throw error;
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [activeOrganization],
+  );
+
+  return { mutateAsync: mutate, mutate, isLoading, error };
+}
+
+// Hook to rename a service list
+export function useRenameServiceList() {
+  const { activeOrganization } = useActiveOrganization();
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
+
+  const mutate = useCallback(
+    async ({ serviceListId, newName }: { serviceListId: string; newName: string }) => {
+      setIsLoading(true);
+      setError(null);
+      try {
+        const result = store.renameServiceList(activeOrganization, serviceListId, newName);
+        notifySongsDataChanged();
+        return result;
+      } catch (err) {
+        const error = err instanceof Error ? err : new Error('Failed to rename service list');
+        setError(error);
+        throw error;
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [activeOrganization],
+  );
+
+  return { mutateAsync: mutate, mutate, isLoading, error };
+}
+
+// Hook to delete a service list
+export function useDeleteServiceList() {
+  const { activeOrganization } = useActiveOrganization();
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
+
+  const mutate = useCallback(
+    async (serviceListId: string) => {
+      setIsLoading(true);
+      setError(null);
+      try {
+        const result = store.deleteServiceList(activeOrganization, serviceListId);
+        notifySongsDataChanged();
+        return result;
+      } catch (err) {
+        const error = err instanceof Error ? err : new Error('Failed to delete service list');
+        setError(error);
+        throw error;
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [activeOrganization],
+  );
+
+  return { mutateAsync: mutate, mutate, isLoading, error };
+}
+
+// Service List Item Hooks
+
+// Hook to get items for a specific service list
+export function useGetServiceListItems(serviceListId: string | null) {
   const { activeOrganization } = useActiveOrganization();
   const revision = useSongsDataRevision();
   const [serviceList, setServiceList] = useState<ServiceListSongResponse[]>([]);
@@ -239,162 +355,145 @@ export function useGetServiceList() {
   const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
-    if (!activeOrganization) {
+    if (!activeOrganization || !serviceListId) {
       setServiceList([]);
       setIsLoading(false);
       return;
     }
 
-      try {
-        setIsLoading(true);
-      const list = store.getServiceList(activeOrganization);
-          setServiceList(list);
-          setError(null);
+    try {
+      setIsLoading(true);
+      const list = store.getServiceListItems(activeOrganization, serviceListId);
+      setServiceList(list);
+      setError(null);
       setIsLoading(false);
-      } catch (err) {
-          setError(err instanceof Error ? err : new Error('Failed to load service list'));
-          setIsLoading(false);
-        }
-  }, [activeOrganization, revision]);
+    } catch (err) {
+      setError(err instanceof Error ? err : new Error('Failed to load service list'));
+      setIsLoading(false);
+    }
+  }, [activeOrganization, serviceListId, revision]);
 
   return { data: serviceList, isLoading, error };
 }
 
-// Hook to add to service list
+// Hook to add to a specific service list
 export function useAddToServiceList() {
   const { activeOrganization } = useActiveOrganization();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
   const mutate = useCallback(
-    async (songId: string) => {
-    setIsLoading(true);
-    setError(null);
-    try {
-        const result = store.addToServiceList(activeOrganization, songId);
-      notifySongsDataChanged();
-      return result;
-    } catch (err) {
+    async ({ serviceListId, songId }: { serviceListId: string; songId: string }) => {
+      setIsLoading(true);
+      setError(null);
+      try {
+        const result = store.addToServiceList(activeOrganization, serviceListId, songId);
+        notifySongsDataChanged();
+        return result;
+      } catch (err) {
         const error =
           err instanceof Error
             ? err
             : new Error('Failed to add song to service list');
-      setError(error);
-      throw error;
-    } finally {
-      setIsLoading(false);
-    }
+        setError(error);
+        throw error;
+      } finally {
+        setIsLoading(false);
+      }
     },
-    [activeOrganization]
+    [activeOrganization],
   );
 
-  return {
-    mutateAsync: mutate,
-    mutate,
-    isLoading,
-    error,
-  };
+  return { mutateAsync: mutate, mutate, isLoading, error };
 }
 
-// Hook to remove from service list
+// Hook to remove from a specific service list
 export function useRemoveFromServiceList() {
   const { activeOrganization } = useActiveOrganization();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
   const mutate = useCallback(
-    async (songId: string) => {
-    setIsLoading(true);
-    setError(null);
-    try {
-        const result = store.removeFromServiceList(activeOrganization, songId);
-      notifySongsDataChanged();
-      return result;
-    } catch (err) {
+    async ({ serviceListId, songId }: { serviceListId: string; songId: string }) => {
+      setIsLoading(true);
+      setError(null);
+      try {
+        const result = store.removeFromServiceList(activeOrganization, serviceListId, songId);
+        notifySongsDataChanged();
+        return result;
+      } catch (err) {
         const error =
           err instanceof Error
             ? err
             : new Error('Failed to remove song from service list');
-      setError(error);
-      throw error;
-    } finally {
-      setIsLoading(false);
-    }
+        setError(error);
+        throw error;
+      } finally {
+        setIsLoading(false);
+      }
     },
-    [activeOrganization]
+    [activeOrganization],
   );
 
-  return {
-    mutateAsync: mutate,
-    mutate,
-    isLoading,
-    error,
-  };
+  return { mutateAsync: mutate, mutate, isLoading, error };
 }
 
-// Hook to reorder service list
+// Hook to reorder a specific service list
 export function useReorderServiceList() {
   const { activeOrganization } = useActiveOrganization();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
   const mutate = useCallback(
-    async (songIds: string[]) => {
-    setIsLoading(true);
-    setError(null);
-    try {
-        const result = store.reorderServiceList(activeOrganization, songIds);
-      notifySongsDataChanged();
-      return result;
-    } catch (err) {
+    async ({ serviceListId, songIds }: { serviceListId: string; songIds: string[] }) => {
+      setIsLoading(true);
+      setError(null);
+      try {
+        const result = store.reorderServiceList(activeOrganization, serviceListId, songIds);
+        notifySongsDataChanged();
+        return result;
+      } catch (err) {
         const error =
           err instanceof Error ? err : new Error('Failed to reorder service list');
-      setError(error);
-      throw error;
-    } finally {
-      setIsLoading(false);
-    }
+        setError(error);
+        throw error;
+      } finally {
+        setIsLoading(false);
+      }
     },
-    [activeOrganization]
+    [activeOrganization],
   );
 
-  return {
-    mutateAsync: mutate,
-    mutate,
-    isLoading,
-    error,
-  };
+  return { mutateAsync: mutate, mutate, isLoading, error };
 }
 
-// Hook to clear service list
+// Hook to clear a specific service list
 export function useClearServiceList() {
   const { activeOrganization } = useActiveOrganization();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
-  const mutate = useCallback(async () => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      const result = store.clearServiceList(activeOrganization);
-      notifySongsDataChanged();
-      return result;
-    } catch (err) {
-      const error =
-        err instanceof Error ? err : new Error('Failed to clear service list');
-      setError(error);
-      throw error;
-    } finally {
-      setIsLoading(false);
-    }
-  }, [activeOrganization]);
+  const mutate = useCallback(
+    async (serviceListId: string) => {
+      setIsLoading(true);
+      setError(null);
+      try {
+        const result = store.clearServiceList(activeOrganization, serviceListId);
+        notifySongsDataChanged();
+        return result;
+      } catch (err) {
+        const error =
+          err instanceof Error ? err : new Error('Failed to clear service list');
+        setError(error);
+        throw error;
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [activeOrganization],
+  );
 
-  return {
-    mutateAsync: mutate,
-    mutate,
-    isLoading,
-    error,
-  };
+  return { mutateAsync: mutate, mutate, isLoading, error };
 }
 
 // Hook to delete all songs from an organization

@@ -61,7 +61,7 @@ export { useGetPresentations, useUploadPresentation, useRenamePresentation, useD
 export { usePassphraseConfirmed } from './hooks/usePassphraseConfirmed';
 export { default as usePreventScroll } from './hooks/usePreventScroll';
 export { useSongValidation } from './hooks/useSongValidation';
-export { useGetSongs, useSaveSong, useRenameSong, useUpdateSong, useDeleteSong, useGetSongContent, useAddToServiceList, useRemoveFromServiceList, useClearServiceList, useReorderServiceList, useGetServiceList, useDeleteAllSongs } from './hooks/useSongs';
+export { useGetSongs, useSaveSong, useRenameSong, useUpdateSong, useDeleteSong, useGetSongContent, useAddToServiceList, useRemoveFromServiceList, useClearServiceList, useReorderServiceList, useGetServiceLists, useGetServiceListItems, useCreateServiceList, useRenameServiceList, useDeleteServiceList, useDeleteAllSongs } from './hooks/useSongs';
 
 // Utils
 export { shouldIgnoreNavigationShortcut } from './utils/shortcut.guards';
@@ -81,7 +81,7 @@ export type { SongJsonFormat } from './parsers/songJsonFormat';
 export { getCachedBlobUrl, setCachedBlobUrl, revokeCachedBlobUrl, setMediaCacheApi } from './parsers/media-cache';
 
 // Jazz CRUD
-export type { SongResponse, ServiceListSongResponse } from './jazz/store';
+export type { SongResponse, ServiceListSongResponse, ServiceListResponse } from './jazz/store';
 export type { MediaItemResponse } from './jazz/media-store';
 export { validateMediaFile } from './jazz/media-store';
 export type { TextStyleData } from './jazz/text-style-store';

@@ -15,6 +15,7 @@ import {
   useGetSongs,
   useDeleteSong,
   useAddToServiceList,
+  useGetServiceLists,
 } from '../../../hooks/useSongs';
 import SongEditorDialog from './SongEditorDialog';
 import SongDeleteDialog from './SongDeleteDialog';
@@ -25,11 +26,13 @@ const SongsListPanel = () => {
   const { data: songs = [], isLoading } = useGetSongs();
   const deleteSongMutation = useDeleteSong();
   const addToServiceListMutation = useAddToServiceList();
+  const { data: serviceLists = [] } = useGetServiceLists();
   const [editingSong, setEditingSong] = useState<Song | null>(null);
   const [deletingSong, setDeletingSong] = useState<Song | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [addDialogOpen, setAddDialogOpen] = useState(false);
+  const [serviceListPickerSongId, setServiceListPickerSongId] = useState<string | null>(null);
   const [search, setSearch] = useAtom(songInputValueAtom);
   const [focused, setFocused] = useAtom(songInputFocusAtom);
   const focusProps = useInputFocus(focused, setFocused);
@@ -93,16 +96,35 @@ const SongsListPanel = () => {
     song: Song,
   ) => {
     e.stopPropagation();
+    if (serviceLists.length === 0) return;
+
+    if (serviceLists.length === 1) {
+      try {
+        await addToServiceListMutation.mutateAsync({ serviceListId: serviceLists[0].id, songId: song.id });
+      } catch (error: any) {
+        if (error.message?.includes('already')) {
+          alert(error.message);
+        } else {
+          console.error('Failed to add song to service list:', error);
+        }
+      }
+    } else {
+      setServiceListPickerSongId(song.id);
+    }
+  };
+
+  const handlePickServiceList = async (serviceListId: string) => {
+    if (!serviceListPickerSongId) return;
     try {
-      await addToServiceListMutation.mutateAsync(song.id);
+      await addToServiceListMutation.mutateAsync({ serviceListId, songId: serviceListPickerSongId });
     } catch (error: any) {
-      // Show error message if song already exists
       if (error.message?.includes('already')) {
         alert(error.message);
       } else {
         console.error('Failed to add song to service list:', error);
       }
     }
+    setServiceListPickerSongId(null);
   };
 
   // Sort songs alphabetically by name
@@ -170,14 +192,33 @@ const SongsListPanel = () => {
                   {song.name}
                 </span>
                 <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <button
-                    onClick={(e) => handleAddToServiceList(e, song)}
-                    className="p-1 hover:bg-accent-foreground/10 rounded"
-                    aria-label={`Add ${song.name} to service list`}
-                    disabled={addToServiceListMutation.isLoading}
-                  >
-                    <ListPlus className="h-4 w-4" />
-                  </button>
+                  <div className="relative">
+                    <button
+                      onClick={(e) => handleAddToServiceList(e, song)}
+                      className="p-1 hover:bg-accent-foreground/10 rounded"
+                      aria-label={`Add ${song.name} to service list`}
+                      disabled={addToServiceListMutation.isLoading}
+                    >
+                      <ListPlus className="h-4 w-4" />
+                    </button>
+                    {serviceListPickerSongId === song.id && serviceLists.length > 1 && (
+                      <>
+                        <div className="fixed inset-0 z-40" onClick={() => setServiceListPickerSongId(null)} />
+                        <div className="absolute right-0 top-full mt-1 z-50 bg-popover border border-border rounded-md shadow-md py-1 min-w-[160px]">
+                          {serviceLists.map((list) => (
+                            <button
+                              key={list.id}
+                              onClick={(e) => { e.stopPropagation(); handlePickServiceList(list.id); }}
+                              className="flex items-center gap-2 w-full px-3 py-1.5 text-xs text-foreground hover:bg-accent transition-colors"
+                            >
+                              <ListPlus className="h-3 w-3" />
+                              {list.name}
+                            </button>
+                          ))}
+                        </div>
+                      </>
+                    )}
+                  </div>
                   <button
                     onClick={(e) => handleEditClick(e, song)}
                     className="p-1 hover:bg-accent-foreground/10 rounded"

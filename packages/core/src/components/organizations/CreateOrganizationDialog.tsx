@@ -60,7 +60,7 @@ export function CreateOrganizationDialog({
         {
           name: name.trim(),
           songs: [],
-          serviceList: [],
+          serviceLists: [],
           media: [],
           textStyles: [],
           presentations: [],

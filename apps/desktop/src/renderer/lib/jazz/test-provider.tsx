@@ -86,7 +86,7 @@ export function TestAppWrapper({ children }: { children: ReactNode }) {
         const org = Organization.create({
           name: 'Test Organization',
           songs: [],
-          serviceList: [],
+          serviceLists: [],
           media: [],
           textStyles: [],
           presentations: [],
