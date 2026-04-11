@@ -1,7 +1,7 @@
 {
   "name": "@worship-view/desktop",
   "productName": "Worship View",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "description": "Worship View is a desktop application for viewing and editing worship songs.",
   "author": {
     "name": "mirel-org",
