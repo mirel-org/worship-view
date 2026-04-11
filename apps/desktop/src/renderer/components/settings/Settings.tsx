@@ -8,6 +8,8 @@ import {
   SettingsOrganizations,
   SettingsImportSongs,
   SettingsAppearance,
+  SettingsAutoMode,
+  SettingsSongs,
   SettingsTextStyles,
 } from '@worship-view/core';
 import {
@@ -133,6 +135,12 @@ const Settings = () => {
               >
                 <SettingsAppearance />
               </TabsContent>
+              <TabsContent
+                value='automode'
+                className='mt-0 flex-1 min-h-0 overflow-y-auto'
+              >
+                <SettingsAutoMode />
+              </TabsContent>
               {isAuthenticated && (
                 <>
                   <TabsContent
@@ -158,6 +166,12 @@ const Settings = () => {
                     className='mt-0 flex-1 min-h-0 overflow-y-auto'
                   >
                     <SettingsOrganizations />
+                  </TabsContent>
+                  <TabsContent
+                    value='songs'
+                    className='mt-0 flex-1 min-h-0 overflow-hidden'
+                  >
+                    <SettingsSongs />
                   </TabsContent>
                   <TabsContent
                     value='import-songs'
