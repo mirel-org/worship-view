@@ -64,6 +64,7 @@ export function CreateOrganizationDialog({
           media: [],
           textStyles: [],
           presentations: [],
+          sessions: [],
         },
       );
 

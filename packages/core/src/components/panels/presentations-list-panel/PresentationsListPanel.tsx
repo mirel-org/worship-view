@@ -1,5 +1,4 @@
 import { FC, useState } from 'react';
-import { useAtom } from 'jotai';
 import { Pencil, Trash2, Upload, Loader2, AlertTriangle, Presentation as PresentationIcon } from 'lucide-react';
 import { Button } from '@worship-view/ui';
 import {
@@ -7,10 +6,12 @@ import {
   useDeletePresentation,
   useRenamePresentation,
 } from '../../../hooks/usePresentation';
-import { selectedPresentationAtom, selectedPresentationSlideIndexAtom } from '../../../state/presentation.atoms';
 import PresentationDeleteDialog from './PresentationDeleteDialog';
 import type { PresentationResponse } from '../../../jazz/presentation-store';
 import type { UploadPhase } from '../../tabs/TabsPresentations';
+import { useSession } from '../../../session/OperatorSessionContext';
+import { useSessionPresentation } from '../../../session/session.hooks';
+import { selectPresentation, clearPresentation } from '../../../session/session.actions';
 
 const PHASE_LABELS: Record<UploadPhase, string> = {
   idle: 'Incarca',
@@ -29,8 +30,8 @@ type Props = {
 
 const PresentationsListPanel: FC<Props> = ({ onUploadClick, uploadPhase, isBusy, libreOfficeInstalled, onLibreOfficePromptOpen }) => {
   const { data: presentations = [] } = useGetPresentations();
-  const [selectedPresentation, setSelectedPresentation] = useAtom(selectedPresentationAtom);
-  const [, setSlideIndex] = useAtom(selectedPresentationSlideIndexAtom);
+  const session = useSession();
+  const selectedPresentation = useSessionPresentation();
   const deleteMutation = useDeletePresentation();
   const renameMutation = useRenamePresentation();
 
@@ -40,8 +41,8 @@ const PresentationsListPanel: FC<Props> = ({ onUploadClick, uploadPhase, isBusy,
   const [renameValue, setRenameValue] = useState('');
 
   const handleSelect = (presentation: PresentationResponse) => {
-    setSelectedPresentation(presentation);
-    setSlideIndex(0);
+    if (!session) return;
+    selectPresentation(session, presentation.id);
   };
 
   const handleDeleteClick = (e: React.MouseEvent, presentation: PresentationResponse) => {
@@ -54,9 +55,8 @@ const PresentationsListPanel: FC<Props> = ({ onUploadClick, uploadPhase, isBusy,
     if (!deleteTarget) return;
     try {
       await deleteMutation.mutateAsync(deleteTarget.id);
-      if (selectedPresentation?.id === deleteTarget.id) {
-        setSelectedPresentation(null);
-        setSlideIndex(null);
+      if (selectedPresentation?.id === deleteTarget.id && session) {
+        clearPresentation(session);
       }
       setDeleteDialogOpen(false);
     } catch (error) {

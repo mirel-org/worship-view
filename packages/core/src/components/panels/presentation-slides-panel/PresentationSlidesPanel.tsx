@@ -1,5 +1,4 @@
 import { FC, useState } from 'react';
-import { useAtom } from 'jotai';
 import { Trash2 } from 'lucide-react';
 import {
   Dialog,
@@ -10,14 +9,20 @@ import {
   DialogFooter,
   Button,
 } from '@worship-view/ui';
-import {
-  selectedPresentationAtom,
-  selectedPresentationSlideIndexAtom,
-  selectedPresentationSlideAtom,
-} from '../../../state/presentation.atoms';
 import { usePresentationSlideBlobUrl, useDeletePresentationSlide } from '../../../hooks/usePresentation';
 import type { PresentationSlideResponse } from '../../../jazz/presentation-store';
 import VideoControls from './VideoControls';
+import { useSession } from '../../../session/OperatorSessionContext';
+import {
+  useSessionPresentation,
+  useSessionPresentationSlideIndex,
+  useSessionPresentationSlide,
+} from '../../../session/session.hooks';
+import {
+  selectPresentation,
+  setPresentationSlideIndex,
+  clearPresentation,
+} from '../../../session/session.actions';
 
 const SlideThumbnail: FC<{
   slide: PresentationSlideResponse;
@@ -82,11 +87,10 @@ const SlideThumbnail: FC<{
 };
 
 const PresentationSlidesPanel: FC = () => {
-  const [selectedPresentation, setSelectedPresentation] = useAtom(selectedPresentationAtom);
-  const [selectedSlideIndex, setSelectedSlideIndex] = useAtom(
-    selectedPresentationSlideIndexAtom,
-  );
-  const [selectedSlide] = useAtom(selectedPresentationSlideAtom);
+  const session = useSession();
+  const selectedPresentation = useSessionPresentation();
+  const selectedSlideIndex = useSessionPresentationSlideIndex();
+  const selectedSlide = useSessionPresentationSlide();
   const deleteSlideMutation = useDeletePresentationSlide();
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [deleteTargetIndex, setDeleteTargetIndex] = useState<number | null>(null);
@@ -105,18 +109,19 @@ const PresentationSlidesPanel: FC = () => {
   };
 
   const handleDeleteConfirm = async () => {
-    if (deleteTargetIndex === null) return;
+    if (deleteTargetIndex === null || !session) return;
     try {
       const result = await deleteSlideMutation.mutateAsync({
         presentationId: selectedPresentation.id,
         slideIndex: deleteTargetIndex,
       });
       if (result.updatedPresentation) {
-        setSelectedPresentation(result.updatedPresentation);
+        // Re-select the presentation to get updated data
+        selectPresentation(session, result.updatedPresentation.id);
         if (result.updatedPresentation.slides.length === 0) {
-          setSelectedSlideIndex(null);
+          clearPresentation(session);
         } else if (selectedSlideIndex !== null && selectedSlideIndex >= result.updatedPresentation.slides.length) {
-          setSelectedSlideIndex(result.updatedPresentation.slides.length - 1);
+          setPresentationSlideIndex(session, result.updatedPresentation.slides.length - 1);
         }
       }
     } catch (error) {
@@ -136,7 +141,9 @@ const PresentationSlidesPanel: FC = () => {
               key={slide.index}
               slide={slide}
               isSelected={selectedSlideIndex === slide.index}
-              onClick={() => setSelectedSlideIndex(slide.index)}
+              onClick={() => {
+                if (session) setPresentationSlideIndex(session, slide.index);
+              }}
               onDeleteClick={() => handleDeleteClick(slide.index)}
             />
           ))}

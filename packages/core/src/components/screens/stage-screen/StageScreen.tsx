@@ -1,26 +1,25 @@
-import {
-  currentProjectionTypeAtom,
-  verseProjectionEnabledAtom,
-} from '../../../state/projection.atoms';
 import { settingsSongSlideSizeAtom } from '../../../state/settings.song.atoms';
-import { nextSongSlideAtom, selectedSongSlideAtom } from '../../../state/song.atoms';
-import {
-  selectedVerseReferenceAtom,
-  selectedVerseTextAtom,
-} from '../../../state/verse.atoms';
 import { formatBibleReference } from '../../../utils/verse.utils';
 import { useAtom } from 'jotai';
 import { FC } from 'react';
 import VerseSlide from '../audience-screen/components/VerseSlide';
 import FitText from './components/FitText';
+import {
+  useSessionProjectionType,
+  useSessionSongSlide,
+  useSessionNextSongSlide,
+  useSessionVerseRef,
+  useSessionVerseText,
+  useSessionVerseProjectionEnabled,
+} from '../../../session/session.hooks';
 
 const StageScreen: FC = () => {
-  const [currentProjectionType] = useAtom(currentProjectionTypeAtom);
-  const [selectedSongSlide] = useAtom(selectedSongSlideAtom);
-  const [nextSongSlide] = useAtom(nextSongSlideAtom);
-  const [selectedVerseText] = useAtom(selectedVerseTextAtom);
-  const [selectedVerseReference] = useAtom(selectedVerseReferenceAtom);
-  const [verseProjectionEnabled] = useAtom(verseProjectionEnabledAtom);
+  const currentProjectionType = useSessionProjectionType();
+  const selectedSongSlide = useSessionSongSlide();
+  const nextSongSlide = useSessionNextSongSlide();
+  const selectedVerseText = useSessionVerseText();
+  const selectedVerseReference = useSessionVerseRef();
+  const verseProjectionEnabled = useSessionVerseProjectionEnabled();
   const [settingsSongSlideSize] = useAtom(settingsSongSlideSizeAtom);
   if (settingsSongSlideSize === 4 || settingsSongSlideSize === 8 || settingsSongSlideSize === 'full')
     return (

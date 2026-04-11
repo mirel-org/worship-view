@@ -1,22 +1,22 @@
 import { FC, useMemo } from 'react';
 import bibleText from '@assets/bibles/VDC.json';
-import { useAtom } from 'jotai';
-import { selectedVerseReferenceAtom } from '../../../state/verse.atoms';
-import {
-  currentProjectionTypeAtom,
-  verseProjectionEnabledAtom,
-} from '../../../state/projection.atoms';
 import VerseListItem from './verse-list-item/VerseListItem';
 import { BibleTextType } from '../../../types/verse.types';
 import { formatBibleChapterReference } from '../../../utils/verse.utils';
 import usePreventScroll from '../../../hooks/usePreventScroll';
+import { useSession } from '../../../session/OperatorSessionContext';
+import {
+  useSessionVerseRef,
+  useSessionProjectionType,
+  useSessionVerseProjectionEnabled,
+} from '../../../session/session.hooks';
+import { setVerseRef } from '../../../session/session.actions';
 
 const VersesPanel: FC = () => {
-  const [selectedVerseReference, setSelectedVerseReference] = useAtom(
-    selectedVerseReferenceAtom,
-  );
-  const [currentProjectionType] = useAtom(currentProjectionTypeAtom);
-  const [verseProjectionEnabled] = useAtom(verseProjectionEnabledAtom);
+  const session = useSession();
+  const selectedVerseReference = useSessionVerseRef();
+  const currentProjectionType = useSessionProjectionType();
+  const verseProjectionEnabled = useSessionVerseProjectionEnabled();
   const chapterVerses: string[] = useMemo(() => {
     if (!selectedVerseReference) return [];
     return (bibleText as BibleTextType)[selectedVerseReference.book][
@@ -25,8 +25,8 @@ const VersesPanel: FC = () => {
   }, [selectedVerseReference]);
 
   const handleVerseSelection = (verseIndex: number) => {
-    if (!selectedVerseReference) return;
-    setSelectedVerseReference({
+    if (!selectedVerseReference || !session) return;
+    setVerseRef(session, {
       ...selectedVerseReference,
       verse: verseIndex,
     });

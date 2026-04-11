@@ -11,11 +11,13 @@ import {
   autoModeOperatorOnlyAtom,
   autoModeSuggestedSlideRefAtom,
 } from '../state/automode.atoms';
+import { useSession } from '../session/OperatorSessionContext';
 import {
-  selectedSongAtom,
-  selectedSongTextAtom,
-  selectedSongSlideReferenceAtom,
-} from '../state/song.atoms';
+  useSessionSong,
+  useSessionSongText,
+  useSessionSongSlideRef,
+} from '../session/session.hooks';
+import { setSongSlideRef } from '../session/session.actions';
 import { SonioxSpeechEngine } from '../utils/automode.soniox-engine';
 import { WordQueue } from '../utils/automode.word-queue';
 import {
@@ -34,9 +36,10 @@ export const useAutoMode = () => {
   const [, setLastTranscription] = useAtom(autoModeLastTranscriptionAtom);
   const [, setProgress] = useAtom(autoModeProgressAtom);
   const [, setWordStatuses] = useAtom(autoModeWordStatusesAtom);
-  const [selectedSong] = useAtom(selectedSongAtom);
-  const [selectedSongText] = useAtom(selectedSongTextAtom);
-  const [slideRef, setSlideRef] = useAtom(selectedSongSlideReferenceAtom);
+  const session = useSession();
+  const selectedSong = useSessionSong();
+  const selectedSongText = useSessionSongText();
+  const slideRef = useSessionSongSlideRef();
   const [apiKey] = useAtom(sonioxApiKeyAtom);
   const [deviceId] = useAtom(autoModeDeviceIdAtom);
   const [operatorOnly] = useAtom(autoModeOperatorOnlyAtom);
@@ -59,6 +62,7 @@ export const useAutoMode = () => {
   const slideRefLatest = useRef(slideRef);
   const songTextLatest = useRef(selectedSongText);
   const operatorOnlyRef = useRef(operatorOnly);
+  const sessionRef = useRef(session);
 
   useEffect(() => {
     slideRefLatest.current = slideRef;
@@ -69,6 +73,9 @@ export const useAutoMode = () => {
   useEffect(() => {
     operatorOnlyRef.current = operatorOnly;
   }, [operatorOnly]);
+  useEffect(() => {
+    sessionRef.current = session;
+  }, [session]);
 
   // Rebuild slide index when song text changes
   useEffect(() => {
@@ -118,19 +125,18 @@ export const useAutoMode = () => {
     slideChangedAtRef.current = Date.now();
     const nextSlide = allSlides[nextIdx];
     slideRefLatest.current = nextSlide.ref;
-    if (operatorOnlyRef.current) {
-      setSuggestedSlideRef(nextSlide.ref);
-    } else {
-      setSlideRef(nextSlide.ref);
+    const s = sessionRef.current;
+    if (s) {
+      if (operatorOnlyRef.current) {
+        setSuggestedSlideRef(nextSlide.ref);
+      } else {
+        setSongSlideRef(s, nextSlide.ref.partIndex, nextSlide.ref.slideIndex);
+      }
     }
     setProgress(0);
     setWordStatuses([]);
   };
 
-  // Process all queued words through the matcher, advancing slides as needed.
-  // Slide changes require at least 2 words to match on the target slide before
-  // jumping — this prevents false jumps from a single word variation (e.g.
-  // singing "Domnul" when the slide has "Domn" but another slide has "Domnul").
   const processQueue = (allSlides: IndexedSlide[]): void => {
     const queue = queueRef.current;
     let word = queue.dequeue();
@@ -138,8 +144,6 @@ export const useAutoMode = () => {
       const currentSlide = allSlides[currentFlatIdxRef.current];
       if (!currentSlide) break;
 
-      // Skip words from previous slide's last line for the first 5s after a slide transition —
-      // the audience is still finishing that slide and speech may lag behind.
       if (
         matchPositionRef.current === -1 &&
         currentFlatIdxRef.current > 0 &&
@@ -177,7 +181,6 @@ export const useAutoMode = () => {
       } else if (result.type === 'change-slide') {
         const pending = pendingJumpRef.current;
         if (pending && pending.slideIndex === result.slideIndex) {
-          // Second+ match on same target slide — confirm the jump
           pending.count++;
           if (pending.count >= 2) {
             console.log(
@@ -187,16 +190,18 @@ export const useAutoMode = () => {
             matchPositionRef.current = Math.max(pending.position, result.position);
             const newSlide = allSlides[result.slideIndex];
             slideRefLatest.current = newSlide.ref;
-            if (operatorOnlyRef.current) {
-              setSuggestedSlideRef(newSlide.ref);
-            } else {
-              setSlideRef(newSlide.ref);
+            const s = sessionRef.current;
+            if (s) {
+              if (operatorOnlyRef.current) {
+                setSuggestedSlideRef(newSlide.ref);
+              } else {
+                setSongSlideRef(s, newSlide.ref.partIndex, newSlide.ref.slideIndex);
+              }
             }
             pendingJumpRef.current = null;
             madeProgress = true;
           }
         } else {
-          // First match on a (different) target slide — start pending
           console.log(
             `[automode] ⏳ pending slide change → ${result.slideIndex} (1 word matched)`,
           );
@@ -207,9 +212,7 @@ export const useAutoMode = () => {
           };
         }
       }
-      // 'discard' — keep pending alive (noise shouldn't cancel a valid pending jump)
 
-      // After confirmed progress: check if we reached the last line of the slide
       if (madeProgress) {
         const slide = allSlides[currentFlatIdxRef.current];
         if (
@@ -225,10 +228,6 @@ export const useAutoMode = () => {
     }
   };
 
-  // Compute word-level delta: enqueue words that are new or revised compared
-  // to the previously seen interim words. Compares NORMALIZED forms so that
-  // diacritic-only revisions (e.g. "Lauda" → "Laudă") don't re-enqueue the
-  // same effective word, which would cause proximity jumps to identical slides.
   const enqueueDelta = (words: string[]): boolean => {
     const prev = processedInterimWordsRef.current;
     const toEnqueue: string[] = [];
@@ -237,14 +236,12 @@ export const useAutoMode = () => {
       if (i >= prev.length) {
         toEnqueue.push(words[i]);
       } else if (words[i] !== prev[i]) {
-        // Raw text changed — only enqueue if normalized form also differs
         if (normalizeForAutoMode(words[i]) !== normalizeForAutoMode(prev[i])) {
           toEnqueue.push(words[i]);
         }
       }
     }
 
-    // Always track latest raw words so future deltas compare correctly
     processedInterimWordsRef.current = words.slice();
 
     if (toEnqueue.length > 0) {
@@ -255,15 +252,12 @@ export const useAutoMode = () => {
     return false;
   };
 
-  // Handle speech result → queue → matcher → advance
   const handleSpeechResult = useCallback(
     (text: string, isFinal: boolean) => {
       const queue = queueRef.current;
       const allSlides = slideIndexRef.current;
 
       if (!isFinal) {
-        // Interim: cumulative text for the current segment.
-        // Enqueue only new or revised words (word-level delta).
         const words = text.trim().split(/\s+/).filter(Boolean);
         const hadNew = enqueueDelta(words);
 
@@ -271,7 +265,6 @@ export const useAutoMode = () => {
           processQueue(allSlides);
         }
 
-        // Update display and UI
         setLastTranscription(queue.getRawText() + ' ' + text);
         const currentSlide = allSlides[currentFlatIdxRef.current];
         if (currentSlide) {
@@ -285,16 +278,11 @@ export const useAutoMode = () => {
         return;
       }
 
-      // Final result: enqueue any remaining delta words, then reset for next segment.
       const words = text.trim().split(/\s+/).filter(Boolean);
       const hadNew = enqueueDelta(words);
 
-      // Reset processed words for the next segment — with the engine now
-      // providing cumulative text within a segment, we need a fresh comparison
-      // baseline so repeated words in the next segment enqueue correctly.
       processedInterimWordsRef.current = [];
 
-      // Update display with finalized segment text
       queue.addDisplayText(text);
       setLastTranscription(queue.getRawText());
 
@@ -302,7 +290,6 @@ export const useAutoMode = () => {
         processQueue(allSlides);
       }
 
-      // Update progress and word statuses from confirmed position
       const currentSlide = allSlides[currentFlatIdxRef.current];
       if (currentSlide) {
         setProgress(
@@ -313,7 +300,7 @@ export const useAutoMode = () => {
         );
       }
     },
-    [setLastTranscription, setProgress, setWordStatuses, setSlideRef],
+    [setLastTranscription, setProgress, setWordStatuses],
   );
 
   // Start/stop engine based on enabled state + song selection + apiKey + deviceId

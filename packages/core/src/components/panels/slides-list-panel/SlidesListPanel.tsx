@@ -1,9 +1,4 @@
 import {
-  selectedSongSlideReferenceAtom,
-  selectedSongTextAtom,
-  selectedSongKeyAtom,
-} from '../../../state/song.atoms';
-import {
   autoModeEnabledAtom,
   autoModeOperatorOnlyAtom,
   autoModeSuggestedSlideRefAtom,
@@ -13,19 +8,26 @@ import { useAtom } from 'jotai';
 import { useEffect, useRef } from 'react';
 import SlidesListColumn from './slides-list-column/SlidesListColumn';
 import { SlideDebugOverlay } from '../../automode/SlideDebugOverlay';
+import { useSession } from '../../../session/OperatorSessionContext';
+import {
+  useSessionSongSlideRef,
+  useSessionSongText,
+  useSessionSongKey,
+} from '../../../session/session.hooks';
+import { setSongSlideRef } from '../../../session/session.actions';
 
 const SlidesListPanel = () => {
-  const [selectedSongSlideReference, setSelectedSongSlideReference] = useAtom(
-    selectedSongSlideReferenceAtom,
-  );
-  const [selectedSongText] = useAtom(selectedSongTextAtom);
-  const [selectedSongKey] = useAtom(selectedSongKeyAtom);
+  const session = useSession();
+  const selectedSongSlideReference = useSessionSongSlideRef();
+  const selectedSongText = useSessionSongText();
+  const selectedSongKey = useSessionSongKey();
   const [autoModeEnabled] = useAtom(autoModeEnabledAtom);
   const [operatorOnly] = useAtom(autoModeOperatorOnlyAtom);
   const [suggestedSlideRef] = useAtom(autoModeSuggestedSlideRefAtom);
 
   const handleOnSlideClick = (partIndex: number, slideIndex: number) => {
-    setSelectedSongSlideReference({ partIndex, slideIndex });
+    if (!session) return;
+    setSongSlideRef(session, partIndex, slideIndex);
   };
   const { ref: containerRef } = usePreventScroll<HTMLDivElement>();
   const previousPartIndexRef = useRef<number | null>(null);

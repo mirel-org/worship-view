@@ -1,7 +1,5 @@
 import React, { useState } from 'react';
 import { GripVertical, X } from 'lucide-react';
-import { useAtom } from 'jotai';
-import { selectedSongAtom } from '../../../state/song.atoms';
 import { closeSidebar } from '../../layout/Sidebar';
 import {
   useGetServiceList,
@@ -9,22 +7,24 @@ import {
   useReorderServiceList,
 } from '../../../hooks/useSongs';
 import type { ServiceListSongResponse } from '../../../jazz/store';
+import { useSession } from '../../../session/OperatorSessionContext';
+import { useSessionSong } from '../../../session/session.hooks';
+import { selectSong } from '../../../session/session.actions';
 
 const ServiceListSection = () => {
   const { data: serviceList = [], isLoading } = useGetServiceList();
   const removeMutation = useRemoveFromServiceList();
   const reorderMutation = useReorderServiceList();
-  const [selectedSong, setSelectedSong] = useAtom(selectedSongAtom);
+  const session = useSession();
+  const selectedSong = useSessionSong();
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
 
   const handleDragStart = (e: React.DragEvent, index: number) => {
     e.stopPropagation();
     setDraggedIndex(index);
-    // Set drag data to prevent text selection
     e.dataTransfer.effectAllowed = 'move';
     e.dataTransfer.setData('text/plain', index.toString());
-    // Add a visual indicator
     if (e.dataTransfer) {
       e.dataTransfer.dropEffect = 'move';
     }
@@ -41,8 +41,6 @@ const ServiceListSection = () => {
   };
 
   const handleDragLeave = (_e: React.DragEvent) => {
-    // Don't clear dragOverIndex here - let dragOver handle it
-    // This prevents flickering when moving between child elements
   };
 
   const handleDrop = async (e: React.DragEvent, dropIndex: number) => {
@@ -85,7 +83,7 @@ const ServiceListSection = () => {
   };
 
   const handleSongClick = (item: ServiceListSongResponse) => {
-    setSelectedSong(item.song);
+    if (session) selectSong(session, item.song.id);
     closeSidebar();
   };
 

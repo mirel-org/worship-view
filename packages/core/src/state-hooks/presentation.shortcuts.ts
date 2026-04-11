@@ -1,7 +1,13 @@
 import { usePresentationControl } from './presentation.hooks';
 import { selectedTabTypeAtom } from '../state/tab.atoms';
 import { commandPaletteOpenAtom } from '../state/command.atoms';
-import { presentationInputFocusAtom, selectedPresentationSlideAtom, videoPlayingAtom } from '../state/presentation.atoms';
+import { presentationInputFocusAtom } from '../state/presentation.atoms';
+import { useSession } from '../session/OperatorSessionContext';
+import {
+  useSessionPresentationSlide,
+  useSessionVideoPlaying,
+} from '../session/session.hooks';
+import { setVideoPlaying } from '../session/session.actions';
 import { useAtom } from 'jotai';
 import { useCallback } from 'react';
 import useShortcut from '../utils/useShortcut';
@@ -13,11 +19,12 @@ const NEXT_KEYS = ['s', 'S', 'ArrowDown', 'd', 'D', 'ArrowRight'];
 
 const usePresentationShortcuts = () => {
   const { gotoNextSlide, gotoPreviousSlide } = usePresentationControl();
+  const session = useSession();
   const [selectedTabType] = useAtom(selectedTabTypeAtom);
   const [presentationInputFocus] = useAtom(presentationInputFocusAtom);
   const [commandPaletteOpen] = useAtom(commandPaletteOpenAtom);
-  const [selectedSlide] = useAtom(selectedPresentationSlideAtom);
-  const [isPlaying, setIsPlaying] = useAtom(videoPlayingAtom);
+  const selectedSlide = useSessionPresentationSlide();
+  const isPlaying = useSessionVideoPlaying();
 
   const next = useCallback((event: KeyboardEvent) => {
     if (shouldIgnoreNavigationShortcut(event)) return;
@@ -42,9 +49,10 @@ const usePresentationShortcuts = () => {
     if (selectedTabType !== 'presentations') return;
     if (commandPaletteOpen || presentationInputFocus) return;
     if (selectedSlide?.slideType !== 'video') return;
+    if (!session) return;
     event.preventDefault();
-    setIsPlaying(!isPlaying);
-  }, [selectedTabType, commandPaletteOpen, presentationInputFocus, selectedSlide, isPlaying, setIsPlaying]);
+    setVideoPlaying(session, !isPlaying);
+  }, [session, selectedTabType, commandPaletteOpen, presentationInputFocus, selectedSlide, isPlaying]);
 
   useShortcuts(PREVIOUS_KEYS, previous);
   useShortcuts(NEXT_KEYS, next);

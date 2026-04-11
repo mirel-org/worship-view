@@ -1,8 +1,6 @@
 import { FC, useEffect, useState } from 'react';
 import { PanelGroup, Panel, PanelResizeHandle } from 'react-resizable-panels';
 import { ListPlus, Pencil, Trash2, X } from 'lucide-react';
-import { useAtom } from 'jotai';
-import { selectedSongAtom } from '../../state/song.atoms';
 import { Song } from '../../types/song.types';
 import {
   useAddToServiceList,
@@ -17,9 +15,13 @@ import SongDeleteDialog from '../panels/songs-list-panel/SongDeleteDialog';
 import SongEditorDialog from '../panels/songs-list-panel/SongEditorDialog';
 import Sidebar from '../layout/Sidebar';
 import { Button } from '@worship-view/ui';
+import { useSession } from '../../session/OperatorSessionContext';
+import { useSessionSong } from '../../session/session.hooks';
+import { selectSong, clearSong } from '../../session/session.actions';
 
 const TabsSongs: FC = () => {
-  const [selectedSong, setSelectedSong] = useAtom(selectedSongAtom);
+  const session = useSession();
+  const selectedSong = useSessionSong();
   const { data: songs = [] } = useGetSongs();
   const clearServiceListMutation = useClearServiceList();
   const addToServiceListMutation = useAddToServiceList();
@@ -29,17 +31,19 @@ const TabsSongs: FC = () => {
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
+  // Keep selected song data in sync with latest from Jazz
   useEffect(() => {
-    if (!selectedSong || songs.length === 0) return;
+    if (!selectedSong || songs.length === 0 || !session) return;
     const updatedSong = songs.find((song) => song.id === selectedSong.id);
     if (!updatedSong) return;
     if (
       updatedSong.name !== selectedSong.name ||
       updatedSong.fullText !== selectedSong.fullText
     ) {
-      setSelectedSong(updatedSong);
+      // Re-select to refresh derived data
+      selectSong(session, updatedSong.id);
     }
-  }, [songs, selectedSong, setSelectedSong]);
+  }, [songs, selectedSong, session]);
 
   const handleClearServiceList = async () => {
     if (!window.confirm('Sigur doriți să goliți întreaga listă de melodii?')) {
@@ -82,8 +86,8 @@ const TabsSongs: FC = () => {
     if (!deletingSong) return;
     try {
       await deleteSongMutation.mutateAsync(deletingSong.id);
-      if (selectedSong?.id === deletingSong.id) {
-        setSelectedSong(null);
+      if (selectedSong?.id === deletingSong.id && session) {
+        clearSong(session);
       }
       setDeleteDialogOpen(false);
     } catch (error) {
@@ -92,8 +96,8 @@ const TabsSongs: FC = () => {
   };
 
   const handleSave = async (updatedSong: Song) => {
-    if (selectedSong?.id === updatedSong.id) {
-      setSelectedSong(updatedSong);
+    if (selectedSong?.id === updatedSong.id && session) {
+      selectSong(session, updatedSong.id);
     }
   };
 

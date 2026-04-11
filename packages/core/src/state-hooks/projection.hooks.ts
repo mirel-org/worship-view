@@ -1,45 +1,43 @@
-import { selectedSongSlideAtom } from '../state/song.atoms';
-import { useAtom } from 'jotai';
 import { useEffect } from 'react';
+import { useSession, useSessionMode } from '../session/OperatorSessionContext';
 import {
-  currentProjectionTypeAtom,
-  verseProjectionEnabledAtom,
-} from '../state/projection.atoms';
-import { selectedVerseTextAtom } from '../state/verse.atoms';
-import { selectedPresentationSlideAtom } from '../state/presentation.atoms';
-import { useSongControll } from './song.hooks';
-import { selectedTabTypeAtom } from '../state/tab.atoms';
+  useSessionSongSlide,
+  useSessionVerseText,
+  useSessionPresentationSlide,
+} from '../session/session.hooks';
+import { setProjectionType } from '../session/session.actions';
+
 export const useManageProjection = () => {
   useProjectionType();
 };
 
 const useProjectionType = () => {
-  const [selectedTabType] = useAtom(selectedTabTypeAtom);
-  const [selectedSongSlide] = useAtom(selectedSongSlideAtom);
-  const [selectedVerseText] = useAtom(selectedVerseTextAtom);
-  const [selectedPresentationSlide] = useAtom(selectedPresentationSlideAtom);
-  const [, setCurrentProjectionType] = useAtom(currentProjectionTypeAtom);
+  const session = useSession();
+  const mode = useSessionMode();
+  const selectedSongSlide = useSessionSongSlide();
+  const selectedVerseText = useSessionVerseText();
+  const selectedPresentationSlide = useSessionPresentationSlide();
+
+  // Only the desktop (session owner) should auto-manage projection type.
+  // The remote just reads the current projection type from the session.
+  useEffect(() => {
+    if (!session || mode !== 'desktop') return;
+    if (selectedSongSlide) setProjectionType(session, 'song');
+  }, [session, mode, selectedSongSlide]);
 
   useEffect(() => {
-    if (selectedSongSlide) setCurrentProjectionType('song');
-  }, [selectedSongSlide, setCurrentProjectionType]);
+    if (!session || mode !== 'desktop') return;
+    if (selectedVerseText) setProjectionType(session, 'verse');
+  }, [session, mode, selectedVerseText]);
 
   useEffect(() => {
-    if (selectedVerseText) setCurrentProjectionType('verse');
-  }, [selectedVerseText, setCurrentProjectionType]);
+    if (!session || mode !== 'desktop') return;
+    if (selectedPresentationSlide) setProjectionType(session, 'presentation');
+  }, [session, mode, selectedPresentationSlide]);
 
   useEffect(() => {
-    if (selectedPresentationSlide) setCurrentProjectionType('presentation');
-  }, [selectedPresentationSlide, setCurrentProjectionType]);
-
-  useEffect(() => {
+    if (!session || mode !== 'desktop') return;
     if (!selectedSongSlide && !selectedVerseText && !selectedPresentationSlide)
-      setCurrentProjectionType('none');
-  }, [
-    selectedSongSlide,
-    selectedVerseText,
-    selectedPresentationSlide,
-    setCurrentProjectionType,
-    selectedTabType,
-  ]);
+      setProjectionType(session, 'none');
+  }, [session, mode, selectedSongSlide, selectedVerseText, selectedPresentationSlide]);
 };

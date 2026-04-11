@@ -39,31 +39,32 @@ import {
 } from 'lucide-react';
 import { useCommandPaletteSearch, MIN_SONG_SEARCH_LENGTH } from '../../state-hooks/command.hooks';
 import { selectedTabTypeAtom } from '../../state/tab.atoms';
-import { selectedSongAtom } from '../../state/song.atoms';
-import { selectedVerseReferenceAtom, versesHistoryAtom } from '../../state/verse.atoms';
+import { versesHistoryAtom } from '../../state/verse.atoms';
 import {
   useDeleteSong,
   useAddToServiceList,
   useClearServiceList,
 } from '../../hooks/useSongs';
 import { areSettingsOpenAtom } from '../../state/settings.atoms';
-import { selectedPresentationAtom, selectedPresentationSlideIndexAtom } from '../../state/presentation.atoms';
 import SongEditorDialog from '../panels/songs-list-panel/SongEditorDialog';
 import SongDeleteDialog from '../panels/songs-list-panel/SongDeleteDialog';
 import SongAddDialog from '../panels/songs-list-panel/SongAddDialog';
 import type { CommandAction } from '../../state/command.atoms';
 import type { PresentationResponse } from '../../jazz/presentation-store';
+import { useSession } from '../../session/OperatorSessionContext';
+import {
+  selectSong,
+  selectVerse,
+  selectPresentation as selectPresentationAction,
+} from '../../session/session.actions';
 
 const CommandPalette: FC = () => {
   const [open, setOpen] = useAtom(commandPaletteOpenAtom);
   const [results] = useAtom(commandPaletteResultsAtom);
   const [songSlideSize] = useAtom(settingsSongSlideSizeAtom);
   const [, setSelectedTabType] = useAtom(selectedTabTypeAtom);
-  const [, setSelectedSong] = useAtom(selectedSongAtom);
-  const [, setSelectedVerseReference] = useAtom(selectedVerseReferenceAtom);
   const [, setVersesHistory] = useAtom(versesHistoryAtom);
-  const [, setSelectedPresentation] = useAtom(selectedPresentationAtom);
-  const [, setSelectedPresentationSlideIndex] = useAtom(selectedPresentationSlideIndexAtom);
+  const session = useSession();
   const [selectedValue, setSelectedValue] = useState<string>('');
   const [searchValue, setSearchValue] = useState<string>('');
   const [editingSong, setEditingSong] = useState<Song | null>(null);
@@ -78,7 +79,7 @@ const CommandPalette: FC = () => {
   const commandRef = useRef<HTMLDivElement>(null);
   const baseItemClass =
     'group rounded-md !px-2 !py-2 text-sm text-foreground data-[selected=true]:!bg-accent hover:!bg-accent/70';
-  
+
   // Trigger search when search term changes
   useCommandPaletteSearch(searchValue);
 
@@ -112,7 +113,7 @@ const CommandPalette: FC = () => {
 
   const songPreview = useMemo(() => {
     if (!selectedResult || selectedResult.type !== 'song') return null;
-    
+
     const song = selectedResult.data as Song;
     const parts = song.arrangement.map((key) => {
       const partSlides = song.parts.find((p) => p.key === key)?.slides;
@@ -128,7 +129,7 @@ const CommandPalette: FC = () => {
 
   const versePreview = useMemo(() => {
     if (!selectedResult || selectedResult.type !== 'verse') return null;
-    
+
     const verseRef = selectedResult.data as BibleReferenceType;
     const verseText = (bibleText as BibleTextType)[verseRef.book]?.[
       verseRef.chapter - 1
@@ -161,18 +162,19 @@ const CommandPalette: FC = () => {
     if (!result) return;
 
     if (result.type === 'song') {
+      const song = result.data as Song;
       setSelectedTabType('songs');
-      setSelectedSong(result.data);
+      if (session) selectSong(session, song.id);
       setOpen(false);
     } else if (result.type === 'presentation') {
+      const pres = result.data as PresentationResponse;
       setSelectedTabType('presentations');
-      setSelectedPresentation(result.data as PresentationResponse);
-      setSelectedPresentationSlideIndex(0);
+      if (session) selectPresentationAction(session, pres.id);
       setOpen(false);
     } else if (result.type === 'verse') {
       const verseReference = result.data as BibleReferenceType;
       setSelectedTabType('bible');
-      setSelectedVerseReference(verseReference);
+      if (session) selectVerse(session, verseReference);
       setVersesHistory((history) => {
         const exists = history.some(
           (item) =>
@@ -251,7 +253,7 @@ const CommandPalette: FC = () => {
 
   const handleDelete = async () => {
     if (!deletingSong) return;
-    
+
     try {
       await deleteSongMutation.mutateAsync(deletingSong.id);
       setDeleteDialogOpen(false);
@@ -261,11 +263,11 @@ const CommandPalette: FC = () => {
   };
 
   // Separate results into songs, verses, and commands
-  const songResults = useMemo(() => 
+  const songResults = useMemo(() =>
     results.filter(r => r.type === 'song'),
     [results]
   );
-  const verseResults = useMemo(() => 
+  const verseResults = useMemo(() =>
     results.filter(r => r.type === 'verse'),
     [results]
   );
@@ -290,7 +292,7 @@ const CommandPalette: FC = () => {
         </DialogHeader>
         <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
           <div className="flex-1 md:w-1/2 md:flex-none flex flex-col border-b md:border-b-0 md:border-r border-border overflow-hidden">
-            <Command 
+            <Command
               ref={commandRef}
               className="h-full bg-transparent text-foreground"
               shouldFilter={false}

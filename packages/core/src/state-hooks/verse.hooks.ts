@@ -1,74 +1,33 @@
-import { verseProjectionEnabledAtom } from '../state/projection.atoms';
 import { useAtom } from 'jotai';
 import { useCallback, useEffect } from 'react';
+import { useSession } from '../session/OperatorSessionContext';
 import {
-  selectedVerseReferenceAtom,
+  disableVerseProjection,
+  gotoNextVerse as gotoNextVerseAction,
+  gotoPrevVerse as gotoPrevVerseAction,
+} from '../session/session.actions';
+import {
   verseInputReferenceAtom,
   versesHistoryAtom,
 } from '../state/verse.atoms';
-import bibleText from '@assets/bibles/VDC.json';
-import { BibleTextType } from '../types/verse.types';
 
 export const useVerseControll = () => {
-  const [, setVerseProjectionEnabled] = useAtom(verseProjectionEnabledAtom);
-  const [selectedVerseReference, setSelectedVerseReference] = useAtom(
-    selectedVerseReferenceAtom,
-  );
+  const session = useSession();
+
   const disableVerse = useCallback(() => {
-    setVerseProjectionEnabled(false);
-  }, [setVerseProjectionEnabled]);
+    if (!session) return;
+    disableVerseProjection(session);
+  }, [session]);
 
   const gotoNextVerse = useCallback(() => {
-    if (!selectedVerseReference) return;
-    const {
-      book: bookId,
-      chapter: chapterId,
-      verse: verseId,
-    } = selectedVerseReference;
-    const bible = bibleText as BibleTextType;
-    const book = bible[bookId];
-    const chapter = book[chapterId - 1];
-
-    if (chapter[verseId]) {
-      setSelectedVerseReference({
-        book: bookId,
-        chapter: chapterId,
-        verse: verseId + 1,
-      });
-    } else if (book[chapterId]) {
-      setSelectedVerseReference({
-        book: bookId,
-        chapter: chapterId + 1,
-        verse: 1,
-      });
-    }
-  }, [selectedVerseReference, setSelectedVerseReference]);
+    if (!session) return;
+    gotoNextVerseAction(session);
+  }, [session]);
 
   const gotoPreviousVerse = useCallback(() => {
-    if (!selectedVerseReference) return;
-    const {
-      book: bookId,
-      chapter: chapterId,
-      verse: verseId,
-    } = selectedVerseReference;
-    const bible = bibleText as BibleTextType;
-    const book = bible[bookId];
-    const chapter = book[chapterId - 1];
-
-    if (chapter[verseId - 2]) {
-      setSelectedVerseReference({
-        book: bookId,
-        chapter: chapterId,
-        verse: verseId - 1,
-      });
-    } else if (book[chapterId - 2]) {
-      setSelectedVerseReference({
-        book: bookId,
-        chapter: chapterId - 1,
-        verse: book[chapterId - 2].length,
-      });
-    }
-  }, [selectedVerseReference, setSelectedVerseReference]);
+    if (!session) return;
+    gotoPrevVerseAction(session);
+  }, [session]);
 
   return { disableVerse, gotoNextVerse, gotoPreviousVerse };
 };

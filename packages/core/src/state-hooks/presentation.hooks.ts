@@ -1,61 +1,69 @@
 import { useAtom } from 'jotai';
 import { useCallback, useEffect, useRef } from 'react';
+import { useSession, useSessionMode } from '../session/OperatorSessionContext';
 import {
-  selectedPresentationAtom,
-  selectedPresentationSlideIndexAtom,
-  totalPresentationSlidesAtom,
-  videoPlayingAtom,
-  videoSeekRequestAtom,
+  useSessionPresentation,
+  useSessionPresentationSlideIndex,
+  useSessionTotalPresentationSlides,
+} from '../session/session.hooks';
+import {
+  gotoNextPresentationSlide,
+  gotoPrevPresentationSlide,
+  setPresentationSlideIndex,
+  setVideoPlaying,
+  seekVideo,
+} from '../session/session.actions';
+import {
   videoCurrentTimeAtom,
   videoDurationAtom,
 } from '../state/presentation.atoms';
 
 export const usePresentationControl = () => {
-  const [slideIndex, setSlideIndex] = useAtom(selectedPresentationSlideIndexAtom);
-  const [totalSlides] = useAtom(totalPresentationSlidesAtom);
+  const session = useSession();
+  const totalSlides = useSessionTotalPresentationSlides();
+  const slideIndex = useSessionPresentationSlideIndex();
 
   const gotoNextSlide = useCallback(() => {
-    if (slideIndex === null || totalSlides === 0) return;
-    if (slideIndex < totalSlides - 1) {
-      setSlideIndex(slideIndex + 1);
-    }
-  }, [slideIndex, totalSlides, setSlideIndex]);
+    if (!session || slideIndex === null || totalSlides === 0) return;
+    gotoNextPresentationSlide(session, totalSlides);
+  }, [session, slideIndex, totalSlides]);
 
   const gotoPreviousSlide = useCallback(() => {
-    if (slideIndex === null || totalSlides === 0) return;
-    if (slideIndex > 0) {
-      setSlideIndex(slideIndex - 1);
-    }
-  }, [slideIndex, totalSlides, setSlideIndex]);
+    if (!session || slideIndex === null || totalSlides === 0) return;
+    gotoPrevPresentationSlide(session);
+  }, [session, slideIndex, totalSlides]);
 
   return { gotoNextSlide, gotoPreviousSlide };
 };
 
 export const useManagePresentations = () => {
-  const [selectedPresentation] = useAtom(selectedPresentationAtom);
-  const [slideIndex, setSlideIndex] = useAtom(selectedPresentationSlideIndexAtom);
-  const [, setVideoPlaying] = useAtom(videoPlayingAtom);
-  const [, setSeekRequest] = useAtom(videoSeekRequestAtom);
+  const session = useSession();
+  const mode = useSessionMode();
+  const selectedPresentation = useSessionPresentation();
+  const slideIndex = useSessionPresentationSlideIndex();
   const [, setCurrentTime] = useAtom(videoCurrentTimeAtom);
   const [, setDuration] = useAtom(videoDurationAtom);
   const prevPresentationIdRef = useRef<string | null>(null);
 
   useEffect(() => {
+    // Only the desktop (session owner) should auto-manage slide index
+    if (!session || mode !== 'desktop') return;
     if (selectedPresentation) {
       if (prevPresentationIdRef.current !== selectedPresentation.id) {
-        setSlideIndex(0);
+        setPresentationSlideIndex(session, 0);
         prevPresentationIdRef.current = selectedPresentation.id;
       }
     } else {
       prevPresentationIdRef.current = null;
     }
-  }, [selectedPresentation, setSlideIndex]);
+  }, [session, mode, selectedPresentation]);
 
-  // Reset video state when slide changes
+  // Reset video state when slide changes (desktop only)
   useEffect(() => {
-    setVideoPlaying(true);
-    setSeekRequest(null);
+    if (!session || mode !== 'desktop') return;
+    setVideoPlaying(session, true);
+    seekVideo(session, null);
     setCurrentTime(0);
     setDuration(0);
-  }, [slideIndex, setVideoPlaying, setSeekRequest, setCurrentTime, setDuration]);
+  }, [session, mode, slideIndex, setCurrentTime, setDuration]);
 };

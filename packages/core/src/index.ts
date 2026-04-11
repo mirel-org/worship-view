@@ -1,11 +1,9 @@
-// State (atoms)
-export { selectedSongAtom, selectedSongTextAtom, selectedSongSlideReferenceAtom, selectedSongSlideAtom, nextSongSlideAtom, songInputValueAtom, songInputFocusAtom, totalSongSlidesAtom, currentSongSlideNumberAtom, selectedSongKeyAtom } from './state/song.atoms';
-export { selectedVerseReferenceAtom, selectedVerseTextAtom, verseInputReferenceAtom, verseInputValueAtom, verseInputFocusAtom, versesHistoryAtom } from './state/verse.atoms';
-export { currentProjectionTypeAtom, verseProjectionEnabledAtom } from './state/projection.atoms';
+// State (atoms) — local-only UI state that remains in Jotai
+export { songInputValueAtom, songInputFocusAtom } from './state/song.atoms';
+export { verseInputReferenceAtom, verseInputValueAtom, verseInputFocusAtom, versesHistoryAtom } from './state/verse.atoms';
 export { prayerRequestsAtom, prayerRequestFontSizeAtom } from './state/prayer.atoms';
 export { selectedBackgroundMediaItemAtom } from './state/media.atoms';
-export { selectedPresentationAtom, selectedPresentationSlideIndexAtom, selectedPresentationSlideAtom, totalPresentationSlidesAtom, presentationInputFocusAtom, videoPlayingAtom, videoVolumeAtom, videoSeekRequestAtom, videoCurrentTimeAtom, videoDurationAtom } from './state/presentation.atoms';
-export { areScreensEnabledAtom } from './state/screen.atoms';
+export { presentationInputFocusAtom, videoCurrentTimeAtom, videoDurationAtom } from './state/presentation.atoms';
 export { selectedTabTypeAtom } from './state/tab.atoms';
 export type { TabType } from './state/tab.atoms';
 export { commandPaletteOpenAtom, commandPaletteSearchAtom, commandPaletteResultsAtom } from './state/command.atoms';
@@ -55,6 +53,63 @@ export { usePassphraseConfirmed } from './hooks/usePassphraseConfirmed';
 export { default as usePreventScroll } from './hooks/usePreventScroll';
 export { useSongValidation } from './hooks/useSongValidation';
 export { useGetSongs, useSaveSong, useRenameSong, useUpdateSong, useDeleteSong, useGetSongContent, useAddToServiceList, useRemoveFromServiceList, useClearServiceList, useReorderServiceList, useGetServiceList, useDeleteAllSongs } from './hooks/useSongs';
+
+// Session (operator session context, hooks, and actions)
+export {
+  useSession,
+  useSessionMode,
+  useRequiredSession,
+  OperatorSessionProvider,
+} from './session/OperatorSessionContext';
+export type { SessionMode } from './session/OperatorSessionContext';
+export { default as OperatorSessionProviderWrapper } from './session/OperatorSessionProvider';
+export {
+  useSessionSong,
+  useSessionSongText,
+  useSessionSongSlideRef,
+  useSessionSongSlide,
+  useSessionNextSongSlide,
+  useSessionSongKey,
+  useSessionTotalSongSlides,
+  useSessionCurrentSlideNumber,
+  useSessionVerseRef,
+  useSessionVerseText,
+  useSessionVerseProjectionEnabled,
+  useSessionPresentation,
+  useSessionPresentationSlideIndex,
+  useSessionPresentationSlide,
+  useSessionTotalPresentationSlides,
+  useSessionProjectionType,
+  useSessionScreensEnabled,
+  useSessionVideoPlaying,
+  useSessionVideoVolume,
+  useSessionVideoSeekRequest,
+} from './session/session.hooks';
+export {
+  selectSong,
+  clearSong,
+  setSongSlideRef,
+  gotoNextSongSlide,
+  gotoPrevSongSlide,
+  selectVerse,
+  setVerseRef,
+  enableVerseProjection,
+  disableVerseProjection,
+  gotoNextVerse,
+  gotoPrevVerse,
+  selectPresentation,
+  clearPresentation,
+  setPresentationSlideIndex,
+  gotoNextPresentationSlide,
+  gotoPrevPresentationSlide,
+  clearScreen,
+  toggleScreens,
+  setScreensEnabled,
+  setProjectionType,
+  setVideoPlaying,
+  setVideoVolume,
+  seekVideo,
+} from './session/session.actions';
 
 // Utils
 export { shouldIgnoreNavigationShortcut } from './utils/shortcut.guards';

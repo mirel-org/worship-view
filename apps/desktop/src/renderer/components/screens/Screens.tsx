@@ -6,12 +6,12 @@ import {
   settingsDisplayScreenSelectionAtom,
   settingsStageDisplaysAtom,
 } from '../../../ipc/settings/settings.display.atoms';
-import { AudienceScreen, areScreensEnabledAtom, StageScreen } from '@worship-view/core';
+import { AudienceScreen, StageScreen, useSessionScreensEnabled } from '@worship-view/core';
 
 const Screens: FC = () => {
   const [audienceDisplays] = useAtom(settingsAudienceDisplaysAtom);
   const [stageDisplays] = useAtom(settingsStageDisplaysAtom);
-  const [areScreensEnabled] = useAtom(areScreensEnabledAtom);
+  const areScreensEnabled = useSessionScreensEnabled();
   const [, setDisplayScreenSelection] = useAtom(settingsDisplayScreenSelectionAtom);
 
   const handleCloseAudience = useCallback(

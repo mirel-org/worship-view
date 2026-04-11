@@ -2,12 +2,12 @@ import { FC, useRef } from 'react';
 import { useAtom } from 'jotai';
 import { Play, Pause, Volume2, Volume1, VolumeX } from 'lucide-react';
 import {
-  videoPlayingAtom,
-  videoVolumeAtom,
-  videoSeekRequestAtom,
   videoCurrentTimeAtom,
   videoDurationAtom,
 } from '../../../state/presentation.atoms';
+import { useSession } from '../../../session/OperatorSessionContext';
+import { useSessionVideoPlaying, useSessionVideoVolume } from '../../../session/session.hooks';
+import { setVideoPlaying, setVideoVolume, seekVideo } from '../../../session/session.actions';
 
 function formatTime(seconds: number): string {
   if (!seconds || isNaN(seconds)) return '0:00';
@@ -17,21 +17,24 @@ function formatTime(seconds: number): string {
 }
 
 const VideoControls: FC = () => {
-  const [isPlaying, setIsPlaying] = useAtom(videoPlayingAtom);
-  const [volume, setVolume] = useAtom(videoVolumeAtom);
-  const [, setSeekRequest] = useAtom(videoSeekRequestAtom);
+  const session = useSession();
+  const isPlaying = useSessionVideoPlaying();
+  const volume = useSessionVideoVolume();
   const [currentTime] = useAtom(videoCurrentTimeAtom);
   const [duration] = useAtom(videoDurationAtom);
   const preMuteVolumeRef = useRef(1);
 
-  const togglePlay = () => setIsPlaying(!isPlaying);
+  const togglePlay = () => {
+    if (session) setVideoPlaying(session, !isPlaying);
+  };
 
   const toggleMute = () => {
+    if (!session) return;
     if (volume > 0) {
       preMuteVolumeRef.current = volume;
-      setVolume(0);
+      setVideoVolume(session, 0);
     } else {
-      setVolume(preMuteVolumeRef.current || 1);
+      setVideoVolume(session, preMuteVolumeRef.current || 1);
     }
   };
 
@@ -62,7 +65,9 @@ const VideoControls: FC = () => {
         max={duration || 0}
         step={0.1}
         value={currentTime}
-        onChange={(e) => setSeekRequest(parseFloat(e.target.value))}
+        onChange={(e) => {
+          if (session) seekVideo(session, parseFloat(e.target.value));
+        }}
         disabled={!duration}
         className="video-range-progress w-full h-1.5 rounded-full appearance-none bg-muted cursor-pointer disabled:opacity-40 disabled:cursor-default"
       />
@@ -81,7 +86,9 @@ const VideoControls: FC = () => {
           max={1}
           step={0.01}
           value={volume}
-          onChange={(e) => setVolume(parseFloat(e.target.value))}
+          onChange={(e) => {
+            if (session) setVideoVolume(session, parseFloat(e.target.value));
+          }}
           className="video-range-volume w-24 h-1 rounded-full appearance-none bg-muted cursor-pointer"
         />
       </div>

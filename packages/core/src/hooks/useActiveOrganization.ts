@@ -19,6 +19,7 @@ export function useActiveOrganization() {
             serviceList: { $each: true },
             textStyles: { $each: true },
             presentations: { $each: { slides: { $each: true } } },
+            sessions: { $each: true },
             $onError: 'catch',
           },
         },

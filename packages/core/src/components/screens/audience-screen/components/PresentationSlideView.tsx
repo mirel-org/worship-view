@@ -1,10 +1,14 @@
 import { FC, useRef, useEffect } from 'react';
 import { useAtom } from 'jotai';
 import { usePresentationSlideBlobUrl } from '../../../../hooks/usePresentation';
+import { useSession } from '../../../../session/OperatorSessionContext';
 import {
-  videoPlayingAtom,
-  videoVolumeAtom,
-  videoSeekRequestAtom,
+  useSessionVideoPlaying,
+  useSessionVideoVolume,
+  useSessionVideoSeekRequest,
+} from '../../../../session/session.hooks';
+import { setVideoPlaying, seekVideo } from '../../../../session/session.actions';
+import {
   videoCurrentTimeAtom,
   videoDurationAtom,
 } from '../../../../state/presentation.atoms';
@@ -17,10 +21,11 @@ type Props = {
 const PresentationSlideView: FC<Props> = ({ fileStreamId, slideType }) => {
   const { blobUrl } = usePresentationSlideBlobUrl(fileStreamId);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const session = useSession();
 
-  const [isPlaying, setIsPlaying] = useAtom(videoPlayingAtom);
-  const [volume] = useAtom(videoVolumeAtom);
-  const [seekRequest, setSeekRequest] = useAtom(videoSeekRequestAtom);
+  const isPlaying = useSessionVideoPlaying();
+  const volume = useSessionVideoVolume();
+  const seekRequest = useSessionVideoSeekRequest();
   const [, setCurrentTime] = useAtom(videoCurrentTimeAtom);
   const [, setDuration] = useAtom(videoDurationAtom);
 
@@ -45,12 +50,12 @@ const PresentationSlideView: FC<Props> = ({ fileStreamId, slideType }) => {
   // Drive seek
   useEffect(() => {
     const video = videoRef.current;
-    if (seekRequest === null || !video) return;
+    if (seekRequest == null || !video || !session) return;
     video.currentTime = seekRequest;
-    setSeekRequest(null);
-  }, [seekRequest, setSeekRequest]);
+    seekVideo(session, null);
+  }, [seekRequest, session]);
 
-  // Report playback state back to atoms
+  // Report playback state back to atoms (local feedback)
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
@@ -73,7 +78,7 @@ const PresentationSlideView: FC<Props> = ({ fileStreamId, slideType }) => {
     };
 
     const onEnded = () => {
-      setIsPlaying(false);
+      if (session) setVideoPlaying(session, false);
     };
 
     video.addEventListener('timeupdate', onTimeUpdate);
@@ -85,7 +90,7 @@ const PresentationSlideView: FC<Props> = ({ fileStreamId, slideType }) => {
       video.removeEventListener('loadedmetadata', onLoadedMetadata);
       video.removeEventListener('ended', onEnded);
     };
-  }, [blobUrl, setCurrentTime, setDuration, setIsPlaying]);
+  }, [blobUrl, session, setCurrentTime, setDuration]);
 
   if (!blobUrl) return null;
 

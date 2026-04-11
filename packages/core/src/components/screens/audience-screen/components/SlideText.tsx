@@ -1,34 +1,28 @@
-import {
-  currentProjectionTypeAtom,
-  verseProjectionEnabledAtom,
-} from '../../../../state/projection.atoms';
 import { FC, useMemo } from 'react';
 import CrossFade from './CrossFade';
 import SongSlide from './SongSlide';
 import VerseSlide from './VerseSlide';
 import PresentationSlideView from './PresentationSlideView';
 import { useAtom } from 'jotai';
-import {
-  selectedSongSlideReferenceAtom,
-  currentSongSlideNumberAtom,
-  selectedSongSlideAtom,
-  selectedSongKeyAtom,
-  totalSongSlidesAtom,
-} from '../../../../state/song.atoms';
-import {
-  selectedVerseReferenceAtom,
-  selectedVerseTextAtom,
-} from '../../../../state/verse.atoms';
-import {
-  selectedPresentationSlideAtom,
-  selectedPresentationSlideIndexAtom,
-  totalPresentationSlidesAtom,
-} from '../../../../state/presentation.atoms';
+import { prayerRequestsAtom } from '../../../../state/prayer.atoms';
 import { formatBibleReference } from '../../../../utils/verse.utils';
 import { PrayerSlide } from './PrayerSlide';
-import { prayerRequestsAtom } from '../../../../state/prayer.atoms';
 import { useActiveTextStyle } from '../../../../hooks/useTextStyle';
 import { buildTextShadowStyle } from '../../../../jazz/text-style-store';
+import {
+  useSessionProjectionType,
+  useSessionSongSlide,
+  useSessionSongSlideRef,
+  useSessionCurrentSlideNumber,
+  useSessionTotalSongSlides,
+  useSessionVerseRef,
+  useSessionVerseText,
+  useSessionVerseProjectionEnabled,
+  useSessionSongKey,
+  useSessionPresentationSlide,
+  useSessionPresentationSlideIndex,
+  useSessionTotalPresentationSlides,
+} from '../../../../session/session.hooks';
 
 function getVerticalPositionClasses(align: 'top' | 'center' | 'bottom'): string {
   switch (align) {
@@ -42,20 +36,20 @@ function getVerticalPositionClasses(align: 'top' | 'center' | 'bottom'): string 
 }
 
 const SlideText: FC = () => {
-  const [currentProjectionType] = useAtom(currentProjectionTypeAtom);
-  const [selectedSongSlide] = useAtom(selectedSongSlideAtom);
-  const [selectedSongSlideReference] = useAtom(selectedSongSlideReferenceAtom);
-  const [currentSongSlideNumber] = useAtom(currentSongSlideNumberAtom);
-  const [totalSongSlides] = useAtom(totalSongSlidesAtom);
-  const [selectedVerseReference] = useAtom(selectedVerseReferenceAtom);
-  const [selectedVerseText] = useAtom(selectedVerseTextAtom);
-  const [verseProjectionEnabled] = useAtom(verseProjectionEnabledAtom);
+  const currentProjectionType = useSessionProjectionType();
+  const selectedSongSlide = useSessionSongSlide();
+  const selectedSongSlideReference = useSessionSongSlideRef();
+  const currentSongSlideNumber = useSessionCurrentSlideNumber();
+  const totalSongSlides = useSessionTotalSongSlides();
+  const selectedVerseReference = useSessionVerseRef();
+  const selectedVerseText = useSessionVerseText();
+  const verseProjectionEnabled = useSessionVerseProjectionEnabled();
   const [prayerRequests] = useAtom(prayerRequestsAtom);
-  const [selectedSongKey] = useAtom(selectedSongKeyAtom);
+  const selectedSongKey = useSessionSongKey();
   const activeStyle = useActiveTextStyle();
-  const [selectedPresentationSlide] = useAtom(selectedPresentationSlideAtom);
-  const [selectedPresentationSlideIndex] = useAtom(selectedPresentationSlideIndexAtom);
-  const [totalPresentationSlides] = useAtom(totalPresentationSlidesAtom);
+  const selectedPresentationSlide = useSessionPresentationSlide();
+  const selectedPresentationSlideIndex = useSessionPresentationSlideIndex();
+  const totalPresentationSlides = useSessionTotalPresentationSlides();
 
   const songContentKey = selectedSongSlide?.lines?.join('\n') ?? '';
   const songNodeKey = selectedSongSlideReference

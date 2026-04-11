@@ -1,6 +1,4 @@
 import { FC, useState, useCallback, useEffect } from 'react';
-import { useAtom } from 'jotai';
-import { selectedPresentationAtom } from '../../state/presentation.atoms';
 import { useUploadPresentation } from '../../hooks/usePresentation';
 import { renderPdfPages } from '../../utils/pdf-renderer';
 import PresentationsListPanel from '../panels/presentations-list-panel/PresentationsListPanel';
@@ -8,6 +6,7 @@ import PresentationSlidesPanel from '../panels/presentation-slides-panel/Present
 import LibreOfficePrompt from '../presentations/LibreOfficePrompt';
 import Sidebar from '../layout/Sidebar';
 import type { UploadSlideInput } from '../../jazz/presentation-store';
+import { useSessionPresentation } from '../../session/session.hooks';
 
 export type UploadPhase = 'idle' | 'processing' | 'rendering' | 'uploading';
 
@@ -27,7 +26,7 @@ declare global {
 }
 
 const TabsPresentations: FC = () => {
-  const [selectedPresentation] = useAtom(selectedPresentationAtom);
+  const selectedPresentation = useSessionPresentation();
   const uploadMutation = useUploadPresentation();
   const [libreOfficePromptOpen, setLibreOfficePromptOpen] = useState(false);
   const [uploadPhase, setUploadPhase] = useState<UploadPhase>('idle');

@@ -120,6 +120,48 @@ export const Presentation = co
   });
 
 /**
+ * OperatorSession schema - represents a desktop instance's projection state
+ * Shared via Jazz so a remote webapp can read/write the same state
+ */
+export const OperatorSession = co
+  .map({
+    // Identity
+    sessionId: z.string(),
+    instanceName: z.string(),
+
+    // Presence
+    lastHeartbeat: z.number(),
+    isActive: z.boolean(),
+
+    // Projection state
+    projectionType: z.enum(['none', 'song', 'verse', 'prayer', 'presentation']),
+    screensEnabled: z.boolean(),
+
+    // Song
+    selectedSongId: z.optional(z.string()),
+    songPartIndex: z.optional(z.number()),
+    songSlideIndex: z.optional(z.number()),
+
+    // Verse
+    verseBook: z.optional(z.string()),
+    verseChapter: z.optional(z.number()),
+    verseVerse: z.optional(z.number()),
+    verseProjectionEnabled: z.optional(z.boolean()),
+
+    // Presentation
+    selectedPresentationId: z.optional(z.string()),
+    presentationSlideIndex: z.optional(z.number()),
+
+    // Video control
+    videoPlaying: z.optional(z.boolean()),
+    videoVolume: z.optional(z.number()),
+    videoSeekRequest: z.optional(z.number()),
+  })
+  .withPermissions({
+    onInlineCreate: 'sameAsContainer',
+  });
+
+/**
  * Organization schema - contains songs, service lists, media, text styles, and presentations for a worship organization
  * Uses newGroup permissions so each organization gets its own group for access control
  */
@@ -141,6 +183,9 @@ export const Organization = co
     presentations: co.list(Presentation).withPermissions({
       onInlineCreate: 'sameAsContainer',
     }),
+    sessions: co.list(OperatorSession).withPermissions({
+      onInlineCreate: 'sameAsContainer',
+    }),
   })
   .withPermissions({
     onInlineCreate: 'newGroup',
@@ -160,6 +205,9 @@ export const Organization = co
     }
     if (!org.$jazz.has('presentations')) {
       org.$jazz.set('presentations', []);
+    }
+    if (!org.$jazz.has('sessions')) {
+      org.$jazz.set('sessions', []);
     }
   });
 
@@ -210,6 +258,7 @@ export type TextStyleType = co.loaded<typeof TextStyle>;
 export type MediaItemType = co.loaded<typeof MediaItem>;
 export type PresentationSlideType = co.loaded<typeof PresentationSlide>;
 export type PresentationType = co.loaded<typeof Presentation>;
+export type OperatorSessionType = co.loaded<typeof OperatorSession>;
 export type OrganizationType = co.loaded<typeof Organization>;
 export type WorshipViewAccountType = co.loaded<typeof WorshipViewAccount>;
 

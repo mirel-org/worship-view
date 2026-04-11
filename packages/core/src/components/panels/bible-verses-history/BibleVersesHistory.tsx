@@ -1,17 +1,18 @@
 import {
-  selectedVerseReferenceAtom,
   versesHistoryAtom,
 } from '../../../state/verse.atoms';
 import { closeSidebar } from '../../layout/Sidebar';
 import { formatBibleReference } from '../../../utils/verse.utils';
 import { useAtom } from 'jotai';
 import { cn } from '@worship-view/ui';
+import { useSession } from '../../../session/OperatorSessionContext';
+import { useSessionVerseRef } from '../../../session/session.hooks';
+import { setVerseRef } from '../../../session/session.actions';
 
 export function BibleVersesHistory() {
+  const session = useSession();
   const [versesHistory] = useAtom(versesHistoryAtom);
-  const [selectedVerseReference, setSelectedVerseReference] = useAtom(
-    selectedVerseReferenceAtom,
-  );
+  const selectedVerseReference = useSessionVerseRef();
 
   return (
     <div className="h-full overflow-y-auto p-2">
@@ -26,7 +27,7 @@ export function BibleVersesHistory() {
             <li
               key={index}
               onClick={() => {
-                setSelectedVerseReference(verseReference);
+                if (session) setVerseRef(session, verseReference);
                 closeSidebar();
               }}
               className={cn(

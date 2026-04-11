@@ -1,85 +1,57 @@
-import { useAtom } from 'jotai';
 import { useCallback, useEffect, useRef } from 'react';
+import { useSession, useSessionMode } from '../session/OperatorSessionContext';
 import {
-  selectedSongAtom,
-  selectedSongSlideReferenceAtom,
-  selectedSongTextAtom,
-} from '../state/song.atoms';
+  useSessionSongText,
+  useSessionSongSlideRef,
+  useSessionSong,
+} from '../session/session.hooks';
+import {
+  gotoNextSongSlide,
+  gotoPrevSongSlide,
+  clearSong as clearSongAction,
+  setSongSlideRef,
+  selectSong,
+} from '../session/session.actions';
 
 export const useSongControll = () => {
-  const [selectedSongSlideReference, setSelectedSongSlideReference] = useAtom(
-    selectedSongSlideReferenceAtom,
-  );
-  const [selectedSongText] = useAtom(selectedSongTextAtom);
-  const [, setSelectedSong] = useAtom(selectedSongAtom);
+  const session = useSession();
+  const songText = useSessionSongText();
+  const slideRef = useSessionSongSlideRef();
 
   const gotoNextSlide = useCallback(() => {
-    if (!selectedSongSlideReference || !selectedSongText) return;
-    const { partIndex, slideIndex } = selectedSongSlideReference;
-
-    if (selectedSongText[partIndex]?.slides[slideIndex + 1]) {
-      setSelectedSongSlideReference({ partIndex, slideIndex: slideIndex + 1 });
-      return;
-    }
-    if (selectedSongText[partIndex + 1]?.slides[0]) {
-      setSelectedSongSlideReference({
-        partIndex: partIndex + 1,
-        slideIndex: 0,
-      });
-      return;
-    }
-  }, [
-    selectedSongSlideReference,
-    setSelectedSongSlideReference,
-    selectedSongText,
-  ]);
+    if (!session || !slideRef || !songText) return;
+    gotoNextSongSlide(session, songText);
+  }, [session, slideRef, songText]);
 
   const gotoPreviousSlide = useCallback(() => {
-    if (!selectedSongSlideReference || !selectedSongText) return;
-    const { partIndex, slideIndex } = selectedSongSlideReference;
-
-    if (selectedSongText[partIndex]?.slides[slideIndex - 1]) {
-      setSelectedSongSlideReference({ partIndex, slideIndex: slideIndex - 1 });
-      return;
-    }
-    const prevSlides = selectedSongText[partIndex - 1]?.slides;
-    if (prevSlides && prevSlides[prevSlides.length - 1]) {
-      setSelectedSongSlideReference({
-        partIndex: partIndex - 1,
-        slideIndex: prevSlides.length - 1,
-      });
-      return;
-    }
-  }, [
-    selectedSongSlideReference,
-    setSelectedSongSlideReference,
-    selectedSongText,
-  ]);
+    if (!session || !slideRef || !songText) return;
+    gotoPrevSongSlide(session, songText);
+  }, [session, slideRef, songText]);
 
   const clearSong = useCallback(() => {
-    setSelectedSong(null);
-    setSelectedSongSlideReference(null);
-  }, [setSelectedSong, setSelectedSongSlideReference]);
+    if (!session) return;
+    clearSongAction(session);
+  }, [session]);
 
   return { gotoNextSlide, gotoPreviousSlide, clearSong };
 };
 
 export const useManageSongs = () => {
-  const [selectedSong] = useAtom(selectedSongAtom);
-  const [, setSelectedSongSlideReference] = useAtom(
-    selectedSongSlideReferenceAtom,
-  );
-  const prevSongNameRef = useRef<string | null>(null);
-  
+  const session = useSession();
+  const mode = useSessionMode();
+  const song = useSessionSong();
+  const prevSongIdRef = useRef<string | null>(null);
+
   useEffect(() => {
-    if (selectedSong) {
-      // Only reset slide reference if it's a different song
-      if (prevSongNameRef.current !== selectedSong.name) {
-        setSelectedSongSlideReference({ partIndex: 0, slideIndex: 0 });
-        prevSongNameRef.current = selectedSong.name;
+    // Only the desktop (session owner) should auto-manage slide refs
+    if (!session || mode !== 'desktop') return;
+    if (song) {
+      if (prevSongIdRef.current !== song.id) {
+        setSongSlideRef(session, 0, 0);
+        prevSongIdRef.current = song.id;
       }
     } else {
-      prevSongNameRef.current = null;
+      prevSongIdRef.current = null;
     }
-  }, [selectedSong, setSelectedSongSlideReference]);
+  }, [session, mode, song]);
 };

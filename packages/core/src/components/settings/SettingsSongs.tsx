@@ -6,12 +6,13 @@ import { Music, ListPlus, Pencil, Trash2, Search } from 'lucide-react';
 import { useGetSongs, useDeleteSong, useAddToServiceList } from '../../hooks/useSongs';
 import { settingsSongSlideSizeAtom } from '../../state/settings.song.atoms';
 import { selectedTabTypeAtom } from '../../state/tab.atoms';
-import { selectedSongAtom } from '../../state/song.atoms';
 import { areSettingsOpenAtom } from '../../state/settings.atoms';
 import { getSongSlidesBySize } from '../../utils/song.utils';
 import SongEditorDialog from '../panels/songs-list-panel/SongEditorDialog';
 import SongDeleteDialog from '../panels/songs-list-panel/SongDeleteDialog';
 import type { Song } from '../../types/song.types';
+import { useSession } from '../../session/OperatorSessionContext';
+import { selectSong } from '../../session/session.actions';
 
 const ROW_HEIGHT = 36;
 
@@ -25,7 +26,7 @@ export function SettingsSongs() {
   const { data: rawSongs = [], isLoading } = useGetSongs();
   const [songSlideSize] = useAtom(settingsSongSlideSizeAtom);
   const [, setSelectedTabType] = useAtom(selectedTabTypeAtom);
-  const [, setSelectedSong] = useAtom(selectedSongAtom);
+  const session = useSession();
   const [, setSettingsOpen] = useAtom(areSettingsOpenAtom);
   const deleteSongMutation = useDeleteSong();
   const addToServiceListMutation = useAddToServiceList();
@@ -38,7 +39,6 @@ export function SettingsSongs() {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
   // Stable snapshot: only grows, never reorders existing items.
-  // New songs arriving from Jazz are appended at the end in sorted order.
   const [stableSongs, setStableSongs] = useState<Song[]>([]);
   const knownIdsRef = useRef<Set<string>>(new Set());
 
@@ -47,19 +47,16 @@ export function SettingsSongs() {
 
     setStableSongs((prev) => {
       if (prev.length === 0) {
-        // First load — full sort
         const sorted = sortSongs(rawSongs);
         knownIdsRef.current = new Set(sorted.map((s) => s.id));
         return sorted;
       }
 
-      // Find genuinely new songs
       const newSongs = rawSongs.filter(
         (s) => s && s.id && !knownIdsRef.current.has(s.id),
       );
       if (newSongs.length === 0) return prev;
 
-      // Append new songs (sorted among themselves) at the end
       const sortedNew = sortSongs(newSongs);
       for (const s of sortedNew) knownIdsRef.current.add(s.id);
       return [...prev, ...sortedNew];
@@ -103,10 +100,10 @@ export function SettingsSongs() {
   const handleSongClick = useCallback(
     (song: Song) => {
       setSelectedTabType('songs');
-      setSelectedSong(song);
+      if (session) selectSong(session, song.id);
       setSettingsOpen(false);
     },
-    [setSelectedTabType, setSelectedSong, setSettingsOpen],
+    [setSelectedTabType, session, setSettingsOpen],
   );
 
   const handleAddToServiceList = useCallback(
@@ -147,7 +144,6 @@ export function SettingsSongs() {
     if (!deletingSong) return;
     try {
       await deleteSongMutation.mutateAsync(deletingSong.id);
-      // Remove deleted song from stable list
       setStableSongs((prev) => prev.filter((s) => s.id !== deletingSong.id));
       knownIdsRef.current.delete(deletingSong.id);
       setDeleteDialogOpen(false);
