@@ -112,7 +112,10 @@ const SlideText: FC = () => {
           />
         </div>
       )}
-      {currentProjectionType === 'song' && selectedSongKey && (
+      {currentProjectionType === 'song' &&
+        selectedSongKey &&
+        currentSongSlideNumber > 0 &&
+        totalSongSlides > 0 && (
         <div
           className='absolute bottom-10 left-10 pb-4 pl-4 font-montserrat text-[300%] font-bold text-white z-20'
           style={{ textShadow: '0.06em 0.06em 1px #00000094' }}

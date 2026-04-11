@@ -49,7 +49,14 @@ export { default as usePresentationShortcuts } from './state-hooks/presentation.
 export { useActiveOrganization } from './hooks/useActiveOrganization';
 export { useActiveTextStyle, useTextStyles } from './hooks/useTextStyle';
 export { default as useInputFocus } from './hooks/useInputFocus';
-export { useGetMediaItems, useUploadMediaItem, useRenameMediaItem, useDeleteMediaItem, useMediaBlobUrl } from './hooks/useMedia';
+export {
+  useGetMediaItems,
+  useUploadMediaItem,
+  useRenameMediaItem,
+  useDeleteMediaItem,
+  useMediaBlobUrl,
+  useMediaPreviewBackfill,
+} from './hooks/useMedia';
 export { useGetPresentations, useUploadPresentation, useRenamePresentation, useDeletePresentation, useDeletePresentationSlide, usePresentationSlideBlobUrl } from './hooks/usePresentation';
 export { usePassphraseConfirmed } from './hooks/usePassphraseConfirmed';
 export { default as usePreventScroll } from './hooks/usePreventScroll';

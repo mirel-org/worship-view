@@ -1,5 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
-import { co } from 'jazz-tools';
+import { co, type FileStream, getLoadedOrUndefined } from 'jazz-tools';
 import {
   MediaItem,
   MediaItemType,
@@ -12,6 +12,7 @@ import {
   removeCoListItem,
   getMediaArray,
 } from '@worship-view/schema';
+import { extractVideoPosterBlob } from '../utils/video-poster';
 
 const MAX_FILE_SIZE_BYTES = 500 * 1024 * 1024; // 500MB
 
@@ -29,14 +30,25 @@ export type MediaItemResponse = {
   mimeType: string;
   sizeBytes: number;
   fileStreamId: string;
+  /** JPEG poster for video thumbnails */
+  previewFileStreamId?: string;
 };
+
+function getFileStreamIdFromField(
+  streamField: MediaItemType['file'] | MediaItemType['previewFile'],
+): string | undefined {
+  const loaded = getLoadedOrUndefined(streamField);
+  if (!loaded) return undefined;
+  return loaded.$jazz?.id;
+}
 
 function mediaItemToResponse(
   item: MediaItemType | null | undefined,
 ): MediaItemResponse | null {
   if (!item) return null;
-  const fileId = (item.file as any)?.$jazz?.id ?? (item.file as any)?.id;
+  const fileId = getFileStreamIdFromField(item.file);
   if (!fileId) return null;
+  const previewId = getFileStreamIdFromField(item.previewFile);
   return {
     id: item.id,
     name: item.name,
@@ -44,6 +56,7 @@ function mediaItemToResponse(
     mimeType: item.mimeType,
     sizeBytes: item.sizeBytes,
     fileStreamId: fileId,
+    ...(previewId ? { previewFileStreamId: previewId } : {}),
   };
 }
 
@@ -92,6 +105,16 @@ export async function uploadMediaItem(
   const orgGroup = getOrganizationGroup(organization);
   const mediaType = ALLOWED_MIME_TYPES[file.type] as 'video' | 'image';
 
+  let previewStream: FileStream | undefined;
+  if (mediaType === 'video') {
+    const posterBlob = await extractVideoPosterBlob(file);
+    if (posterBlob) {
+      previewStream = await co.fileStream().createFromBlob(posterBlob, {
+        owner: orgGroup,
+      });
+    }
+  }
+
   // Create FileStream from the file blob
   const fileStream = await co.fileStream().createFromBlob(file, {
     owner: orgGroup,
@@ -109,6 +132,7 @@ export async function uploadMediaItem(
       mimeType: file.type,
       sizeBytes: file.size,
       file: fileStream,
+      ...(previewStream ? { previewFile: previewStream } : {}),
     },
     { owner: orgGroup },
   );
@@ -168,4 +192,33 @@ export function deleteMediaItem(
   );
 
   return { success: true };
+}
+
+/**
+ * Attaches JPEG poster streams to video items that were created before preview support.
+ * Runs sequentially to limit decoder load.
+ */
+export async function backfillVideoPreviews(
+  organization: OrganizationType | null | undefined,
+  options?: { signal?: AbortSignal },
+): Promise<void> {
+  if (!organization) return;
+  const orgGroup = getOrganizationGroup(organization);
+  const items = getMediaFromOrg(organization);
+  for (const item of items) {
+    if (options?.signal?.aborted) return;
+    if (!item || item.mediaType !== 'video') continue;
+    const previewId = getFileStreamIdFromField(item.previewFile);
+    if (previewId) continue;
+    const mainId = getFileStreamIdFromField(item.file);
+    if (!mainId) continue;
+    const blob = await co.fileStream().loadAsBlob(mainId);
+    if (!blob) continue;
+    const posterBlob = await extractVideoPosterBlob(blob);
+    if (!posterBlob) continue;
+    const previewStream = await co.fileStream().createFromBlob(posterBlob, {
+      owner: orgGroup,
+    });
+    setCoMapProperty(item as MediaItemType, 'previewFile', previewStream);
+  }
 }

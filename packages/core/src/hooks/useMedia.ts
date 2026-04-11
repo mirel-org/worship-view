@@ -1,8 +1,10 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
+import { useAtomValue, useSetAtom } from 'jotai';
 import { co } from 'jazz-tools';
 import * as mediaStore from '../jazz/media-store';
 import type { MediaItemResponse } from '../jazz/media-store';
 import { useActiveOrganization } from './useActiveOrganization';
+import { mediaItemsRefreshTokenAtom } from '../state/media.atoms';
 import {
   getCachedBlobUrl,
   setCachedBlobUrl,
@@ -14,9 +16,15 @@ import {
 
 export function useGetMediaItems() {
   const { activeOrganization } = useActiveOrganization();
+  const refreshToken = useAtomValue(mediaItemsRefreshTokenAtom);
+  const bumpMediaItemsRefresh = useSetAtom(mediaItemsRefreshTokenAtom);
   const [data, setData] = useState<MediaItemResponse[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
+
+  const refresh = useCallback(() => {
+    bumpMediaItemsRefresh((n) => n + 1);
+  }, [bumpMediaItemsRefresh]);
 
   useEffect(() => {
     if (!activeOrganization) {
@@ -35,13 +43,14 @@ export function useGetMediaItems() {
     } finally {
       setIsLoading(false);
     }
-  }, [activeOrganization]);
+  }, [activeOrganization, refreshToken]);
 
-  return { data, isLoading, error };
+  return { data, isLoading, error, refresh };
 }
 
 export function useUploadMediaItem() {
   const { activeOrganization } = useActiveOrganization();
+  const bumpMediaItemsRefresh = useSetAtom(mediaItemsRefreshTokenAtom);
   const [isLoading, setIsLoading] = useState(false);
   const [progress, setProgress] = useState(0);
   const [error, setError] = useState<Error | null>(null);
@@ -57,6 +66,7 @@ export function useUploadMediaItem() {
           file,
           (p) => setProgress(p),
         );
+        bumpMediaItemsRefresh((n) => n + 1);
         return result;
       } catch (err) {
         const error = err instanceof Error ? err : new Error('Failed to upload media');
@@ -66,7 +76,7 @@ export function useUploadMediaItem() {
         setIsLoading(false);
       }
     },
-    [activeOrganization],
+    [activeOrganization, bumpMediaItemsRefresh],
   );
 
   return {
@@ -80,6 +90,7 @@ export function useUploadMediaItem() {
 
 export function useRenameMediaItem() {
   const { activeOrganization } = useActiveOrganization();
+  const bumpMediaItemsRefresh = useSetAtom(mediaItemsRefreshTokenAtom);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
@@ -89,6 +100,7 @@ export function useRenameMediaItem() {
       setError(null);
       try {
         const result = mediaStore.renameMediaItem(activeOrganization, id, newName);
+        bumpMediaItemsRefresh((n) => n + 1);
         return result;
       } catch (err) {
         const error = err instanceof Error ? err : new Error('Failed to rename media');
@@ -98,7 +110,7 @@ export function useRenameMediaItem() {
         setIsLoading(false);
       }
     },
-    [activeOrganization],
+    [activeOrganization, bumpMediaItemsRefresh],
   );
 
   return {
@@ -111,20 +123,29 @@ export function useRenameMediaItem() {
 
 export function useDeleteMediaItem() {
   const { activeOrganization } = useActiveOrganization();
+  const bumpMediaItemsRefresh = useSetAtom(mediaItemsRefreshTokenAtom);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
   const mutate = useCallback(
-    async (id: string, fileStreamId?: string) => {
+    async (
+      id: string,
+      streamIds?: { fileStreamId?: string; previewFileStreamId?: string },
+    ) => {
       setIsLoading(true);
       setError(null);
       try {
         const result = mediaStore.deleteMediaItem(activeOrganization, id);
         // Clean up both in-memory and disk caches
-        if (fileStreamId) {
-          revokeCachedBlobUrl(fileStreamId);
-          deleteFromDiskCache(fileStreamId);
+        if (streamIds?.fileStreamId) {
+          revokeCachedBlobUrl(streamIds.fileStreamId);
+          deleteFromDiskCache(streamIds.fileStreamId);
         }
+        if (streamIds?.previewFileStreamId) {
+          revokeCachedBlobUrl(streamIds.previewFileStreamId);
+          deleteFromDiskCache(streamIds.previewFileStreamId);
+        }
+        bumpMediaItemsRefresh((n) => n + 1);
         return result;
       } catch (err) {
         const error = err instanceof Error ? err : new Error('Failed to delete media');
@@ -134,7 +155,7 @@ export function useDeleteMediaItem() {
         setIsLoading(false);
       }
     },
-    [activeOrganization],
+    [activeOrganization, bumpMediaItemsRefresh],
   );
 
   return {
@@ -222,4 +243,39 @@ export function useMediaBlobUrl(fileStreamId: string | undefined) {
   }, [fileStreamId]);
 
   return { blobUrl, isLoading };
+}
+
+/**
+ * Generates JPEG posters for video items missing `previewFile` (legacy data).
+ * Runs once when the media list loads; refreshes the list when done.
+ */
+export function useMediaPreviewBackfill() {
+  const { activeOrganization } = useActiveOrganization();
+  const { data: mediaItems, refresh } = useGetMediaItems();
+  const inFlightRef = useRef(false);
+
+  useEffect(() => {
+    if (!activeOrganization || !mediaItems.length) return;
+    const needs = mediaItems.filter(
+      (m) => m.mediaType === 'video' && !m.previewFileStreamId,
+    );
+    if (needs.length === 0) return;
+    if (inFlightRef.current) return;
+
+    inFlightRef.current = true;
+    const ac = new AbortController();
+    void (async () => {
+      try {
+        await mediaStore.backfillVideoPreviews(activeOrganization, { signal: ac.signal });
+        refresh();
+      } finally {
+        inFlightRef.current = false;
+      }
+    })();
+
+    return () => {
+      ac.abort();
+      inFlightRef.current = false;
+    };
+  }, [activeOrganization, mediaItems, refresh]);
 }

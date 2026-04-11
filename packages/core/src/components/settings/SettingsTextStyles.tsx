@@ -66,7 +66,11 @@ function PreviewBackgroundThumb({
   selected: boolean;
   onSelect: () => void;
 }) {
-  const { blobUrl } = useMediaBlobUrl(mediaItem.fileStreamId);
+  const thumbStreamId =
+    mediaItem.mediaType === 'video' && mediaItem.previewFileStreamId
+      ? mediaItem.previewFileStreamId
+      : mediaItem.fileStreamId;
+  const { blobUrl } = useMediaBlobUrl(thumbStreamId);
   return (
     <button
       type="button"
@@ -76,26 +80,55 @@ function PreviewBackgroundThumb({
         selected ? 'border-2 border-ring' : 'border-border hover:border-ring/60',
       )}
     >
-      {blobUrl && (
-        mediaItem.mediaType === 'image' ? (
+      {blobUrl &&
+        (mediaItem.mediaType === 'image' ? (
+          <img src={blobUrl} className="w-full h-full object-cover" alt={mediaItem.name} />
+        ) : mediaItem.previewFileStreamId ? (
           <img src={blobUrl} className="w-full h-full object-cover" alt={mediaItem.name} />
         ) : (
           <video src={blobUrl} className="w-full h-full object-cover" muted playsInline preload="metadata" />
-        )
-      )}
+        ))}
     </button>
   );
 }
 
-function PreviewBackgroundImage({ fileStreamId, mediaType }: { fileStreamId: string; mediaType: 'image' | 'video' }) {
-  const { blobUrl } = useMediaBlobUrl(fileStreamId);
-  if (!blobUrl) return null;
+function PreviewBackgroundImage({
+  fileStreamId,
+  previewFileStreamId,
+  mediaType,
+}: {
+  fileStreamId: string;
+  previewFileStreamId?: string;
+  mediaType: 'image' | 'video';
+}) {
+  const { blobUrl: posterUrl } = useMediaBlobUrl(
+    mediaType === 'video' && previewFileStreamId ? previewFileStreamId : undefined,
+  );
+  const { blobUrl: fallbackUrl } = useMediaBlobUrl(
+    mediaType === 'image'
+      ? fileStreamId
+      : mediaType === 'video' && !previewFileStreamId
+        ? fileStreamId
+        : undefined,
+  );
+
+  if (mediaType === 'image' && !fallbackUrl) return null;
+  if (mediaType === 'video' && !posterUrl && !fallbackUrl) return null;
+
   return (
     <div className="absolute inset-0 z-0">
       {mediaType === 'image' ? (
-        <img src={blobUrl} className="w-full h-full object-cover" alt="" />
+        <img src={fallbackUrl!} className="w-full h-full object-cover" alt="" />
+      ) : posterUrl ? (
+        <img src={posterUrl} className="w-full h-full object-cover" alt="" />
       ) : (
-        <video src={blobUrl} autoPlay muted loop playsInline className="w-full h-full object-cover" />
+        <video
+          src={fallbackUrl!}
+          muted
+          playsInline
+          preload="metadata"
+          className="w-full h-full object-cover"
+        />
       )}
     </div>
   );
@@ -121,7 +154,11 @@ function StylePreview({ style, backgroundMedia }: { style: TextStyleData; backgr
         style={{ aspectRatio: '16 / 9' }}
       >
         {backgroundMedia && (
-          <PreviewBackgroundImage fileStreamId={backgroundMedia.fileStreamId} mediaType={backgroundMedia.mediaType} />
+          <PreviewBackgroundImage
+            fileStreamId={backgroundMedia.fileStreamId}
+            previewFileStreamId={backgroundMedia.previewFileStreamId}
+            mediaType={backgroundMedia.mediaType}
+          />
         )}
         <div
           className="relative z-10 w-full"

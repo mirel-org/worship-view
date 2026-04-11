@@ -25,7 +25,11 @@ const MediaGridItem: FC<{
   onRename: () => void;
   onDelete: () => void;
 }> = ({ mediaItem, selected, onSelect, onRename, onDelete }) => {
-  const { blobUrl } = useMediaBlobUrl(mediaItem.fileStreamId);
+  const thumbStreamId =
+    mediaItem.mediaType === 'video' && mediaItem.previewFileStreamId
+      ? mediaItem.previewFileStreamId
+      : mediaItem.fileStreamId;
+  const { blobUrl } = useMediaBlobUrl(thumbStreamId);
 
   return (
     <button
@@ -40,19 +44,25 @@ const MediaGridItem: FC<{
     >
       <div className="h-20 w-full bg-muted">
         {blobUrl ? (
-          mediaItem.mediaType === 'video' ? (
+          mediaItem.mediaType === 'image' ? (
+            <img
+              src={blobUrl}
+              alt={mediaItem.name}
+              className="h-full w-full object-cover"
+            />
+          ) : mediaItem.previewFileStreamId ? (
+            <img
+              src={blobUrl}
+              alt={mediaItem.name}
+              className="h-full w-full object-cover"
+            />
+          ) : (
             <video
               src={blobUrl}
               className="h-full w-full object-cover"
               muted
               playsInline
               preload="metadata"
-            />
-          ) : (
-            <img
-              src={blobUrl}
-              alt={mediaItem.name}
-              className="h-full w-full object-cover"
             />
           )
         ) : (
@@ -159,7 +169,10 @@ const MediaPanel: FC = () => {
       if (selectedMediaItem?.id === deleteTarget.id) {
         setSelectedMediaItem(null);
       }
-      await deleteMedia.mutateAsync(deleteTarget.id, deleteTarget.fileStreamId);
+      await deleteMedia.mutateAsync(deleteTarget.id, {
+        fileStreamId: deleteTarget.fileStreamId,
+        previewFileStreamId: deleteTarget.previewFileStreamId,
+      });
     } catch {
       // Error is already set in the hook
     }

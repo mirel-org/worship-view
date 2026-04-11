@@ -4,12 +4,18 @@ import { useIsAuthenticated, usePassphraseAuth } from 'jazz-tools/react';
 import { wordlist } from '@worship-view/schema';
 import { jazzApiKeyAtom } from '../../state/jazz.atoms';
 import { useActiveOrganization } from '../../hooks/useActiveOrganization';
+import { useMediaPreviewBackfill } from '../../hooks/useMedia';
 import { usePassphraseConfirmed } from '../../hooks/usePassphraseConfirmed';
 import { AuthModal } from '../auth/AuthModal';
 import { OrganizationSetupModal } from '../organizations/OrganizationSetupModal';
 
 interface OnboardingProps {
   children: React.ReactNode;
+}
+
+function MediaPreviewBackfillRunner() {
+  useMediaPreviewBackfill();
+  return null;
 }
 
 /**
@@ -129,5 +135,10 @@ export function Onboarding({ children }: OnboardingProps) {
   }
 
   // All onboarding steps completed - render the app
-  return <>{children}</>;
+  return (
+    <>
+      <MediaPreviewBackfillRunner />
+      {children}
+    </>
+  );
 }

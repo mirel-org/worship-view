@@ -52,6 +52,8 @@ export const MediaItem = co
     mimeType: z.string(),
     sizeBytes: z.number(),
     file: co.fileStream(),
+    /** JPEG poster for video thumbnails; optional for backward compatibility */
+    previewFile: co.optional(co.fileStream()),
   })
   .withPermissions({
     onInlineCreate: 'sameAsContainer',

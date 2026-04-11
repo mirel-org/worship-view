@@ -169,7 +169,7 @@ export function SettingsSongs() {
   }
 
   return (
-    <div className="flex flex-col h-[500px]">
+    <div className="flex flex-col h-full">
       {/* Search bar */}
       <div className="relative mb-3">
         <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -252,7 +252,7 @@ export function SettingsSongs() {
         </div>
 
         {/* Preview panel */}
-        <div className="hidden md:flex w-[280px] shrink-0 flex-col border rounded-lg overflow-hidden">
+        <div className="hidden md:flex w-[40%] shrink-0 flex-col border rounded-lg overflow-hidden">
           <div className="px-3 py-2 border-b bg-muted/30">
             <h3 className="text-xs font-semibold text-muted-foreground">
               Previzualizare
@@ -277,7 +277,7 @@ export function SettingsSongs() {
                         {slide.lines.map((line, lineIndex) => (
                           <div
                             key={lineIndex}
-                            className="font-montserrat text-[10px] font-bold italic uppercase text-foreground"
+                            className="font-montserrat text-[14px] font-bold italic uppercase text-foreground"
                             style={{
                               textShadow: '0.06em 0.06em 1px #00000094',
                             }}
