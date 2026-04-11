@@ -1,4 +1,4 @@
-import { app, BrowserWindow, Menu } from 'electron';
+import { app, BrowserWindow, Menu, globalShortcut } from 'electron';
 import started from 'electron-squirrel-startup';
 import { updateElectronApp } from 'update-electron-app';
 import { createAppWindow } from './main-window/mainWindow';
@@ -6,6 +6,8 @@ import { safeCheckForUpdates } from '../ipc/update/update.handlers';
 
 const DEFAULT_UPDATE_REPO = 'mirel-org/worship-view';
 const UPDATE_REPO = process.env.WV_UPDATE_REPO || DEFAULT_UPDATE_REPO;
+const isWindows = process.platform === 'win32';
+const isDevelopment = !app.isPackaged && process.env.NODE_ENV === 'development';
 
 // Handle Squirrel.Windows lifecycle events (install/update/uninstall).
 // Must be at the top — exits early during Squirrel operations.
@@ -25,7 +27,51 @@ if (app.isPackaged) {
  * Some APIs can only be used after this event occurs.
  */
 app.on('ready', () => {
-  // Set up application menu with "Check for Updates"
+  installApplicationMenu();
+  registerDevelopmentShortcuts();
+
+  createAppWindow();
+});
+
+/**
+ * Emitted when the application is activated. Various actions can
+ * trigger this event, such as launching the application for the first time,
+ * attempting to re-launch the application when it's already running,
+ * or clicking on the application's dock or taskbar icon.
+ */
+app.on('activate', () => {
+  /**
+   * On OS X it's common to re-create a window in the app when the
+   * dock icon is clicked and there are no other windows open.
+   */
+  if (BrowserWindow.getAllWindows().length === 0) {
+    createAppWindow();
+  }
+});
+
+/**
+ * Emitted when all windows have been closed.
+ */
+app.on('window-all-closed', () => {
+  /**
+   * On OS X it is common for applications and their menu bar
+   * to stay active until the user quits explicitly with Cmd + Q
+   */
+  if (process.platform !== 'darwin') {
+    app.quit();
+  }
+});
+
+app.on('will-quit', () => {
+  globalShortcut.unregisterAll();
+});
+
+function installApplicationMenu() {
+  if (isWindows) {
+    Menu.setApplicationMenu(null);
+    return;
+  }
+
   const menu = Menu.buildFromTemplate([
     {
       label: 'Aplicație',
@@ -66,39 +112,18 @@ app.on('ready', () => {
       ],
     },
   ]);
+
   Menu.setApplicationMenu(menu);
+}
 
-  createAppWindow();
-});
+function registerDevelopmentShortcuts() {
+  if (!isWindows || !isDevelopment) return;
 
-/**
- * Emitted when the application is activated. Various actions can
- * trigger this event, such as launching the application for the first time,
- * attempting to re-launch the application when it's already running,
- * or clicking on the application's dock or taskbar icon.
- */
-app.on('activate', () => {
-  /**
-   * On OS X it's common to re-create a window in the app when the
-   * dock icon is clicked and there are no other windows open.
-   */
-  if (BrowserWindow.getAllWindows().length === 0) {
-    createAppWindow();
-  }
-});
-
-/**
- * Emitted when all windows have been closed.
- */
-app.on('window-all-closed', () => {
-  /**
-   * On OS X it is common for applications and their menu bar
-   * to stay active until the user quits explicitly with Cmd + Q
-   */
-  if (process.platform !== 'darwin') {
-    app.quit();
-  }
-});
+  globalShortcut.register('CommandOrControl+Shift+I', () => {
+    const win = BrowserWindow.getFocusedWindow();
+    win?.webContents.toggleDevTools();
+  });
+}
 
 /**
  * In this file you can include the rest of your app's specific main process code.

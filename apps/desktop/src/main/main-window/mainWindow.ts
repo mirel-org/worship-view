@@ -50,7 +50,7 @@ export function createAppWindow(): BrowserWindow {
   appWindow = new BrowserWindow({
     width: 800,
     height: 600,
-    autoHideMenuBar: true,
+    autoHideMenuBar: process.platform !== 'win32',
     icon: path.resolve('assets/images/appIcon.ico'),
     webPreferences: {
       nodeIntegration: false,
@@ -66,6 +66,10 @@ export function createAppWindow(): BrowserWindow {
     appWindow.loadURL(APP_WINDOW_VITE_DEV_SERVER_URL);
   } else {
     appWindow.loadFile(getIndexPath());
+  }
+
+  if (process.platform === 'win32') {
+    appWindow.setMenuBarVisibility(false);
   }
 
   // Show window when its ready to

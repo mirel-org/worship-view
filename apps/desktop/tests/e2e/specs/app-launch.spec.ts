@@ -32,4 +32,16 @@ test.describe('App Launch', () => {
     const exposed = await isApiExposed(mainWindow);
     expect(exposed).toBe(true);
   });
+
+  test('application menu is platform-appropriate', async ({ electronApp }) => {
+    const hasMenu = await electronApp.evaluate(({ Menu }) => {
+      return Menu.getApplicationMenu() !== null;
+    });
+
+    if (process.platform === 'win32') {
+      expect(hasMenu).toBe(false);
+    } else {
+      expect(hasMenu).toBe(true);
+    }
+  });
 });
