@@ -4,6 +4,7 @@ import {
   searchSongInPalette,
   closeCommandPalette,
 } from '../helpers/song-helpers';
+import type { Page } from '@playwright/test';
 
 const SONG_NAME = 'Service List Test Song';
 const SONG_CONTENT = `Verse
@@ -15,6 +16,20 @@ For his merciful kindness is great
 And the truth of the Lord endures forever
 ---
 Verse Chorus`;
+
+async function ensureDefaultServiceListExpanded(page: Page, expectedText?: string) {
+  const contentLocator = expectedText
+    ? page.locator('li').filter({ hasText: expectedText })
+    : page.locator('text=Niciun cântec în această listă');
+
+  if (await contentLocator.isVisible()) {
+    return contentLocator;
+  }
+
+  await page.getByText('Lista de melodii', { exact: true }).click();
+  await expect(contentLocator).toBeVisible({ timeout: 5000 });
+  return contentLocator;
+}
 
 test.describe('Service List', () => {
   test('can add a song to the service list', async ({ appPage }) => {
@@ -35,8 +50,7 @@ test.describe('Service List', () => {
     await closeCommandPalette(appPage);
 
     // Verify the song appears in the service list (left panel)
-    const serviceListItem = appPage.locator('li').filter({ hasText: SONG_NAME });
-    await expect(serviceListItem).toBeVisible({ timeout: 5000 });
+    await ensureDefaultServiceListExpanded(appPage, SONG_NAME);
   });
 
   test('service list song is clickable to select', async ({ appPage }) => {
@@ -51,7 +65,8 @@ test.describe('Service List', () => {
     await closeCommandPalette(appPage);
 
     // Click the song name in the service list
-    const serviceListSong = appPage.locator('li').filter({ hasText: SONG_NAME }).locator('span.flex-1');
+    const serviceListItem = await ensureDefaultServiceListExpanded(appPage, SONG_NAME);
+    const serviceListSong = serviceListItem.locator('span.flex-1');
     await serviceListSong.click();
     await appPage.waitForTimeout(500);
 
@@ -73,8 +88,7 @@ test.describe('Service List', () => {
     await closeCommandPalette(appPage);
 
     // Verify the song is in the service list
-    const serviceListItem = appPage.locator('li').filter({ hasText: SONG_NAME });
-    await expect(serviceListItem).toBeVisible({ timeout: 5000 });
+    const serviceListItem = await ensureDefaultServiceListExpanded(appPage, SONG_NAME);
 
     // Hover the service list item and click the remove button
     await serviceListItem.hover();
@@ -100,7 +114,7 @@ test.describe('Service List', () => {
     await closeCommandPalette(appPage);
 
     // Verify song is in service list
-    await expect(appPage.locator('li').filter({ hasText: SONG_NAME })).toBeVisible({ timeout: 5000 });
+    await ensureDefaultServiceListExpanded(appPage, SONG_NAME);
 
     // Switch to Bible tab
     await appPage.locator('[role="tab"]').filter({ hasText: 'Biblie' }).click();
@@ -111,11 +125,11 @@ test.describe('Service List', () => {
     await appPage.waitForTimeout(500);
 
     // Song should still be in the service list
-    await expect(appPage.locator('li').filter({ hasText: SONG_NAME })).toBeVisible({ timeout: 5000 });
+    await ensureDefaultServiceListExpanded(appPage, SONG_NAME);
   });
 
   test('empty state shows when no songs in service list', async ({ appPage }) => {
     // Initially, service list should be empty
-    await expect(appPage.locator('text=Niciun cântec în această listă')).toBeVisible({ timeout: 5000 });
+    await ensureDefaultServiceListExpanded(appPage);
   });
 });

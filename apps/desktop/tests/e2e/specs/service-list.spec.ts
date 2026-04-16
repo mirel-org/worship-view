@@ -4,6 +4,7 @@ import {
   searchSongInPalette,
   closeCommandPalette,
 } from '../helpers/song-helpers';
+import type { Page } from '@playwright/test';
 
 const SONG_NAME = 'Service List Test Song';
 const SONG_CONTENT = `Verse
@@ -15,6 +16,20 @@ For his merciful kindness is great
 And the truth of the Lord endures forever
 ---
 Verse Chorus`;
+
+async function ensureDefaultServiceListExpanded(page: Page, expectedText?: string) {
+  const contentLocator = expectedText
+    ? page.locator('li').filter({ hasText: expectedText })
+    : page.locator('text=Niciun cântec în această listă');
+
+  if (await contentLocator.isVisible()) {
+    return contentLocator;
+  }
+
+  await page.getByText('Lista de melodii', { exact: true }).click();
+  await expect(contentLocator).toBeVisible({ timeout: 5000 });
+  return contentLocator;
+}
 
 test.describe('Service List', () => {
   test('can add a song to the service list', async ({ mainWindow }) => {
@@ -35,8 +50,7 @@ test.describe('Service List', () => {
     await closeCommandPalette(mainWindow);
 
     // Verify the song appears in the service list (left panel)
-    const serviceListItem = mainWindow.locator('li').filter({ hasText: SONG_NAME });
-    await expect(serviceListItem).toBeVisible({ timeout: 5000 });
+    await ensureDefaultServiceListExpanded(mainWindow, SONG_NAME);
   });
 
   test('service list song is clickable to select', async ({ mainWindow }) => {
@@ -51,7 +65,8 @@ test.describe('Service List', () => {
     await closeCommandPalette(mainWindow);
 
     // Click the song name in the service list
-    const serviceListSong = mainWindow.locator('li').filter({ hasText: SONG_NAME }).locator('span.flex-1');
+    const serviceListItem = await ensureDefaultServiceListExpanded(mainWindow, SONG_NAME);
+    const serviceListSong = serviceListItem.locator('span.flex-1');
     await serviceListSong.click();
     await mainWindow.waitForTimeout(500);
 
@@ -73,8 +88,7 @@ test.describe('Service List', () => {
     await closeCommandPalette(mainWindow);
 
     // Verify the song is in the service list
-    const serviceListItem = mainWindow.locator('li').filter({ hasText: SONG_NAME });
-    await expect(serviceListItem).toBeVisible({ timeout: 5000 });
+    const serviceListItem = await ensureDefaultServiceListExpanded(mainWindow, SONG_NAME);
 
     // Hover the service list item and click the remove button
     await serviceListItem.hover();
@@ -100,7 +114,7 @@ test.describe('Service List', () => {
     await closeCommandPalette(mainWindow);
 
     // Verify song is in service list
-    await expect(mainWindow.locator('li').filter({ hasText: SONG_NAME })).toBeVisible({ timeout: 5000 });
+    await ensureDefaultServiceListExpanded(mainWindow, SONG_NAME);
 
     // Switch to Bible tab
     await mainWindow.locator('[role="tab"]').filter({ hasText: 'Biblie' }).click();
@@ -111,11 +125,11 @@ test.describe('Service List', () => {
     await mainWindow.waitForTimeout(500);
 
     // Song should still be in the service list
-    await expect(mainWindow.locator('li').filter({ hasText: SONG_NAME })).toBeVisible({ timeout: 5000 });
+    await ensureDefaultServiceListExpanded(mainWindow, SONG_NAME);
   });
 
   test('empty state shows when no songs in service list', async ({ mainWindow }) => {
     // Initially, service list should be empty
-    await expect(mainWindow.locator('text=Niciun cântec în această listă')).toBeVisible({ timeout: 5000 });
+    await ensureDefaultServiceListExpanded(mainWindow);
   });
 });
