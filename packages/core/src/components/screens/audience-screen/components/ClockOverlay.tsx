@@ -7,6 +7,10 @@ import {
   clockFontSizeAtom,
   ClockPosition,
 } from '../../../../state/clock.atoms';
+import {
+  currentProjectionTypeAtom,
+  verseProjectionEnabledAtom,
+} from '../../../../state/projection.atoms';
 import { useActiveTextStyle } from '../../../../hooks/useTextStyle';
 import { buildTextShadowStyle } from '../../../../jazz/text-style-store';
 
@@ -43,8 +47,13 @@ const ClockOverlay: FC = () => {
   const [format] = useAtom(clockFormatAtom);
   const [position] = useAtom(clockPositionAtom);
   const [fontSize] = useAtom(clockFontSizeAtom);
+  const [currentProjectionType] = useAtom(currentProjectionTypeAtom);
+  const [verseProjectionEnabled] = useAtom(verseProjectionEnabledAtom);
   const activeStyle = useActiveTextStyle();
   const [now, setNow] = useState(() => new Date());
+  const shouldHideForProjectedText =
+    currentProjectionType === 'song' ||
+    (currentProjectionType === 'verse' && verseProjectionEnabled);
 
   useEffect(() => {
     if (!enabled) return;
@@ -52,7 +61,7 @@ const ClockOverlay: FC = () => {
     return () => clearInterval(id);
   }, [enabled]);
 
-  if (!enabled) return null;
+  if (!enabled || shouldHideForProjectedText) return null;
 
   return (
     <div

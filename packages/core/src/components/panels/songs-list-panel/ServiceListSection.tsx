@@ -181,7 +181,7 @@ const ServiceListAccordionItem = ({
   };
 
   return (
-    <div className="border border-border rounded-md overflow-hidden">
+    <div className="border border-border rounded-md">
       <div
         className="flex h-9 items-center justify-between bg-muted px-2 cursor-pointer select-none hover:bg-muted/80 transition-colors"
         onClick={onToggle}
@@ -344,11 +344,6 @@ const ServiceListSection = () => {
   }
   if (serviceLists.length !== prevCount) {
     setPrevCount(serviceLists.length);
-  }
-
-  // Auto-expand all lists on first load
-  if (serviceLists.length > 0 && expandedIds.size === 0 && prevCount === serviceLists.length) {
-    setExpandedIds(new Set(serviceLists.map((l) => l.id)));
   }
 
   const toggleExpanded = (id: string) => {

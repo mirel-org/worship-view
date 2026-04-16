@@ -391,7 +391,7 @@ const CommandPalette: FC = () => {
                                   onClick={(e) => e.stopPropagation()}
                                 >
                                   {serviceLists.length > 0 && (
-                                    <div className="relative">
+                                    <div className="relative flex items-center">
                                       <button
                                         onClick={(e) => handleAddToServiceList(e, song)}
                                         className="text-muted-foreground hover:text-foreground"
@@ -543,7 +543,6 @@ const CommandPalette: FC = () => {
                               <div
                                 key={lineIndex}
                                 className="font-montserrat text-xs font-bold italic uppercase text-foreground"
-                                style={{ textShadow: '0.06em 0.06em 1px #00000094' }}
                               >
                                 {line}
                               </div>
