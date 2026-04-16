@@ -18,6 +18,16 @@ async function openTextStylesTab(page: import('@playwright/test').Page) {
   await expect(page.locator('button:has-text("Implicit")')).toBeVisible({ timeout: 5000 });
 }
 
+async function confirmStyleDeletion(page: import('@playwright/test').Page) {
+  const confirmationDialog = page
+    .getByRole('dialog')
+    .filter({ hasText: 'Sigur doriți să ștergeți acest stil?' });
+
+  await expect(confirmationDialog).toBeVisible({ timeout: 5000 });
+  await confirmationDialog.getByRole('button', { name: 'Șterge', exact: true }).click();
+  await expect(confirmationDialog).not.toBeVisible({ timeout: 5000 });
+}
+
 test.describe('Text Styles Settings', () => {
   test('shows "Stiluri text" tab in settings', async ({ mainWindow }) => {
     await openSettings(mainWindow);
@@ -135,12 +145,9 @@ test.describe('Text Styles Settings', () => {
     const newStyleInList = mainWindow.locator('button:has-text("Stil nou")').first();
     await expect(newStyleInList).toBeVisible({ timeout: 5000 });
 
-    // Accept the confirmation dialog
-    mainWindow.on('dialog', (dialog) => dialog.accept());
-
-    // Click delete
+    // Click delete and confirm the in-app dialog
     await mainWindow.locator('button:has-text("Șterge")').click();
-    await mainWindow.waitForTimeout(300);
+    await confirmStyleDeletion(mainWindow);
 
     // After deletion, selection should revert to "Implicit"
     await expect(mainWindow.locator('h3:has-text("Implicit")')).toBeVisible({ timeout: 5000 });
@@ -216,12 +223,9 @@ test.describe('Text Styles Settings', () => {
     // Verify it's active
     await expect(mainWindow.locator('text=Stilul activ')).toBeVisible();
 
-    // Accept the confirmation dialog
-    mainWindow.on('dialog', (dialog) => dialog.accept());
-
-    // Delete it
+    // Delete it and confirm the in-app dialog
     await mainWindow.locator('button:has-text("Șterge")').click();
-    await mainWindow.waitForTimeout(300);
+    await confirmStyleDeletion(mainWindow);
 
     // Should revert to Implicit
     await expect(mainWindow.locator('h3:has-text("Implicit")')).toBeVisible({ timeout: 5000 });
