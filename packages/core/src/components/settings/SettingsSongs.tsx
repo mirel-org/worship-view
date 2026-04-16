@@ -12,6 +12,7 @@ import { getSongSlidesBySize } from '../../utils/song.utils';
 import SongEditorDialog from '../panels/songs-list-panel/SongEditorDialog';
 import SongDeleteDialog from '../panels/songs-list-panel/SongDeleteDialog';
 import type { Song } from '../../types/song.types';
+import { useAppDialogs } from '../dialogs/AppDialogsProvider';
 
 const ROW_HEIGHT = 36;
 
@@ -22,6 +23,7 @@ function sortSongs(songs: Song[]): Song[] {
 }
 
 export function SettingsSongs() {
+  const dialogs = useAppDialogs();
   const { data: rawSongs = [], isLoading } = useGetSongs();
   const [songSlideSize] = useAtom(settingsSongSlideSizeAtom);
   const [, setSelectedTabType] = useAtom(selectedTabTypeAtom);
@@ -119,13 +121,16 @@ export function SettingsSongs() {
         await addToServiceListMutation.mutateAsync({ serviceListId: targetList.id, songId: song.id });
       } catch (error: any) {
         if (error.message?.includes('already')) {
-          alert(error.message);
+          await dialogs.alert({
+            title: 'Cântec deja adăugat',
+            description: error.message,
+          });
         } else {
           console.error('Failed to add song to service list:', error);
         }
       }
     },
-    [addToServiceListMutation, serviceLists],
+    [addToServiceListMutation, dialogs, serviceLists],
   );
 
   const handleEditClick = useCallback(

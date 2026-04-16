@@ -11,6 +11,7 @@ import {
 } from '@worship-view/ui';
 import { CreateOrganizationDialog } from './CreateOrganizationDialog';
 import { AcceptInviteDialog } from './AcceptInviteDialog';
+import { useAppDialogs } from '../dialogs/AppDialogsProvider';
 
 interface OrganizationSetupModalProps {
   open: boolean;
@@ -21,6 +22,7 @@ export function OrganizationSetupModal({
   open,
   onOpenChange,
 }: OrganizationSetupModalProps) {
+  const dialogs = useAppDialogs();
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [showAcceptDialog, setShowAcceptDialog] = useState(false);
   const logOut = useLogOut();
@@ -61,12 +63,15 @@ export function OrganizationSetupModal({
     setShowAcceptDialog(true);
   };
 
-  const handleLogOut = () => {
-    if (
-      confirm(
+  const handleLogOut = async () => {
+    const confirmed = await dialogs.confirm({
+      title: 'Deconectare',
+      description:
         'Sigur doriți să vă deconectați? Va trebui să introduceți fraza de acces pentru a vă reconecta.',
-      )
-    ) {
+      confirmLabel: 'Deconectează-mă',
+      variant: 'destructive',
+    });
+    if (confirmed) {
       logOut();
     }
   };

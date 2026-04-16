@@ -2,10 +2,11 @@ import { useState } from 'react';
 import { useAtom } from 'jotai';
 import { useIsAuthenticated } from 'jazz-tools/react';
 import { Label, Button, Input } from '@worship-view/ui';
-import { jazzApiKeyAtom } from '@worship-view/core';
+import { jazzApiKeyAtom, useAppDialogs } from '@worship-view/core';
 import { getApiClient } from '../../../ipc/index';
 
 export function SettingsJazzToken() {
+  const dialogs = useAppDialogs();
   const isAuthenticated = useIsAuthenticated();
   const [apiKey] = useAtom(jazzApiKeyAtom);
   const [showApiKey, setShowApiKey] = useState(false);
@@ -13,9 +14,13 @@ export function SettingsJazzToken() {
   const [resetStatus, setResetStatus] = useState<string | null>(null);
 
   const handleResetLocalState = async () => {
-    const confirmed = window.confirm(
-      'Această acțiune va șterge complet starea locală a aplicației (inclusiv sesiunea și cache-ul Jazz) și va reporni aplicația. Continui?'
-    );
+    const confirmed = await dialogs.confirm({
+      title: 'Resetare locală',
+      description:
+        'Această acțiune va șterge complet starea locală a aplicației (inclusiv sesiunea și cache-ul Jazz) și va reporni aplicația. Continui?',
+      confirmLabel: 'Resetează și repornește',
+      variant: 'destructive',
+    });
     if (!confirmed) {
       return;
     }

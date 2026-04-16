@@ -11,19 +11,24 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@worship-view/ui';
+import { useAppDialogs } from '../dialogs/AppDialogsProvider';
 
 interface InviteButtonProps {
   organization: OrganizationType | null;
 }
 
 export function InviteButton({ organization }: InviteButtonProps) {
+  const dialogs = useAppDialogs();
   const [inviteId, setInviteId] = useState<string>('');
   const [inviteSecret, setInviteSecret] = useState<string>('');
   const [dialogOpen, setDialogOpen] = useState(false);
 
-  const handleGenerateInvite = () => {
+  const handleGenerateInvite = async () => {
     if (!organization) {
-      alert('Nicio organizație selectată');
+      await dialogs.alert({
+        title: 'Nicio organizație selectată',
+        description: 'Selectați o organizație înainte să generați o invitație.',
+      });
       return;
     }
 
@@ -42,24 +47,37 @@ export function InviteButton({ organization }: InviteButtonProps) {
       setDialogOpen(true);
     } catch (error: any) {
       console.error('Failed to create invite:', error);
-      alert(`Crearea invitației a eșuat: ${error.message || 'Eroare necunoscută'}`);
+      await dialogs.alert({
+        title: 'Creare invitație eșuată',
+        description: `Crearea invitației a eșuat: ${error.message || 'Eroare necunoscută'}`,
+        variant: 'destructive',
+      });
     }
   };
 
-  const handleCopyId = () => {
-    navigator.clipboard.writeText(inviteId);
-    alert('ID-ul organizației a fost copiat în clipboard!');
+  const handleCopyId = async () => {
+    await navigator.clipboard.writeText(inviteId);
+    await dialogs.alert({
+      title: 'Copiat',
+      description: 'ID-ul organizației a fost copiat în clipboard!',
+    });
   };
 
-  const handleCopySecret = () => {
-    navigator.clipboard.writeText(inviteSecret);
-    alert('Secretul invitației a fost copiat în clipboard!');
+  const handleCopySecret = async () => {
+    await navigator.clipboard.writeText(inviteSecret);
+    await dialogs.alert({
+      title: 'Copiat',
+      description: 'Secretul invitației a fost copiat în clipboard!',
+    });
   };
 
-  const handleCopyBoth = () => {
+  const handleCopyBoth = async () => {
     const combined = `${inviteId}:${inviteSecret}`;
-    navigator.clipboard.writeText(combined);
-    alert('ID-ul și secretul invitației au fost copiate în clipboard!');
+    await navigator.clipboard.writeText(combined);
+    await dialogs.alert({
+      title: 'Copiat',
+      description: 'ID-ul și secretul invitației au fost copiate în clipboard!',
+    });
   };
 
   if (!organization) {
@@ -115,4 +133,3 @@ export function InviteButton({ organization }: InviteButtonProps) {
     </>
   );
 }
-

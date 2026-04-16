@@ -52,8 +52,10 @@ import SongDeleteDialog from '../panels/songs-list-panel/SongDeleteDialog';
 import SongAddDialog from '../panels/songs-list-panel/SongAddDialog';
 import type { CommandAction } from '../../state/command.atoms';
 import type { PresentationResponse } from '../../jazz/presentation-store';
+import { useAppDialogs } from '../dialogs/AppDialogsProvider';
 
 const CommandPalette: FC = () => {
+  const dialogs = useAppDialogs();
   const [open, setOpen] = useAtom(commandPaletteOpenAtom);
   const [results] = useAtom(commandPaletteResultsAtom);
   const [songSlideSize] = useAtom(settingsSongSlideSizeAtom);
@@ -237,7 +239,10 @@ const CommandPalette: FC = () => {
       await addToServiceListMutation.mutateAsync({ serviceListId, songId });
     } catch (error: any) {
       if (error.message?.includes('already')) {
-        alert(error.message);
+        await dialogs.alert({
+          title: 'Cântec deja adăugat',
+          description: error.message,
+        });
       } else {
         console.error('Failed to add song to service list:', error);
       }

@@ -12,8 +12,10 @@ import { useActiveOrganization } from '../../hooks/useActiveOrganization';
 import { useDeleteAllSongs } from '../../hooks/useSongs';
 import { getOrganizationGroup, removeCoListItem, getSongsArray } from '@worship-view/schema';
 import { CheckCircle2, Pencil, Trash2, Bomb } from 'lucide-react';
+import { useAppDialogs } from '../dialogs/AppDialogsProvider';
 
 export function SettingsOrganizations() {
+  const dialogs = useAppDialogs();
   const isAuthenticated = useIsAuthenticated();
   const [acceptInviteOpen, setAcceptInviteOpen] = useState(false);
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
@@ -66,11 +68,17 @@ export function SettingsOrganizations() {
     }
   };
 
-  const handleDeleteOrganization = () => {
+  const handleDeleteOrganization = async () => {
     if (!selectedOrganization || !me) return;
 
     const orgName = selectedOrganization.name;
-    if (!confirm(`Sigur doriți să ștergeți „${orgName}"? Această acțiune nu poate fi anulată și va elimina toate cântecele și datele asociate cu această organizație.`)) {
+    const confirmed = await dialogs.confirm({
+      title: 'Șterge organizația',
+      description: `Sigur doriți să ștergeți „${orgName}"? Această acțiune nu poate fi anulată și va elimina toate cântecele și datele asociate cu această organizație.`,
+      confirmLabel: 'Șterge organizația',
+      variant: 'destructive',
+    });
+    if (!confirmed) {
       return;
     }
 
@@ -92,7 +100,11 @@ export function SettingsOrganizations() {
       setSelectedOrgId(null);
     } catch (error: any) {
       console.error('Failed to delete organization:', error);
-      alert(`Ștergerea organizației a eșuat: ${error.message || 'Eroare necunoscută'}`);
+      await dialogs.alert({
+        title: 'Ștergere eșuată',
+        description: `Ștergerea organizației a eșuat: ${error.message || 'Eroare necunoscută'}`,
+        variant: 'destructive',
+      });
     }
   };
 
@@ -103,16 +115,32 @@ export function SettingsOrganizations() {
       ? `Sigur doriți să ștergeți toate cele ${songCount} cântece din „${selectedOrganization.name}"? Această acțiune nu poate fi anulată și va goli și lista de melodii.`
       : `Sigur doriți să ștergeți toate cântecele din „${selectedOrganization.name}"? Această acțiune nu poate fi anulată.`;
 
-    if (!confirm(confirmMessage)) {
+    if (
+      !(
+        await dialogs.confirm({
+          title: 'Șterge toate cântecele',
+          description: confirmMessage,
+          confirmLabel: 'Șterge toate',
+          variant: 'destructive',
+        })
+      )
+    ) {
       return;
     }
 
     try {
       await deleteAllSongsMutation.mutateAsync(selectedOrganization);
-      alert(`Toate cântecele din „${selectedOrganization.name}" au fost șterse cu succes`);
+      await dialogs.alert({
+        title: 'Ștergere completă',
+        description: `Toate cântecele din „${selectedOrganization.name}" au fost șterse cu succes`,
+      });
     } catch (error: any) {
       console.error('Failed to delete all songs:', error);
-      alert(`Ștergerea tuturor cântecelor a eșuat: ${error.message || 'Eroare necunoscută'}`);
+      await dialogs.alert({
+        title: 'Ștergere eșuată',
+        description: `Ștergerea tuturor cântecelor a eșuat: ${error.message || 'Eroare necunoscută'}`,
+        variant: 'destructive',
+      });
     }
   };
 

@@ -11,6 +11,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@worship-view/ui';
+import { useAppDialogs } from '../dialogs/AppDialogsProvider';
 
 interface AuthModalProps {
   open: boolean;
@@ -18,6 +19,7 @@ interface AuthModalProps {
 }
 
 export function AuthModal({ open, onOpenChange }: AuthModalProps) {
+  const dialogs = useAppDialogs();
   const [loginPassphrase, setLoginPassphrase] = useState('');
   const [passphraseConfirmed, setPassphraseConfirmed] =
     usePassphraseConfirmed();
@@ -49,13 +51,20 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
       // Don't close modal immediately - user needs to copy passphrase
     } catch (error: any) {
       console.error('Sign up failed:', error);
-      alert(`Înregistrarea a eșuat: ${error.message || 'Eroare necunoscută'}`);
+      await dialogs.alert({
+        title: 'Înregistrare eșuată',
+        description: `Înregistrarea a eșuat: ${error.message || 'Eroare necunoscută'}`,
+        variant: 'destructive',
+      });
     }
   };
 
   const handleLogIn = async () => {
     if (!loginPassphrase.trim()) {
-      alert('Vă rugăm să introduceți fraza de acces');
+      await dialogs.alert({
+        title: 'Fraza de acces lipsește',
+        description: 'Vă rugăm să introduceți fraza de acces',
+      });
       return;
     }
 
@@ -65,7 +74,11 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
       onOpenChange?.(false);
     } catch (error: any) {
       console.error('Login failed:', error);
-      alert(`Autentificarea a eșuat: ${error.message || 'Frază de acces invalidă'}`);
+      await dialogs.alert({
+        title: 'Autentificare eșuată',
+        description: `Autentificarea a eșuat: ${error.message || 'Frază de acces invalidă'}`,
+        variant: 'destructive',
+      });
     }
   };
 
@@ -120,9 +133,12 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
               />
               <div className='flex gap-2'>
                 <Button
-                  onClick={() => {
-                    navigator.clipboard.writeText(auth.passphrase);
-                    alert('Fraza de acces a fost copiată în clipboard!');
+                  onClick={async () => {
+                    await navigator.clipboard.writeText(auth.passphrase);
+                    await dialogs.alert({
+                      title: 'Copiat',
+                      description: 'Fraza de acces a fost copiată în clipboard!',
+                    });
                   }}
                   variant='outline'
                   className='flex-1'

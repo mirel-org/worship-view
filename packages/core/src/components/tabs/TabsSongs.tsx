@@ -17,8 +17,10 @@ import SongDeleteDialog from '../panels/songs-list-panel/SongDeleteDialog';
 import SongEditorDialog from '../panels/songs-list-panel/SongEditorDialog';
 import Sidebar from '../layout/Sidebar';
 import { Button } from '@worship-view/ui';
+import { useAppDialogs } from '../dialogs/AppDialogsProvider';
 
 const AddToServiceListButton: FC<{ songId: string }> = ({ songId }) => {
+  const dialogs = useAppDialogs();
   const { data: serviceLists = [] } = useGetServiceLists();
   const addToServiceListMutation = useAddToServiceList();
   const [showPicker, setShowPicker] = useState(false);
@@ -28,7 +30,10 @@ const AddToServiceListButton: FC<{ songId: string }> = ({ songId }) => {
       await addToServiceListMutation.mutateAsync({ serviceListId, songId });
     } catch (error: any) {
       if (error.message?.includes('already')) {
-        alert(error.message);
+        await dialogs.alert({
+          title: 'Cântec deja adăugat',
+          description: error.message,
+        });
       } else {
         console.error('Failed to add song to service list:', error);
       }

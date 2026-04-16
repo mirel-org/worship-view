@@ -4,8 +4,10 @@ import { WorshipViewAccount } from '@worship-view/schema';
 import { Label } from '@worship-view/ui';
 import { Button } from '@worship-view/ui';
 import { EditUsernameDialog } from './EditUsernameDialog';
+import { useAppDialogs } from '../dialogs/AppDialogsProvider';
 
 export function SettingsAccount() {
+  const dialogs = useAppDialogs();
   const isAuthenticated = useIsAuthenticated();
   const logOut = useLogOut();
   const [editUsernameOpen, setEditUsernameOpen] = useState(false);
@@ -54,12 +56,15 @@ export function SettingsAccount() {
         {/* Logout Button */}
         <div className='space-y-2 pt-4 border-t'>
           <Button
-            onClick={() => {
-              if (
-                confirm(
+            onClick={async () => {
+              const confirmed = await dialogs.confirm({
+                title: 'Deconectare',
+                description:
                   'Sigur doriți să vă deconectați? Va trebui să introduceți fraza de acces pentru a vă reconecta.',
-                )
-              ) {
+                confirmLabel: 'Deconectează-mă',
+                variant: 'destructive',
+              });
+              if (confirmed) {
                 logOut();
               }
             }}

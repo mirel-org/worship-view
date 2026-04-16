@@ -13,6 +13,7 @@ import {
 } from '@worship-view/ui';
 import { useActiveOrganization } from '../../hooks/useActiveOrganization';
 import { createTextStyle, DEFAULT_TEXT_STYLE_TEMPLATE } from '../../jazz/text-style-store';
+import { useAppDialogs } from '../dialogs/AppDialogsProvider';
 
 interface CreateOrganizationDialogProps {
   open: boolean;
@@ -23,6 +24,7 @@ export function CreateOrganizationDialog({
   open,
   onOpenChange,
 }: CreateOrganizationDialogProps) {
+  const dialogs = useAppDialogs();
   const [name, setName] = useState('');
   const [isCreating, setIsCreating] = useState(false);
   // useAccount returns the account directly (or null/undefined if not loaded)
@@ -37,12 +39,18 @@ export function CreateOrganizationDialog({
 
   const handleCreate = async () => {
     if (!name.trim()) {
-      alert('Vă rugăm să introduceți numele organizației');
+      await dialogs.alert({
+        title: 'Nume lipsă',
+        description: 'Vă rugăm să introduceți numele organizației',
+      });
       return;
     }
 
     if (!me) {
-      alert('Trebuie să fiți autentificat pentru a crea o organizație');
+      await dialogs.alert({
+        title: 'Autentificare necesară',
+        description: 'Trebuie să fiți autentificat pentru a crea o organizație',
+      });
       return;
     }
 
@@ -80,7 +88,11 @@ export function CreateOrganizationDialog({
       onOpenChange(false);
     } catch (error: any) {
       console.error('Failed to create organization:', error);
-      alert(`Crearea organizației a eșuat: ${error.message || 'Eroare necunoscută'}`);
+      await dialogs.alert({
+        title: 'Creare eșuată',
+        description: `Crearea organizației a eșuat: ${error.message || 'Eroare necunoscută'}`,
+        variant: 'destructive',
+      });
     } finally {
       setIsCreating(false);
     }
@@ -107,7 +119,7 @@ export function CreateOrganizationDialog({
               placeholder="Introduceți numele organizației"
               onKeyDown={(e) => {
                 if (e.key === 'Enter') {
-                  handleCreate();
+                  void handleCreate();
                 }
               }}
             />
@@ -126,4 +138,3 @@ export function CreateOrganizationDialog({
     </Dialog>
   );
 }
-

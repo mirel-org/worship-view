@@ -96,6 +96,7 @@ export type { PresentationResponse, PresentationSlideResponse, UploadSlideInput 
 // Components
 export { default as CommandPalette } from './components/command-palette/CommandPalette';
 export { Onboarding } from './components/onboarding/Onboarding';
+export { AppDialogsProvider, useAppDialogs } from './components/dialogs/AppDialogsProvider';
 export { AuthModal } from './components/auth/AuthModal';
 export { JazzApiKeyModal } from './components/jazz/JazzApiKeyModal';
 export { default as AppTabs } from './components/tabs/Tabs';

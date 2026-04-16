@@ -17,6 +17,7 @@ import {
 import type { ServiceListSongResponse } from '../../../jazz/store';
 import type { ServiceListResponse } from '../../../jazz/store';
 import { Button } from '@worship-view/ui';
+import { useAppDialogs } from '../../dialogs/AppDialogsProvider';
 
 interface ServiceListAccordionItemProps {
   serviceList: ServiceListResponse;
@@ -29,6 +30,7 @@ const ServiceListAccordionItem = ({
   isExpanded,
   onToggle,
 }: ServiceListAccordionItemProps) => {
+  const dialogs = useAppDialogs();
   const { data: items = [], isLoading } = useGetServiceListItems(serviceList.id);
   const removeMutation = useRemoveFromServiceList();
   const reorderMutation = useReorderServiceList();
@@ -129,7 +131,18 @@ const ServiceListAccordionItem = ({
 
   const handleClear = async (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (!window.confirm('Sigur doriți să goliți această listă?')) return;
+    if (
+      !(
+        await dialogs.confirm({
+          title: 'Golește lista',
+          description: 'Sigur doriți să goliți această listă?',
+          confirmLabel: 'Golește',
+          variant: 'destructive',
+        })
+      )
+    ) {
+      return;
+    }
     try {
       await clearMutation.mutateAsync(serviceList.id);
     } catch (error) {
@@ -164,7 +177,18 @@ const ServiceListAccordionItem = ({
 
   const handleDelete = async (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (!window.confirm(`Sigur doriți să ștergeți lista "${serviceList.name}"?`)) return;
+    if (
+      !(
+        await dialogs.confirm({
+          title: 'Șterge lista',
+          description: `Sigur doriți să ștergeți lista "${serviceList.name}"?`,
+          confirmLabel: 'Șterge',
+          variant: 'destructive',
+        })
+      )
+    ) {
+      return;
+    }
     try {
       await deleteMutation.mutateAsync(serviceList.id);
     } catch (error) {

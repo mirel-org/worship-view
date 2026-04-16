@@ -20,8 +20,10 @@ import {
 import SongEditorDialog from './SongEditorDialog';
 import SongDeleteDialog from './SongDeleteDialog';
 import SongAddDialog from './SongAddDialog';
+import { useAppDialogs } from '../../dialogs/AppDialogsProvider';
 
 const SongsListPanel = () => {
+  const dialogs = useAppDialogs();
   const [selectedSong, setSelectedSong] = useAtom(selectedSongAtom);
   const { data: songs = [], isLoading } = useGetSongs();
   const deleteSongMutation = useDeleteSong();
@@ -103,7 +105,10 @@ const SongsListPanel = () => {
         await addToServiceListMutation.mutateAsync({ serviceListId: serviceLists[0].id, songId: song.id });
       } catch (error: any) {
         if (error.message?.includes('already')) {
-          alert(error.message);
+          await dialogs.alert({
+            title: 'Cântec deja adăugat',
+            description: error.message,
+          });
         } else {
           console.error('Failed to add song to service list:', error);
         }
@@ -119,7 +124,10 @@ const SongsListPanel = () => {
       await addToServiceListMutation.mutateAsync({ serviceListId, songId: serviceListPickerSongId });
     } catch (error: any) {
       if (error.message?.includes('already')) {
-        alert(error.message);
+        await dialogs.alert({
+          title: 'Cântec deja adăugat',
+          description: error.message,
+        });
       } else {
         console.error('Failed to add song to service list:', error);
       }

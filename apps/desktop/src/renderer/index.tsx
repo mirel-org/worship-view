@@ -1,7 +1,6 @@
 import { createRoot } from 'react-dom/client';
 import React, { useEffect } from 'react';
 import Application from './Application';
-import Modal from 'react-modal';
 import { injectFontCSS } from './lib/fonts';
 import { JazzReactProvider } from 'jazz-tools/react';
 import { WorshipViewAccount } from '@worship-view/schema';
@@ -15,8 +14,6 @@ console.log('[ERWT] : Renderer execution started');
 
 // Inject fonts before rendering
 injectFontCSS();
-
-Modal.setAppElement(document.getElementById('app') as HTMLElement);
 
 // Get root element
 const container = document.getElementById('app');
@@ -117,4 +114,3 @@ if (import.meta.hot) {
     injectFontCSS();
   });
 }
-

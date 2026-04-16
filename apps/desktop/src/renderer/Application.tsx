@@ -9,6 +9,7 @@ import {
   areSettingsOpenAtom,
   selectedTabTypeAtom,
   commandPaletteOpenAtom,
+  AppDialogsProvider,
   CommandPalette,
   AppTabs,
   Onboarding,
@@ -44,120 +45,122 @@ const Application: React.FC = () => {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <Onboarding>
-        <AcceptInviteHandler />
-        <div
-          className="h-full bg-background text-foreground antialiased selection:bg-primary/20 selection:text-foreground"
-          style={{ fontFamily: 'Inter, sans-serif' }}
-        >
-          <div className="h-[50px] flex items-center justify-center gap-4 px-2">
-            <div className="flex-1">
-              <button
-                type="button"
-                onClick={() => setAreScreensEnabled(!areScreensEnabled)}
-                className="inline-flex items-center gap-3"
-                data-testid="enable-button"
-              >
-                <span
-                  className={
-                    areScreensEnabled
-                      ? 'inline-flex h-6 w-11 items-center justify-end rounded-full border border-input bg-primary p-0.5 transition-colors'
-                      : 'inline-flex h-6 w-11 items-center justify-start rounded-full border border-input bg-input p-0.5 transition-colors'
-                  }
-                >
-                  <span className="h-5 w-5 rounded-full bg-background shadow-[0_4px_13px_-3px_rgba(0,0,0,0.15),0_4px_5px_-2px_rgba(0,0,0,0.12)]" />
-                </span>
-                <span
-                  className={
-                    areScreensEnabled
-                      ? 'rounded-2xl bg-destructive px-2 py-0.5 text-xs font-semibold text-destructive-foreground'
-                      : 'rounded-2xl bg-muted px-2 py-0.5 text-xs font-semibold text-muted-foreground'
-                  }
-                >
-                  LIVE
-                </span>
-              </button>
-            </div>
-
-            <button
-              type="button"
-              onClick={() => setCommandPaletteOpen(true)}
-              className="h-9 w-[340px] rounded-md border border-input bg-background px-3 flex items-center gap-2 text-sm text-muted-foreground"
-              aria-label="Deschide paleta de comenzi"
-            >
-              <Search className="h-4 w-4 text-muted-foreground" />
-              <span className="truncate flex-1 text-left text-sm text-muted-foreground">
-                Caută cântece, versete sau comenzi...
-              </span>
-              <span className="h-5 rounded border border-border bg-muted px-1.5 text-[10px] font-medium leading-5 text-muted-foreground">
-                F2
-              </span>
-            </button>
-
-            <div className="flex-1 flex items-center justify-end gap-4">
-              <div className="h-10 rounded-md bg-muted p-1 inline-flex items-center gap-2 border border-border">
+      <AppDialogsProvider>
+        <Onboarding>
+          <AcceptInviteHandler />
+          <div
+            className="h-full bg-background text-foreground antialiased selection:bg-primary/20 selection:text-foreground"
+            style={{ fontFamily: 'Inter, sans-serif' }}
+          >
+            <div className="h-[50px] flex items-center justify-center gap-4 px-2">
+              <div className="flex-1">
                 <button
                   type="button"
-                  role="tab"
-                  aria-selected={selectedTabType === 'songs'}
-                  data-state={selectedTabType === 'songs' ? 'active' : 'inactive'}
-                  onClick={() => setSelectedTabType('songs')}
-                  className={
-                    selectedTabType === 'songs'
-                      ? 'h-8 px-3 rounded-[2px] bg-background text-foreground text-sm font-medium shadow-[0_1px_1.75px_rgba(0,0,0,0.05)]'
-                      : 'h-8 px-3 rounded-[2px] text-muted-foreground text-sm font-medium'
-                  }
+                  onClick={() => setAreScreensEnabled(!areScreensEnabled)}
+                  className="inline-flex items-center gap-3"
+                  data-testid="enable-button"
                 >
-                  Melodii
-                </button>
-                <button
-                  type="button"
-                  role="tab"
-                  aria-selected={selectedTabType === 'bible'}
-                  data-state={selectedTabType === 'bible' ? 'active' : 'inactive'}
-                  onClick={() => setSelectedTabType('bible')}
-                  className={
-                    selectedTabType === 'bible'
-                      ? 'h-8 px-3 rounded-[2px] bg-background text-foreground text-sm font-medium shadow-[0_1px_1.75px_rgba(0,0,0,0.05)]'
-                      : 'h-8 px-3 rounded-[2px] text-muted-foreground text-sm font-medium'
-                  }
-                >
-                  Biblie
-                </button>
-                <button
-                  type="button"
-                  role="tab"
-                  aria-selected={selectedTabType === 'presentations'}
-                  data-state={selectedTabType === 'presentations' ? 'active' : 'inactive'}
-                  onClick={() => setSelectedTabType('presentations')}
-                  className={
-                    selectedTabType === 'presentations'
-                      ? 'h-8 px-3 rounded-[2px] bg-background text-foreground text-sm font-medium shadow-[0_1px_1.75px_rgba(0,0,0,0.05)]'
-                      : 'h-8 px-3 rounded-[2px] text-muted-foreground text-sm font-medium'
-                  }
-                >
-                  Prezentări
+                  <span
+                    className={
+                      areScreensEnabled
+                        ? 'inline-flex h-6 w-11 items-center justify-end rounded-full border border-input bg-primary p-0.5 transition-colors'
+                        : 'inline-flex h-6 w-11 items-center justify-start rounded-full border border-input bg-input p-0.5 transition-colors'
+                    }
+                  >
+                    <span className="h-5 w-5 rounded-full bg-background shadow-[0_4px_13px_-3px_rgba(0,0,0,0.15),0_4px_5px_-2px_rgba(0,0,0,0.12)]" />
+                  </span>
+                  <span
+                    className={
+                      areScreensEnabled
+                        ? 'rounded-2xl bg-destructive px-2 py-0.5 text-xs font-semibold text-destructive-foreground'
+                        : 'rounded-2xl bg-muted px-2 py-0.5 text-xs font-semibold text-muted-foreground'
+                    }
+                  >
+                    LIVE
+                  </span>
                 </button>
               </div>
 
               <button
                 type="button"
-                onClick={() => setAreSettingsOpen(true)}
-                data-testid="settings-button"
-                aria-label="Setări"
-                className="inline-flex h-9 w-9 items-center justify-center rounded-md text-foreground hover:bg-accent/70"
+                onClick={() => setCommandPaletteOpen(true)}
+                className="h-9 w-[340px] rounded-md border border-input bg-background px-3 flex items-center gap-2 text-sm text-muted-foreground"
+                aria-label="Deschide paleta de comenzi"
               >
-                <Settings className="h-6 w-6" />
+                <Search className="h-4 w-4 text-muted-foreground" />
+                <span className="truncate flex-1 text-left text-sm text-muted-foreground">
+                  Caută cântece, versete sau comenzi...
+                </span>
+                <span className="h-5 rounded border border-border bg-muted px-1.5 text-[10px] font-medium leading-5 text-muted-foreground">
+                  F2
+                </span>
               </button>
-            </div>
-          </div>
 
-          <div className="h-[calc(100%-50px)] overflow-hidden bg-card">
-            <AppTabs />
+              <div className="flex-1 flex items-center justify-end gap-4">
+                <div className="h-10 rounded-md bg-muted p-1 inline-flex items-center gap-2 border border-border">
+                  <button
+                    type="button"
+                    role="tab"
+                    aria-selected={selectedTabType === 'songs'}
+                    data-state={selectedTabType === 'songs' ? 'active' : 'inactive'}
+                    onClick={() => setSelectedTabType('songs')}
+                    className={
+                      selectedTabType === 'songs'
+                        ? 'h-8 px-3 rounded-[2px] bg-background text-foreground text-sm font-medium shadow-[0_1px_1.75px_rgba(0,0,0,0.05)]'
+                        : 'h-8 px-3 rounded-[2px] text-muted-foreground text-sm font-medium'
+                    }
+                  >
+                    Melodii
+                  </button>
+                  <button
+                    type="button"
+                    role="tab"
+                    aria-selected={selectedTabType === 'bible'}
+                    data-state={selectedTabType === 'bible' ? 'active' : 'inactive'}
+                    onClick={() => setSelectedTabType('bible')}
+                    className={
+                      selectedTabType === 'bible'
+                        ? 'h-8 px-3 rounded-[2px] bg-background text-foreground text-sm font-medium shadow-[0_1px_1.75px_rgba(0,0,0,0.05)]'
+                        : 'h-8 px-3 rounded-[2px] text-muted-foreground text-sm font-medium'
+                    }
+                  >
+                    Biblie
+                  </button>
+                  <button
+                    type="button"
+                    role="tab"
+                    aria-selected={selectedTabType === 'presentations'}
+                    data-state={selectedTabType === 'presentations' ? 'active' : 'inactive'}
+                    onClick={() => setSelectedTabType('presentations')}
+                    className={
+                      selectedTabType === 'presentations'
+                        ? 'h-8 px-3 rounded-[2px] bg-background text-foreground text-sm font-medium shadow-[0_1px_1.75px_rgba(0,0,0,0.05)]'
+                        : 'h-8 px-3 rounded-[2px] text-muted-foreground text-sm font-medium'
+                    }
+                  >
+                    Prezentări
+                  </button>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setAreSettingsOpen(true)}
+                  data-testid="settings-button"
+                  aria-label="Setări"
+                  className="inline-flex h-9 w-9 items-center justify-center rounded-md text-foreground hover:bg-accent/70"
+                >
+                  <Settings className="h-6 w-6" />
+                </button>
+              </div>
+            </div>
+
+            <div className="h-[calc(100%-50px)] overflow-hidden bg-card">
+              <AppTabs />
+            </div>
+            <Generics />
           </div>
-          <Generics />
-        </div>
-      </Onboarding>
+        </Onboarding>
+      </AppDialogsProvider>
     </QueryClientProvider>
   );
 };

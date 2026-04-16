@@ -13,6 +13,7 @@ import { CheckCircle2, Film, Trash2, Plus, Save, ImageOff } from 'lucide-react';
 import { useGetMediaItems, useMediaBlobUrl, useMediaItemAssetBlobUrl } from '../../hooks/useMedia';
 import type { MediaItemResponse } from '../../jazz/media-store';
 import { isVideoEnabled } from '../../config/video-feature';
+import { useAppDialogs } from '../dialogs/AppDialogsProvider';
 
 const FONT_WEIGHT_OPTIONS = [
   { value: 100, label: '100 - Thin' },
@@ -203,6 +204,7 @@ function StylePreview({ style, backgroundMedia }: { style: TextStyleData; backgr
 }
 
 export function SettingsTextStyles() {
+  const dialogs = useAppDialogs();
   const { styles, selectedStyleId, setSelectedStyleId, activeOrganization } = useTextStyles();
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
   const [editValues, setEditValues] = useState<TextStyleData | null>(null);
@@ -267,9 +269,20 @@ export function SettingsTextStyles() {
     setSelectedItemId(newStyle.id);
   };
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     if (!activeOrganization || !selectedItemId || isLastStyle) return;
-    if (!confirm('Sigur doriți să ștergeți acest stil?')) return;
+    if (
+      !(
+        await dialogs.confirm({
+          title: 'Șterge stilul',
+          description: 'Sigur doriți să ștergeți acest stil?',
+          confirmLabel: 'Șterge',
+          variant: 'destructive',
+        })
+      )
+    ) {
+      return;
+    }
 
     // If deleted style was the active one, clear selection (falls back to first)
     if (selectedStyleId === selectedItemId) {

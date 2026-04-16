@@ -5,6 +5,7 @@ import { useAccount } from 'jazz-tools/react';
 import { getOrganizationGroup } from '@worship-view/schema';
 import { Button } from '@worship-view/ui';
 import { Trash2 } from 'lucide-react';
+import { useAppDialogs } from '../dialogs/AppDialogsProvider';
 
 interface OrganizationMembersProps {
   organization: OrganizationType | null;
@@ -15,6 +16,7 @@ export function OrganizationMembers({
   organization,
   onMemberKicked,
 }: OrganizationMembersProps) {
+  const dialogs = useAppDialogs();
   const me = useAccount(WorshipViewAccount, {
     resolve: { profile: true },
   }) as any;
@@ -38,12 +40,25 @@ export function OrganizationMembers({
 
     // Prevent kicking admins (except yourself)
     if (memberRole === 'admin' && memberId !== me?.$jazz?.id) {
-      alert('Nu puteți elimina alți administratori. Aceștia trebuie să părăsească organizația singuri.');
+      await dialogs.alert({
+        title: 'Acțiune indisponibilă',
+        description:
+          'Nu puteți elimina alți administratori. Aceștia trebuie să părăsească organizația singuri.',
+      });
       return;
     }
 
     // Confirm action
-    if (!confirm(`Sigur doriți să eliminați pe ${memberName} din această organizație?`)) {
+    if (
+      !(
+        await dialogs.confirm({
+          title: 'Elimină membru',
+          description: `Sigur doriți să eliminați pe ${memberName} din această organizație?`,
+          confirmLabel: 'Elimină',
+          variant: 'destructive',
+        })
+      )
+    ) {
       return;
     }
 
@@ -54,7 +69,11 @@ export function OrganizationMembers({
       }
     } catch (error: any) {
       console.error('Failed to remove member:', error);
-      alert(`Eliminarea membrului a eșuat: ${error.message || 'Eroare necunoscută'}`);
+      await dialogs.alert({
+        title: 'Eliminare eșuată',
+        description: `Eliminarea membrului a eșuat: ${error.message || 'Eroare necunoscută'}`,
+        variant: 'destructive',
+      });
     }
   };
 
