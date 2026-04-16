@@ -5,6 +5,7 @@ import {
   useGetMediaItems,
   useUploadMediaItem,
   useDeleteMediaItem,
+  useMediaItemAssetBlobUrl,
   useMediaBlobUrl,
   useRenameMediaItem,
 } from '../../../hooks/useMedia';
@@ -35,12 +36,15 @@ const MediaGridItem: FC<{
   const videoWithoutPoster =
     mediaItem.mediaType === 'video' && !mediaItem.previewFileStreamId;
   const skipLoad = videoWithoutPoster && !isVideoEnabled();
-  const thumbStreamId = skipLoad
-    ? undefined
-    : mediaItem.mediaType === 'video' && mediaItem.previewFileStreamId
+  const posterStreamId =
+    !skipLoad && mediaItem.mediaType === 'video'
       ? mediaItem.previewFileStreamId
-      : mediaItem.fileStreamId;
-  const { blobUrl } = useMediaBlobUrl(thumbStreamId);
+      : undefined;
+  const { blobUrl: posterUrl } = useMediaBlobUrl(posterStreamId);
+  const { blobUrl: imageUrl } = useMediaItemAssetBlobUrl({
+    assetId: mediaItem.mediaType === 'image' ? mediaItem.assetId : undefined,
+    mediaItemId: mediaItem.mediaType === 'image' ? mediaItem.id : undefined,
+  });
 
   return (
     <button
@@ -56,31 +60,19 @@ const MediaGridItem: FC<{
       <div className="h-20 w-full bg-muted">
         {skipLoad ? (
           <VideoPlaceholder />
-        ) : blobUrl ? (
-          mediaItem.mediaType === 'image' ? (
+        ) : mediaItem.mediaType === 'image' && imageUrl ? (
             <img
-              src={blobUrl}
+              src={imageUrl}
               alt={mediaItem.name}
               className="h-full w-full object-cover"
             />
-          ) : mediaItem.previewFileStreamId ? (
+          ) : posterUrl ? (
             <img
-              src={blobUrl}
+              src={posterUrl}
               alt={mediaItem.name}
               className="h-full w-full object-cover"
-            />
-          ) : isVideoEnabled() ? (
-            <video
-              src={blobUrl}
-              className="h-full w-full object-cover"
-              muted
-              playsInline
-              preload="metadata"
             />
           ) : (
-            <VideoPlaceholder />
-          )
-        ) : (
           <div className="h-full w-full" />
         )}
       </div>
@@ -185,7 +177,7 @@ const MediaPanel: FC = () => {
         setSelectedMediaItem(null);
       }
       await deleteMedia.mutateAsync(deleteTarget.id, {
-        fileStreamId: deleteTarget.fileStreamId,
+        assetId: deleteTarget.assetId,
         previewFileStreamId: deleteTarget.previewFileStreamId,
       });
     } catch {

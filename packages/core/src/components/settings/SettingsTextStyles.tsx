@@ -10,7 +10,7 @@ import {
 import type { TextStyleData } from '../../jazz/text-style-store';
 import { Label, Button, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, cn } from '@worship-view/ui';
 import { CheckCircle2, Film, Trash2, Plus, Save, ImageOff } from 'lucide-react';
-import { useGetMediaItems, useMediaBlobUrl } from '../../hooks/useMedia';
+import { useGetMediaItems, useMediaBlobUrl, useMediaItemAssetBlobUrl } from '../../hooks/useMedia';
 import type { MediaItemResponse } from '../../jazz/media-store';
 import { isVideoEnabled } from '../../config/video-feature';
 
@@ -70,12 +70,13 @@ function PreviewBackgroundThumb({
   const videoWithoutPoster =
     mediaItem.mediaType === 'video' && !mediaItem.previewFileStreamId;
   const skipLoad = videoWithoutPoster && !isVideoEnabled();
-  const thumbStreamId = skipLoad
-    ? undefined
-    : mediaItem.mediaType === 'video' && mediaItem.previewFileStreamId
-      ? mediaItem.previewFileStreamId
-      : mediaItem.fileStreamId;
-  const { blobUrl } = useMediaBlobUrl(thumbStreamId);
+  const { blobUrl: posterUrl } = useMediaBlobUrl(
+    !skipLoad && mediaItem.mediaType === 'video' ? mediaItem.previewFileStreamId : undefined,
+  );
+  const { blobUrl: imageUrl } = useMediaItemAssetBlobUrl({
+    assetId: mediaItem.mediaType === 'image' ? mediaItem.assetId : undefined,
+    mediaItemId: mediaItem.mediaType === 'image' ? mediaItem.id : undefined,
+  });
   return (
     <button
       type="button"
@@ -89,28 +90,27 @@ function PreviewBackgroundThumb({
         <div className="w-full h-full flex items-center justify-center">
           <Film className="h-4 w-4 text-muted-foreground" />
         </div>
-      ) : blobUrl &&
-        (mediaItem.mediaType === 'image' ? (
-          <img src={blobUrl} className="w-full h-full object-cover" alt={mediaItem.name} />
-        ) : mediaItem.previewFileStreamId ? (
-          <img src={blobUrl} className="w-full h-full object-cover" alt={mediaItem.name} />
-        ) : isVideoEnabled() ? (
-          <video src={blobUrl} className="w-full h-full object-cover" muted playsInline preload="metadata" />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center">
-            <Film className="h-4 w-4 text-muted-foreground" />
-          </div>
-        ))}
+      ) : mediaItem.mediaType === 'image' && imageUrl ? (
+        <img src={imageUrl} className="w-full h-full object-cover" alt={mediaItem.name} />
+      ) : posterUrl ? (
+        <img src={posterUrl} className="w-full h-full object-cover" alt={mediaItem.name} />
+      ) : (
+        <div className="w-full h-full flex items-center justify-center">
+          <Film className="h-4 w-4 text-muted-foreground" />
+        </div>
+      )}
     </button>
   );
 }
 
 function PreviewBackgroundImage({
-  fileStreamId,
+  mediaItemId,
+  assetId,
   previewFileStreamId,
   mediaType,
 }: {
-  fileStreamId: string;
+  mediaItemId?: string;
+  assetId: string;
   previewFileStreamId?: string;
   mediaType: 'image' | 'video';
 }) {
@@ -120,13 +120,13 @@ function PreviewBackgroundImage({
   const { blobUrl: posterUrl } = useMediaBlobUrl(
     mediaType === 'video' && previewFileStreamId ? previewFileStreamId : undefined,
   );
-  const { blobUrl: fallbackUrl } = useMediaBlobUrl(
-    mediaType === 'image'
-      ? fileStreamId
-      : mediaType === 'video' && !previewFileStreamId && !skipVideoFallback
-        ? fileStreamId
+  const { blobUrl: fallbackUrl } = useMediaItemAssetBlobUrl({
+    mediaItemId,
+    assetId:
+      mediaType === 'image' || (mediaType === 'video' && !previewFileStreamId && !skipVideoFallback)
+        ? assetId
         : undefined,
-  );
+  });
 
   if (mediaType === 'image' && !fallbackUrl) return null;
   if (mediaType === 'video' && !posterUrl && !fallbackUrl) return null;
@@ -171,7 +171,8 @@ function StylePreview({ style, backgroundMedia }: { style: TextStyleData; backgr
       >
         {backgroundMedia && (
           <PreviewBackgroundImage
-            fileStreamId={backgroundMedia.fileStreamId}
+            mediaItemId={backgroundMedia.id}
+            assetId={backgroundMedia.assetId}
             previewFileStreamId={backgroundMedia.previewFileStreamId}
             mediaType={backgroundMedia.mediaType}
           />

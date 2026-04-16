@@ -2,6 +2,8 @@ import { v4 as uuidv4 } from 'uuid';
 import { co, type FileStream, getLoadedOrUndefined } from 'jazz-tools';
 import {
   MediaItem,
+  MediaAsset,
+  type MediaAssetType,
   MediaItemType,
   OrganizationType,
 } from '@worship-view/schema';
@@ -29,33 +31,24 @@ export type MediaItemResponse = {
   mediaType: 'video' | 'image';
   mimeType: string;
   sizeBytes: number;
-  fileStreamId: string;
+  assetId: string;
   /** JPEG poster for video thumbnails */
   previewFileStreamId?: string;
 };
-
-function getFileStreamIdFromField(
-  streamField: MediaItemType['file'] | MediaItemType['previewFile'],
-): string | undefined {
-  const loaded = getLoadedOrUndefined(streamField);
-  if (!loaded) return undefined;
-  return loaded.$jazz?.id;
-}
 
 function mediaItemToResponse(
   item: MediaItemType | null | undefined,
 ): MediaItemResponse | null {
   if (!item) return null;
-  const fileId = getFileStreamIdFromField(item.file);
-  if (!fileId) return null;
-  const previewId = getFileStreamIdFromField(item.previewFile);
+  const previewId =
+    typeof item.previewStreamId === 'string' ? item.previewStreamId : undefined;
   return {
     id: item.id,
     name: item.name,
     mediaType: item.mediaType as 'video' | 'image',
     mimeType: item.mimeType,
     sizeBytes: item.sizeBytes,
-    fileStreamId: fileId,
+    assetId: item.asset.$jazz.id,
     ...(previewId ? { previewFileStreamId: previewId } : {}),
   };
 }
@@ -88,6 +81,54 @@ export function getMediaItems(
     .filter((r): r is MediaItemResponse => r !== null);
 }
 
+async function ensureOrganizationMediaLoaded(
+  organization: OrganizationType,
+): Promise<OrganizationType> {
+  return organization.$jazz.ensureLoaded({
+    resolve: {
+      media: { $each: true },
+    },
+  }) as Promise<OrganizationType>;
+}
+
+async function loadMediaItemFileStreamIdFromItem(
+  item: MediaItemType | null | undefined,
+): Promise<string | null> {
+  if (!item) return null;
+
+  const loadedItem = (await item.$jazz.ensureLoaded({
+    resolve: { asset: { file: true } },
+  })) as MediaItemType & { asset: MediaAssetType };
+  const loadedFile = getLoadedOrUndefined(loadedItem.asset.file);
+  return loadedFile?.$jazz?.id ?? null;
+}
+
+export async function loadMediaAssetFileStreamId(assetId: string): Promise<string | null> {
+  const asset = (await MediaAsset.load(assetId, {
+    resolve: { file: true },
+  })) as MediaAssetType | null;
+  if (!asset) return null;
+
+  const loadedFile = getLoadedOrUndefined(asset.file);
+  return loadedFile?.$jazz?.id ?? null;
+}
+
+export async function loadMediaItemFileStreamId(
+  organization: OrganizationType | null | undefined,
+  mediaItemId: string,
+  fallbackAssetId?: string,
+): Promise<string | null> {
+  const item = getMediaFromOrg(organization).find((candidate) => candidate.id === mediaItemId);
+  const fileStreamId = await loadMediaItemFileStreamIdFromItem(item);
+  if (fileStreamId) {
+    return fileStreamId;
+  }
+  if (fallbackAssetId) {
+    return loadMediaAssetFileStreamId(fallbackAssetId);
+  }
+  return null;
+}
+
 export async function uploadMediaItem(
   organization: OrganizationType | null | undefined,
   file: File,
@@ -96,13 +137,14 @@ export async function uploadMediaItem(
   if (!organization) {
     throw new Error('No active organization');
   }
+  const loadedOrganization = await ensureOrganizationMediaLoaded(organization);
 
   const validation = validateMediaFile(file);
   if (!validation.valid) {
     throw new Error(validation.error);
   }
 
-  const orgGroup = getOrganizationGroup(organization);
+  const orgGroup = getOrganizationGroup(loadedOrganization);
   const mediaType = ALLOWED_MIME_TYPES[file.type] as 'video' | 'image';
 
   let previewStream: FileStream | undefined;
@@ -120,28 +162,34 @@ export async function uploadMediaItem(
     owner: orgGroup,
     onProgress,
   });
+  const asset = MediaAsset.create(
+    {
+      file: fileStream,
+    },
+    { owner: orgGroup },
+  );
 
   const id = uuidv4();
 
   // Create MediaItem CoMap
   const newItem = MediaItem.create(
     {
+      version: 2,
       id,
       name: file.name,
       mediaType,
       mimeType: file.type,
       sizeBytes: file.size,
-      file: fileStream,
-      ...(previewStream ? { previewFile: previewStream } : {}),
+      asset,
+      ...(previewStream ? { previewStreamId: previewStream.$jazz.id } : {}),
     },
     { owner: orgGroup },
   );
 
   // Ensure media list exists
-  if (!organization.media) {
-    setCoMapProperty(organization, 'media', []);
+  if (loadedOrganization.media) {
+    pushCoListItem(loadedOrganization.media, newItem);
   }
-  pushCoListItem(organization.media, newItem);
 
   const response = mediaItemToResponse(newItem);
   if (!response) throw new Error('Failed to create media item response');
@@ -168,7 +216,7 @@ export function renameMediaItem(
     throw new Error('Media item not found');
   }
 
-  setCoMapProperty(item as any, 'name', trimmed);
+  setCoMapProperty(item, 'name', trimmed);
   return { success: true };
 }
 
@@ -195,7 +243,7 @@ export function deleteMediaItem(
 }
 
 /**
- * Attaches JPEG poster streams to video items that were created before preview support.
+ * Attaches JPEG poster streams to video items that are missing previews.
  * Runs sequentially to limit decoder load.
  * Returns the set of item IDs where poster extraction permanently failed
  * (e.g. unsupported codec) so callers can avoid retrying them.
@@ -211,9 +259,8 @@ export async function backfillVideoPreviews(
   for (const item of items) {
     if (options?.signal?.aborted) return failed;
     if (!item || item.mediaType !== 'video') continue;
-    const previewId = getFileStreamIdFromField(item.previewFile);
-    if (previewId) continue;
-    const mainId = getFileStreamIdFromField(item.file);
+    if (item.previewStreamId) continue;
+    const mainId = await loadMediaItemFileStreamIdFromItem(item);
     if (!mainId) continue;
     const blob = await co.fileStream().loadAsBlob(mainId);
     if (!blob) {
@@ -228,7 +275,7 @@ export async function backfillVideoPreviews(
     const previewStream = await co.fileStream().createFromBlob(posterBlob, {
       owner: orgGroup,
     });
-    setCoMapProperty(item as MediaItemType, 'previewFile', previewStream);
+    setCoMapProperty(item as MediaItemType, 'previewStreamId', previewStream.$jazz.id);
   }
   return failed;
 }

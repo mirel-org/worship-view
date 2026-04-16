@@ -17,6 +17,7 @@ export function useActiveOrganization() {
           $each: {
             songs: { $each: true },
             serviceLists: { $each: { items: { $each: true } } },
+            media: { $each: true },
             textStyles: { $each: true },
             presentations: { $each: { slides: { $each: true } } },
             $onError: 'catch',

@@ -1,5 +1,5 @@
 import type { MediaItemResponse } from '../../../../jazz/media-store';
-import { useMediaBlobUrl } from '../../../../hooks/useMedia';
+import { useMediaBlobUrl, useMediaItemAssetBlobUrl } from '../../../../hooks/useMedia';
 import { isVideoEnabled } from '../../../../config/video-feature';
 import { FC, useRef, useEffect } from 'react';
 
@@ -16,12 +16,15 @@ const MediaBox: FC<MediaBoxProps> = ({ mediaItem }) => {
 
   // Only load the full video blob when we'll actually play it;
   // otherwise just load the lightweight poster image.
-  const mainStreamId =
+  const mainAssetId =
     mediaItem.mediaType === 'image' || showVideo
-      ? mediaItem.fileStreamId
+      ? mediaItem.assetId
       : undefined;
 
-  const { blobUrl } = useMediaBlobUrl(mainStreamId);
+  const { blobUrl } = useMediaItemAssetBlobUrl({
+    assetId: mainAssetId,
+    mediaItemId: mediaItem.id,
+  });
   const { blobUrl: posterUrl } = useMediaBlobUrl(posterStreamId);
   const videoRef = useRef<HTMLVideoElement>(null);
 

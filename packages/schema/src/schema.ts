@@ -1,4 +1,5 @@
 import { co, z } from 'jazz-tools';
+import { removeCoListItem } from './helpers';
 
 /**
  * Song schema - represents a worship song with lyrics
@@ -57,19 +58,32 @@ export const ServiceList = co
   });
 
 /**
+ * MediaAsset schema - stores the original media binary separately from MediaItem metadata
+ * so the startup-loaded media list does not inline heavy FileStreams.
+ */
+export const MediaAsset = co
+  .map({
+    file: co.fileStream(),
+  })
+  .withPermissions({
+    onInlineCreate: 'sameAsContainer',
+  });
+
+/**
  * MediaItem schema - represents a media file (image or video) stored via Jazz FileStream
  * Uses sameAsContainer permissions so media items inherit organization's group
  */
 export const MediaItem = co
   .map({
+    version: z.literal(2),
     id: z.string(),
     name: z.string(),
     mediaType: z.enum(['video', 'image']),
     mimeType: z.string(),
     sizeBytes: z.number(),
-    file: co.fileStream(),
+    asset: MediaAsset,
     /** JPEG poster for video thumbnails; optional for backward compatibility */
-    previewFile: co.optional(co.fileStream()),
+    previewStreamId: z.optional(z.string()),
   })
   .withPermissions({
     onInlineCreate: 'sameAsContainer',
@@ -180,25 +194,18 @@ export const Organization = co
       org.$jazz.set('presentations', []);
     }
 
-    // Migrate old singular "serviceList" (co.list(ServiceListItem)) →
-    // new "serviceLists" (co.list(ServiceList)) structure
-    const orgAny = org as any;
-    if (orgAny.$jazz.has('serviceList')) {
-      const oldItems = orgAny.serviceList;
-      if (oldItems) {
-        const owner = orgAny.$jazz.owner;
-        const migrated = ServiceList.create(
-          {
-            id: crypto.randomUUID(),
-            name: 'Lista serviciu',
-            items: oldItems,
-          },
-          { owner },
+    org.$jazz
+      .ensureLoaded({
+        resolve: {
+          media: { $each: true },
+        },
+      })
+      .then(({ media }) => {
+        removeCoListItem(
+          media,
+          (item: MediaItemType | null) => item?.version !== 2,
         );
-        orgAny.serviceLists.$jazz.push(migrated);
-      }
-      // orgAny.$jazz.set('serviceList', undefined);
-    }
+      });
   });
 
 /**
@@ -238,7 +245,6 @@ export const WorshipViewAccount = co
         organizations: [],
       });
     }
-
   });
 
 // Export types for use throughout the application
@@ -247,6 +253,7 @@ export type ServiceListItemType = co.loaded<typeof ServiceListItem>;
 export type ServiceListType = co.loaded<typeof ServiceList>;
 export type TextStyleType = co.loaded<typeof TextStyle>;
 export type MediaItemType = co.loaded<typeof MediaItem>;
+export type MediaAssetType = co.loaded<typeof MediaAsset>;
 export type PresentationSlideType = co.loaded<typeof PresentationSlide>;
 export type PresentationType = co.loaded<typeof Presentation>;
 export type OrganizationType = co.loaded<typeof Organization>;

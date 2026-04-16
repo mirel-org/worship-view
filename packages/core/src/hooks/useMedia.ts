@@ -130,16 +130,23 @@ export function useDeleteMediaItem() {
   const mutate = useCallback(
     async (
       id: string,
-      streamIds?: { fileStreamId?: string; previewFileStreamId?: string },
+      streamIds?: { assetId?: string; previewFileStreamId?: string },
     ) => {
       setIsLoading(true);
       setError(null);
       try {
         const result = mediaStore.deleteMediaItem(activeOrganization, id);
         // Clean up both in-memory and disk caches
-        if (streamIds?.fileStreamId) {
-          revokeCachedBlobUrl(streamIds.fileStreamId);
-          deleteFromDiskCache(streamIds.fileStreamId);
+        if (streamIds?.assetId) {
+          const fileStreamId = await mediaStore.loadMediaItemFileStreamId(
+            activeOrganization,
+            id,
+            streamIds.assetId,
+          );
+          if (fileStreamId) {
+            revokeCachedBlobUrl(fileStreamId);
+            deleteFromDiskCache(fileStreamId);
+          }
         }
         if (streamIds?.previewFileStreamId) {
           revokeCachedBlobUrl(streamIds.previewFileStreamId);
@@ -245,8 +252,52 @@ export function useMediaBlobUrl(fileStreamId: string | undefined) {
   return { blobUrl, isLoading };
 }
 
+export function useMediaAssetBlobUrl(assetId: string | undefined) {
+  return useMediaItemAssetBlobUrl({
+    assetId,
+  });
+}
+
+export function useMediaItemAssetBlobUrl({
+  assetId,
+  mediaItemId,
+}: {
+  assetId?: string;
+  mediaItemId?: string;
+}) {
+  const { activeOrganization } = useActiveOrganization();
+  const [fileStreamId, setFileStreamId] = useState<string | undefined>(undefined);
+
+  useEffect(() => {
+    if (!assetId && !mediaItemId) {
+      setFileStreamId(undefined);
+      return;
+    }
+
+    let cancelled = false;
+    mediaStore
+      .loadMediaItemFileStreamId(activeOrganization, mediaItemId ?? '', assetId)
+      .then((loadedFileStreamId) => {
+        if (!cancelled) {
+          setFileStreamId(loadedFileStreamId ?? undefined);
+        }
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setFileStreamId(undefined);
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [activeOrganization, assetId, mediaItemId]);
+
+  return useMediaBlobUrl(fileStreamId);
+}
+
 /**
- * Generates JPEG posters for video items missing `previewFile` (legacy data).
+ * Generates JPEG posters for video items missing preview streams.
  * Runs once when the media list loads; refreshes the list when done.
  * Tracks permanently failed items to avoid an infinite retry loop that would
  * re-download full video blobs on every cycle.
