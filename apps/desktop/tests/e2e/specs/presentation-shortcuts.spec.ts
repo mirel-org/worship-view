@@ -25,7 +25,7 @@ for (const layout of [
   test.describe(`Presentation shortcuts (${layout.name})`, () => {
     test.beforeEach(async ({ electronApp, mainWindow }) => {
       if (layout.width !== 1280) {
-        await setMainWindowSize(electronApp, layout.width, 760);
+        await setMainWindowSize(electronApp, mainWindow, layout.width, 760);
         await expect(mainWindow.getByRole('button', { name: 'Deschide meniul' })).toBeVisible();
       }
     });
@@ -118,7 +118,7 @@ for (const layout of [
 }
 
 test('narrow window: menu button opens the sidebar drawer and selecting a presentation closes it', async ({ electronApp, mainWindow }) => {
-  await setMainWindowSize(electronApp, 1000, 760);
+  await setMainWindowSize(electronApp, mainWindow, 1000, 760);
   const panel = mainWindow.locator('.sidebar-panel');
   const menuButton = mainWindow.getByRole('button', { name: 'Deschide meniul' });
   await expect(menuButton).toBeVisible();
@@ -132,7 +132,7 @@ test('narrow window: menu button opens the sidebar drawer and selecting a presen
   await mainWindow.getByRole('button', { name: 'Another Presentation' }).click();
   await expect(panel).toHaveAttribute('data-open', 'false');
 
-  await setMainWindowSize(electronApp, 1280, 800);
+  await setMainWindowSize(electronApp, mainWindow, 1280, 800);
   await expect(menuButton).toBeHidden();
   await expect(mainWindow.getByRole('button', { name: 'Another Presentation' })).toBeInViewport();
 });

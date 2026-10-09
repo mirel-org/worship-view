@@ -56,16 +56,17 @@ test.describe('Clock size and colour', () => {
     await selectOption(mainWindow, '#clock-font-size', '2500%');
     await selectOption(mainWindow, '#clock-color-mode', 'Personalizată');
     await mainWindow.locator('#clock-custom-color').fill('#ff3300');
+    // Wide digits are the hardest case for fitting on screen
+    await mainWindow.clock.setFixedTime(new Date(2026, 9, 9, 20, 8, 0));
+    await expect(clock(audienceWindow)).toHaveText('20:08');
 
     await expect(clock(audienceWindow)).toHaveCSS('color', 'rgb(255, 51, 0)');
 
-    // 2500% = 400px, capped to the screen size (36vw / 55vh) on small projectors
+    // 2500% = 400px, reduced on small projectors so it fits whatever the digits are
     const viewport = await audienceWindow.evaluate(() => ({ w: innerWidth, h: innerHeight }));
-    const expectedSize = Math.min(400, viewport.w * 0.36, viewport.h * 0.55);
-    await expect
-      .poll(() => clock(audienceWindow).evaluate((el) => parseFloat(getComputedStyle(el).fontSize)))
-      .toBeCloseTo(expectedSize, 0);
-    expect(expectedSize).toBeGreaterThan(144); // bigger than the previous maximum (900%)
+    const size = await clock(audienceWindow).evaluate((el) => parseFloat(getComputedStyle(el).fontSize));
+    expect(size).toBeLessThanOrEqual(Math.min(400, viewport.w * 0.36, viewport.h * 0.55) + 0.5);
+    expect(size).toBeGreaterThan(144); // bigger than the previous maximum (900%)
 
     // Fully on screen at the largest size
     const box = await clock(audienceWindow).boundingBox();
@@ -76,7 +77,7 @@ test.describe('Clock size and colour', () => {
 
     // The wider 12h format must fit as well
     await selectOption(mainWindow, '#clock-format', '12 ore (2:30 PM)');
-    await expect(clock(audienceWindow)).toContainText(/AM|PM/);
+    await expect(clock(audienceWindow)).toHaveText('8:08 PM');
     const box12 = await clock(audienceWindow).boundingBox();
     expect(box12!.x + box12!.width).toBeLessThanOrEqual(viewport.w);
     expect(box12!.y).toBeGreaterThanOrEqual(0);
@@ -95,5 +96,28 @@ test.describe('Clock size and colour', () => {
     await expect(mainWindow.locator('#clock-font-size')).toContainText('1500%');
     await expect(mainWindow.locator('#clock-color-mode')).toContainText('Personalizată');
     await expect(mainWindow.locator('#clock-custom-color')).toHaveValue('#00aaff');
+  });
+
+  test('clock can be centred horizontally and vertically, staying on screen', async ({ mainWindow, audienceWindow }) => {
+    await enableClock(mainWindow);
+    await selectOption(mainWindow, '#clock-font-size', '2500%');
+    const viewport = await audienceWindow.evaluate(() => ({ w: innerWidth, h: innerHeight }));
+
+    const positions = [
+      { label: 'Sus, pe mijloc', check: (b: { y: number; height: number }) => b.y < viewport.h / 2 },
+      { label: 'Centru', check: (b: { y: number; height: number }) => Math.abs(b.y + b.height / 2 - viewport.h / 2) <= 2 },
+      { label: 'Jos, pe mijloc', check: (b: { y: number; height: number }) => b.y + b.height > viewport.h / 2 },
+    ];
+    for (const position of positions) {
+      await selectOption(mainWindow, '#clock-position', position.label);
+      await expect
+        .poll(async () => {
+          const b = (await clock(audienceWindow).boundingBox())!;
+          const centredX = Math.abs(b.x + b.width / 2 - viewport.w / 2) <= 2;
+          const onScreen = b.x >= 0 && b.y >= 0 && b.x + b.width <= viewport.w && b.y + b.height <= viewport.h;
+          return centredX && onScreen && position.check(b);
+        }, { message: position.label })
+        .toBe(true);
+    }
   });
 });

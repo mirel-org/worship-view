@@ -1,7 +1,14 @@
 import { atomWithStorage } from 'jotai/utils';
 
 export type ClockFormat = '12h' | '24h';
-export type ClockPosition = 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
+export type ClockPosition =
+  | 'top-left'
+  | 'top-center'
+  | 'top-right'
+  | 'center'
+  | 'bottom-left'
+  | 'bottom-center'
+  | 'bottom-right';
 export type ClockFontSize =
   | 100 | 150 | 200 | 250 | 300 | 400 | 500 | 600 | 700 | 800 | 900
   | 1000 | 1200 | 1500 | 2000 | 2500;

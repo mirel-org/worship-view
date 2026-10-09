@@ -153,7 +153,7 @@ const PresentationsListPanel: FC<Props> = ({ onUploadClick, uploadPhase, isBusy,
                     {presentation.slideCount} slide{presentation.slideCount !== 1 ? '-uri' : ''}
                   </span>
                 </div>
-                <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 [@media(hover:none)]:opacity-100 transition-opacity">
                   <button
                     type="button"
                     onClick={(e) => handleRenameClick(e, presentation)}

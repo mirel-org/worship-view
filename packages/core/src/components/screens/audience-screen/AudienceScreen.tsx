@@ -5,6 +5,7 @@ import SlideText from './components/SlideText';
 import ClockOverlay from './components/ClockOverlay';
 import { useRegisterCustomFonts } from '../../../hooks/useCustomFonts';
 import { projectionBlankedAtom } from '../../../state/projection.atoms';
+import { useFitAudienceText } from './useFitAudienceText';
 
 const AudienceScreen: FC = () => {
   // The screen may be portaled into a projection window, which is a separate
@@ -16,11 +17,12 @@ const AudienceScreen: FC = () => {
   }, []);
   useRegisterCustomFonts(ownerDocument);
   const [blanked] = useAtom(projectionBlankedAtom);
+  useFitAudienceText(rootRef);
 
   return (
     <div
       ref={rootRef}
-      className="bg-black h-full flex justify-center items-center"
+      className="bg-black h-full flex justify-center items-center overflow-hidden"
       data-blanked={blanked}
     >
       {/* Blank screen keeps the selection but shows only the clock */}

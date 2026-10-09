@@ -51,7 +51,7 @@ const Application: React.FC = () => {
             className="h-full bg-background text-foreground antialiased selection:bg-primary/20 selection:text-foreground"
             style={{ fontFamily: 'Inter, sans-serif' }}
           >
-            <div className="h-[50px] flex items-center gap-2 md:gap-4 px-2">
+            <div className="h-[50px] flex items-center gap-1.5 sm:gap-2 md:gap-4 px-2">
               <button
                 type="button"
                 onClick={() => openSidebar()}
@@ -68,7 +68,7 @@ const Application: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setCommandPaletteOpen(true)}
-                className="h-9 flex-1 md:flex-none md:w-[280px] lg:w-[340px] rounded-md border border-input bg-background px-3 flex items-center gap-2 text-sm text-muted-foreground"
+                className="h-9 min-w-9 flex-1 md:flex-none md:w-[280px] lg:w-[340px] rounded-md border border-input bg-background px-2 sm:px-3 flex items-center justify-center sm:justify-start gap-2 text-sm text-muted-foreground"
                 aria-label="Deschide paleta de comenzi"
               >
                 <Search className="h-4 w-4 text-muted-foreground shrink-0" />
@@ -80,8 +80,8 @@ const Application: React.FC = () => {
                 </span>
               </button>
 
-              <div className="flex items-center justify-end gap-2 md:gap-4 lg:flex-1">
-                <div className="h-10 rounded-md bg-muted p-1 inline-flex items-center gap-2 border border-border">
+              <div className="flex shrink-0 items-center justify-end gap-1 sm:gap-2 md:gap-4 lg:flex-1">
+                <div className="h-10 rounded-md bg-muted p-1 inline-flex items-center gap-1 sm:gap-2 border border-border">
                   <button
                     type="button"
                     role="tab"
@@ -90,8 +90,8 @@ const Application: React.FC = () => {
                     onClick={() => setSelectedTabType('songs')}
                     className={
                       selectedTabType === 'songs'
-                        ? 'h-8 px-3 rounded-[2px] bg-background text-foreground text-sm font-medium shadow-[0_1px_1.75px_rgba(0,0,0,0.05)]'
-                        : 'h-8 px-3 rounded-[2px] text-muted-foreground text-sm font-medium'
+                        ? 'h-8 px-2 sm:px-3 rounded-[2px] bg-background text-foreground text-sm font-medium shadow-[0_1px_1.75px_rgba(0,0,0,0.05)]'
+                        : 'h-8 px-2 sm:px-3 rounded-[2px] text-muted-foreground text-sm font-medium'
                     }
                   >
                     Melodii
@@ -104,8 +104,8 @@ const Application: React.FC = () => {
                     onClick={() => setSelectedTabType('bible')}
                     className={
                       selectedTabType === 'bible'
-                        ? 'h-8 px-3 rounded-[2px] bg-background text-foreground text-sm font-medium shadow-[0_1px_1.75px_rgba(0,0,0,0.05)]'
-                        : 'h-8 px-3 rounded-[2px] text-muted-foreground text-sm font-medium'
+                        ? 'h-8 px-2 sm:px-3 rounded-[2px] bg-background text-foreground text-sm font-medium shadow-[0_1px_1.75px_rgba(0,0,0,0.05)]'
+                        : 'h-8 px-2 sm:px-3 rounded-[2px] text-muted-foreground text-sm font-medium'
                     }
                   >
                     Biblie

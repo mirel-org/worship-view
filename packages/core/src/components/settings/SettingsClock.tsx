@@ -16,8 +16,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 
 const POSITION_LABELS: Record<ClockPosition, string> = {
   'top-left': 'Stânga sus',
+  'top-center': 'Sus, pe mijloc',
   'top-right': 'Dreapta sus',
+  'center': 'Centru',
   'bottom-left': 'Stânga jos',
+  'bottom-center': 'Jos, pe mijloc',
   'bottom-right': 'Dreapta jos',
 };
 

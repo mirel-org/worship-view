@@ -77,19 +77,21 @@ export async function revealSidebar(page: Page): Promise<void> {
 }
 
 /**
- * Resizes the main window. The OS may clamp the size to the display, so the
- * resulting content width is returned.
+ * Resizes the window showing `page` (not just the first Electron window: the
+ * audience window may be listed first). The OS may clamp the size to the
+ * display, so the resulting content width is returned.
  */
 export async function setMainWindowSize(
   electronApp: ElectronApplication,
+  page: Page,
   width: number,
   height: number,
 ): Promise<number> {
-  return electronApp.evaluate(
-    ({ BrowserWindow }, size) => {
-      const win = BrowserWindow.getAllWindows()[0];
-      win.setSize(size.width, size.height);
-      return win.getContentBounds().width;
+  const win = await electronApp.browserWindow(page);
+  return win.evaluate(
+    (browserWindow, size) => {
+      browserWindow.setSize(size.width, size.height);
+      return browserWindow.getContentBounds().width;
     },
     { width, height },
   );

@@ -33,7 +33,7 @@ export async function importFiles(
   ).toBeVisible({ timeout: 5000 });
 
   // Click the Import Songs action button (not the tab trigger which has role="tab")
-  await page.locator('button:not([role="tab"]):has-text("Importă cântece")').click();
+  await page.getByRole('button', { name: 'Importă cântece', exact: true }).click();
 
   // Wait for results to appear
   await page.locator('text=cântece procesate').waitFor({ timeout: 10000 });

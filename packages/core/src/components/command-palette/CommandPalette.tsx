@@ -394,7 +394,7 @@ const CommandPalette: FC = () => {
                                   </span>
                                 </div>
                                 <div
-                                  className="ml-2 flex items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100 group-data-[selected=true]:opacity-100"
+                                  className="ml-2 flex items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100 [@media(hover:none)]:opacity-100 group-data-[selected=true]:opacity-100"
                                   onClick={(e) => e.stopPropagation()}
                                 >
                                   {serviceLists.length > 0 && (

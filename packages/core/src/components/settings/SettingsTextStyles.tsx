@@ -10,7 +10,7 @@ import {
 } from '../../jazz/text-style-store';
 import type { TextStyleData } from '../../jazz/text-style-store';
 import { Label, Button, Input, Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectSeparator, SelectTrigger, SelectValue, cn } from '@worship-view/ui';
-import { CheckCircle2, Film, Trash2, Plus, Save, ImageOff } from 'lucide-react';
+import { CheckCircle2, ChevronLeft, Film, Trash2, Plus, Save, ImageOff } from 'lucide-react';
 import { useGetMediaItems, useMediaBlobUrl, useMediaItemAssetBlobUrl } from '../../hooks/useMedia';
 import type { MediaItemResponse } from '../../jazz/media-store';
 import { isVideoEnabled } from '../../config/video-feature';
@@ -210,6 +210,8 @@ export function SettingsTextStyles() {
   const { styles, selectedStyleId, setSelectedStyleId, activeOrganization } = useTextStyles();
   const customFonts = useCustomFonts();
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
+  // Phones show either the list or the editor (side by side they don't fit)
+  const [mobileDetail, setMobileDetail] = useState(false);
   const [editValues, setEditValues] = useState<TextStyleData | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [previewBackground, setPreviewBackground] = useState<MediaItemResponse | null>(null);
@@ -270,6 +272,7 @@ export function SettingsTextStyles() {
       name: 'Stil nou',
     });
     setSelectedItemId(newStyle.id);
+    setMobileDetail(true);
   };
 
   const handleDelete = async () => {
@@ -294,6 +297,7 @@ export function SettingsTextStyles() {
 
     deleteTextStyle(activeOrganization, selectedItemId);
     setSelectedItemId(styles.find((s) => s.id !== selectedItemId)?.id ?? null);
+    setMobileDetail(false);
   };
 
   const handleSelect = () => {
@@ -308,7 +312,12 @@ export function SettingsTextStyles() {
   return (
     <div className="flex h-[calc(90vh-6rem)] gap-4">
       {/* Left Sidebar - Style List */}
-      <div className="w-52 border-r pr-4 flex flex-col min-h-0">
+      <div
+        className={cn(
+          'w-full md:w-52 md:border-r md:pr-4 flex-col min-h-0',
+          mobileDetail ? 'hidden md:flex' : 'flex',
+        )}
+      >
         <Label className="mb-2">Stiluri text</Label>
         <div className="flex-1 overflow-y-auto space-y-1">
           {styles.map((style) => {
@@ -317,7 +326,10 @@ export function SettingsTextStyles() {
             return (
               <button
                 key={style.id}
-                onClick={() => setSelectedItemId(style.id)}
+                onClick={() => {
+                  setSelectedItemId(style.id);
+                  setMobileDetail(true);
+                }}
                 className={`
                   w-full text-left px-3 py-2 rounded-md text-sm transition-colors
                   ${isItemSelected
@@ -348,13 +360,26 @@ export function SettingsTextStyles() {
       </div>
 
       {/* Right Side - Style Details */}
-      <div className="flex-1 min-h-0 overflow-y-auto space-y-10">
+      <div
+        className={cn(
+          'flex-1 min-h-0 overflow-y-auto space-y-10',
+          mobileDetail ? 'block' : 'hidden md:block',
+        )}
+      >
         {editValues ? (
           <>
+            <button
+              type="button"
+              onClick={() => setMobileDetail(false)}
+              className="md:hidden mb-2 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
+            >
+              <ChevronLeft className="h-4 w-4" />
+              Stiluri text
+            </button>
             {/* Header */}
-            <div className="flex items-center justify-between pb-4 border-b">
+            <div className="flex flex-wrap items-center justify-between gap-2 pb-4 border-b">
               <h3 className="text-lg font-semibold">{editValues.name}</h3>
-              <div className="flex items-center gap-2">
+              <div className="flex flex-wrap items-center gap-2">
                 {hasChanges && (
                   <Button onClick={handleSave} size="sm" disabled={isSaving}>
                     <Save className="h-4 w-4 mr-2" />
@@ -399,7 +424,7 @@ export function SettingsTextStyles() {
             {/* Tipografie */}
             <div>
               <h4 className="text-2xl font-semibold text-foreground mb-4">Tipografie</h4>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-1.5">
                   <Label htmlFor="style-font">Font</Label>
                   <Select
@@ -515,7 +540,7 @@ export function SettingsTextStyles() {
             {/* Aspect slide */}
             <div>
               <h4 className="text-2xl font-semibold text-foreground mb-4">Aspect slide</h4>
-              <div className="grid grid-cols-4 gap-4">
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                 <div className="space-y-1.5">
                   <Label htmlFor="style-align">Aliniere</Label>
                   <Select
@@ -621,7 +646,7 @@ export function SettingsTextStyles() {
                   Activare umbră
                 </label>
               </div>
-              <div className={cn('grid grid-cols-4 gap-4', !editValues.shadowEnabled && 'opacity-50 pointer-events-none')}>
+              <div className={cn('grid grid-cols-2 lg:grid-cols-4 gap-4', !editValues.shadowEnabled && 'opacity-50 pointer-events-none')}>
                 <div className="space-y-1.5">
                   <Label htmlFor="style-shadow-x">X (em)</Label>
                   <Input

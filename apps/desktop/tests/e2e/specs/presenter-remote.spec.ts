@@ -1,5 +1,6 @@
 import { test as base, expect } from '../fixtures/electron-fixture';
 import { addSong, selectSongFromPalette, selectVerseFromPalette } from '../helpers/song-helpers';
+import { revealSidebar, setMainWindowSize } from '../helpers/app-helpers';
 import type { Page } from '@playwright/test';
 
 // Keys sent by a Logitech R400: PageDown / PageUp (next / previous),
@@ -64,8 +65,15 @@ test.describe('Presenter remote (Logitech R400)', () => {
     await expect(audienceWindow.locator('body')).toContainText('IOAN 3:16');
   });
 
-  test('PageDown / PageUp move between presentation slides', async ({ mainWindow, audienceWindow }) => {
+  for (const width of [1280, 1000]) {
+  test(`PageDown / PageUp move between presentation slides (${width}px window)`, async ({ electronApp, mainWindow, audienceWindow }) => {
+    if (width !== 1280) {
+      await setMainWindowSize(electronApp, mainWindow, width, 760);
+      await expect(mainWindow.getByRole('button', { name: 'Deschide meniul' })).toBeVisible();
+    }
     await mainWindow.getByRole('tab', { name: 'Prezentări' }).click();
+    // Small CI displays turn the sidebar into a drawer
+    await revealSidebar(mainWindow);
     await mainWindow.getByRole('button', { name: 'Presentation Shortcuts' }).click();
     await expect(audienceWindow.getByText('1/2', { exact: true })).toBeVisible();
     await focusApp(mainWindow);
@@ -75,6 +83,7 @@ test.describe('Presenter remote (Logitech R400)', () => {
     await mainWindow.keyboard.press('PageUp');
     await expect(audienceWindow.getByText('1/2', { exact: true })).toBeVisible();
   });
+  }
 
   test('blank screen button hides and restores the same slide, keeping the clock', async ({ mainWindow, audienceWindow }) => {
     // Clock on, to check it stays visible on the blank screen

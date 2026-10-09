@@ -1,8 +1,9 @@
 import { FC, useEffect, useState } from 'react';
 import { PanelGroup, Panel, PanelResizeHandle } from 'react-resizable-panels';
-import { ListPlus, Pencil, Trash2 } from 'lucide-react';
+import { ListMusic, ListPlus, Pencil, Search, Trash2 } from 'lucide-react';
 import { useAtom } from 'jotai';
 import { selectedSongAtom } from '../../state/song.atoms';
+import { commandPaletteOpenAtom } from '../../state/command.atoms';
 import { Song } from '../../types/song.types';
 import {
   useAddToServiceList,
@@ -15,9 +16,34 @@ import SlidesListPanel from '../panels/slides-list-panel/SlidesListPanel';
 import ServiceListSection from '../panels/songs-list-panel/ServiceListSection';
 import SongDeleteDialog from '../panels/songs-list-panel/SongDeleteDialog';
 import SongEditorDialog from '../panels/songs-list-panel/SongEditorDialog';
-import Sidebar from '../layout/Sidebar';
+import Sidebar, { openSidebar } from '../layout/Sidebar';
 import { Button } from '@worship-view/ui';
 import { useAppDialogs } from '../dialogs/AppDialogsProvider';
+
+const NoSongSelected: FC = () => {
+  const [, setCommandPaletteOpen] = useAtom(commandPaletteOpenAtom);
+  return (
+    <div className="flex h-full items-center justify-center p-6" data-testid="no-song-selected">
+      <div className="max-w-xs text-center">
+        <p className="text-sm font-medium text-foreground">Nicio cântare selectată</p>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Caută o cântare (F1 sau F2) sau alege una din listele de serviciu.
+        </p>
+        <div className="mt-4 flex flex-col gap-2">
+          <Button onClick={() => setCommandPaletteOpen(true)} className="gap-2">
+            <Search className="h-4 w-4" />
+            Caută o cântare
+          </Button>
+          {/* The service lists live in the sidebar, which is a drawer on small screens */}
+          <Button onClick={() => openSidebar()} variant="outline" className="gap-2 lg:hidden">
+            <ListMusic className="h-4 w-4" />
+            Liste de serviciu
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 const AddToServiceListButton: FC<{ songId: string }> = ({ songId }) => {
   const dialogs = useAppDialogs();
@@ -200,7 +226,7 @@ const TabsSongs: FC = () => {
           </div>
         )}
         <div className="flex-1 overflow-hidden dot-grid-bg">
-          <SlidesListPanel />
+          {selectedSong ? <SlidesListPanel /> : <NoSongSelected />}
         </div>
       </div>
       <SongEditorDialog

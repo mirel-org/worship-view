@@ -199,7 +199,7 @@ const SongsListPanel = () => {
                 >
                   {song.name}
                 </span>
-                <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 [@media(hover:none)]:opacity-100 transition-opacity">
                   <div className="relative">
                     <button
                       onClick={(e) => handleAddToServiceList(e, song)}

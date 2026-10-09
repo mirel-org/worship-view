@@ -72,7 +72,7 @@ const SlideThumbnail: FC<{
           e.stopPropagation();
           onDeleteClick();
         }}
-        className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-destructive text-destructive-foreground flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-sm"
+        className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-destructive text-destructive-foreground flex items-center justify-center opacity-0 group-hover:opacity-100 [@media(hover:none)]:opacity-100 transition-opacity shadow-sm"
         aria-label={`Sterge slide ${slide.index + 1}`}
       >
         <Trash2 className="w-2.5 h-2.5" />

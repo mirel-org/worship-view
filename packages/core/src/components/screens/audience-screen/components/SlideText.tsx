@@ -119,6 +119,7 @@ const SlideText: FC = () => {
         currentSongSlideNumber > 0 &&
         totalSongSlides > 0 && (
         <div
+          data-fit-avoid
           className='absolute bottom-10 left-10 pb-4 pl-4 font-montserrat text-[300%] font-bold text-white z-20'
           style={{ textShadow: '0.06em 0.06em 1px #00000094' }}
         >
@@ -131,6 +132,7 @@ const SlideText: FC = () => {
         currentSongSlideNumber > 0 &&
         totalSongSlides > 0 && (
           <div
+            data-fit-avoid
             className='absolute bottom-10 right-10 pb-4 pr-4 text-[300%] font-bold z-20'
             style={{
               fontFamily: activeStyle.fontFamily,
@@ -154,6 +156,7 @@ const SlideText: FC = () => {
         selectedPresentationSlideIndex !== null &&
         totalPresentationSlides > 0 && (
           <div
+            data-fit-avoid
             className="absolute bottom-10 right-10 pb-4 pr-4 font-montserrat text-[300%] font-bold text-white z-20"
             style={{ textShadow: '0.06em 0.06em 1px #00000094' }}
           >

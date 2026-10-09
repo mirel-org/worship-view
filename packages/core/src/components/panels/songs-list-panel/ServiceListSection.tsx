@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { createPortal } from 'react-dom';
-import { ChevronDown, ChevronRight, GripVertical, MoreHorizontal, Pencil, Plus, Trash2, X } from 'lucide-react';
+import { ArrowDown, ArrowUp, ChevronDown, ChevronRight, GripVertical, MoreHorizontal, Pencil, Plus, Trash2, X } from 'lucide-react';
 import { useAtom } from 'jotai';
 import { selectedSongAtom } from '../../../state/song.atoms';
 import { closeSidebar } from '../../layout/Sidebar';
@@ -100,6 +100,19 @@ const ServiceListAccordionItem = ({
         songId,
         toIndex,
       });
+    } catch (error) {
+      console.error('Failed to reorder service list:', error);
+    }
+  };
+
+  // Touch screens cannot drag-and-drop (HTML5 drag is mouse-only), so they
+  // get move up / move down buttons instead of the grip
+  const handleMoveBy = async (songId: string, delta: number) => {
+    const index = items.findIndex((item) => item.songId === songId);
+    const toIndex = index + delta;
+    if (index === -1 || toIndex < 0 || toIndex >= items.length) return;
+    try {
+      await moveMutation.mutateAsync({ serviceListId: serviceList.id, songId, toIndex });
     } catch (error) {
       console.error('Failed to reorder service list:', error);
     }
@@ -297,7 +310,7 @@ const ServiceListAccordionItem = ({
             </div>
           ) : (
             <ul className="p-1 space-y-0.5">
-              {items.map((item: ServiceListSongResponse) => (
+              {items.map((item: ServiceListSongResponse, index: number) => (
                 <li
                   key={item.id}
                   onDragOver={(e) => handleDragOver(e, item.songId)}
@@ -317,11 +330,31 @@ const ServiceListAccordionItem = ({
                     draggable
                     onDragStart={(e) => handleDragStart(e, item.songId)}
                     onDragEnd={handleDragEnd}
-                    className="cursor-move flex-shrink-0 touch-none"
+                    className="cursor-move flex-shrink-0 touch-none [@media(pointer:coarse)]:hidden"
                     aria-label="Trageți pentru a reordona"
                     style={{ userSelect: 'none' }}
                   >
                     <GripVertical className="h-3.5 w-3.5 text-muted-foreground pointer-events-none" />
+                  </div>
+                  <div className="hidden flex-shrink-0 items-center [@media(pointer:coarse)]:flex">
+                    <button
+                      type="button"
+                      onClick={() => handleMoveBy(item.songId, -1)}
+                      disabled={index === 0}
+                      aria-label={`Mută ${item.song.name} mai sus`}
+                      className="flex h-8 w-7 items-center justify-center rounded text-muted-foreground disabled:opacity-30"
+                    >
+                      <ArrowUp className="h-4 w-4" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleMoveBy(item.songId, 1)}
+                      disabled={index === items.length - 1}
+                      aria-label={`Mută ${item.song.name} mai jos`}
+                      className="flex h-8 w-7 items-center justify-center rounded text-muted-foreground disabled:opacity-30"
+                    >
+                      <ArrowDown className="h-4 w-4" />
+                    </button>
                   </div>
                   <span
                     onClick={() => handleSongClick(item)}
@@ -331,7 +364,7 @@ const ServiceListAccordionItem = ({
                   </span>
                   <button
                     onClick={(e) => handleRemove(item.songId, e)}
-                    className="absolute right-1 opacity-0 group-hover:opacity-100 p-0.5 hover:bg-accent rounded text-destructive transition-opacity"
+                    className="absolute right-1 opacity-0 group-hover:opacity-100 [@media(hover:none)]:opacity-100 p-0.5 hover:bg-accent rounded text-destructive transition-opacity"
                     aria-label={`Elimină ${item.song.name} din listă`}
                     disabled={removeMutation.isLoading}
                   >

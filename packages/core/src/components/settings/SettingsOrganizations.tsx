@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useAccount, useIsAuthenticated } from 'jazz-tools/react';
 import { WorshipViewAccount } from '@worship-view/schema';
-import { Label } from '@worship-view/ui';
+import { Label, cn } from '@worship-view/ui';
 import { Button } from '@worship-view/ui';
 import { InviteButton } from '../organizations/InviteButton';
 import { AcceptInviteDialog } from '../organizations/AcceptInviteDialog';
@@ -11,7 +11,7 @@ import { RenameOrganizationDialog } from '../organizations/RenameOrganizationDia
 import { useActiveOrganization } from '../../hooks/useActiveOrganization';
 import { useDeleteAllSongs } from '../../hooks/useSongs';
 import { getOrganizationGroup, removeCoListItem, getSongsArray } from '@worship-view/schema';
-import { CheckCircle2, Pencil, Trash2, Bomb } from 'lucide-react';
+import { CheckCircle2, Pencil, Trash2, Bomb, ChevronLeft } from 'lucide-react';
 import { useAppDialogs } from '../dialogs/AppDialogsProvider';
 
 export function SettingsOrganizations() {
@@ -21,6 +21,8 @@ export function SettingsOrganizations() {
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [renameDialogOpen, setRenameDialogOpen] = useState(false);
   const [selectedOrgId, setSelectedOrgId] = useState<string | null>(null);
+  // Phones show either the list or the details (side by side they don't fit)
+  const [mobileDetail, setMobileDetail] = useState(false);
   const me = useAccount(WorshipViewAccount, {
     resolve: {
       root: {
@@ -159,7 +161,12 @@ export function SettingsOrganizations() {
       />
       <div className="flex h-full gap-4">
         {/* Left Sidebar - Organization List */}
-        <div className="w-64 border-r pr-4 flex flex-col">
+        <div
+          className={cn(
+            'w-full md:w-64 md:border-r md:pr-4 flex-col',
+            mobileDetail ? 'hidden md:flex' : 'flex',
+          )}
+        >
           <Label className="mb-2">Organizații</Label>
           <div className="flex-1 overflow-y-auto space-y-1">
             {organizations.map((org: any) => {
@@ -169,7 +176,10 @@ export function SettingsOrganizations() {
               return (
                 <button
                   key={org.$jazz.id}
-                  onClick={() => setSelectedOrgId(org.$jazz.id)}
+                  onClick={() => {
+                    setSelectedOrgId(org.$jazz.id);
+                    setMobileDetail(true);
+                  }}
                   className={`
                     w-full text-left px-3 py-2 rounded-md text-sm transition-colors
                     ${isSelected
@@ -198,13 +208,26 @@ export function SettingsOrganizations() {
         </div>
 
         {/* Right Side - Organization Details */}
-        <div className="flex-1 overflow-y-auto space-y-4">
+        <div
+          className={cn(
+            'flex-1 overflow-y-auto space-y-4',
+            mobileDetail ? 'block' : 'hidden md:block',
+          )}
+        >
+          <button
+            type="button"
+            onClick={() => setMobileDetail(false)}
+            className="md:hidden mb-2 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
+          >
+            <ChevronLeft className="h-4 w-4" />
+            Organizații
+          </button>
           {selectedOrganization ? (
             <>
               {/* Organization Header */}
               <div className="space-y-2 pb-4 border-b">
-                <div className="flex items-center justify-between">
-                  <div className="flex-1">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <div className="flex-1 min-w-[10rem]">
                     <h3 className="text-lg font-semibold">{selectedOrganization.name}</h3>
                     {selectedOrganization.$jazz.id === activeOrgId && (
                       <p className="text-sm text-muted-foreground mt-1">
@@ -212,7 +235,7 @@ export function SettingsOrganizations() {
                       </p>
                     )}
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex flex-wrap items-center gap-2">
                     {selectedOrganization.$jazz.id !== activeOrgId && (
                       <Button onClick={handleMakeActive}>
                         Activează
@@ -248,7 +271,7 @@ export function SettingsOrganizations() {
               </div>
 
               {/* Invite Button */}
-              <div className="space-y-2 pt-4 border-t">
+              <div className="flex flex-col items-start gap-2 pt-4 border-t">
                 <Label>Invită membri</Label>
                 <InviteButton organization={selectedOrganization} />
               </div>

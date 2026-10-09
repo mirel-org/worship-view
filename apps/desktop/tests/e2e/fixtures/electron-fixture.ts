@@ -68,6 +68,10 @@ export const test = base.extend<ElectronFixtures>({
     await electronApp.evaluate(({ BrowserWindow }) => {
       const win = BrowserWindow.getAllWindows()[0];
       win.setSize(1280, 800);
+      // On small CI displays the fullscreen audience window covers the main
+      // window; occluded windows are throttled (no animation frames), so
+      // transitions never finish and Playwright never sees elements as stable.
+      win.webContents.setBackgroundThrottling(false);
     });
 
     // Wait for the window to load its initial content

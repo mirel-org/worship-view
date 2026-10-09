@@ -85,7 +85,7 @@ const MediaGridItem: FC<{
               e.stopPropagation();
               onRename();
             }}
-            className="rounded p-1 text-muted-foreground opacity-0 group-hover:opacity-100 hover:bg-accent/70"
+            className="rounded p-1 text-muted-foreground opacity-0 group-hover:opacity-100 [@media(hover:none)]:opacity-100 hover:bg-accent/70"
             aria-label={`Redenumește ${mediaItem.name}`}
           >
             <Pencil className="h-3.5 w-3.5" />
@@ -96,7 +96,7 @@ const MediaGridItem: FC<{
               e.stopPropagation();
               onDelete();
             }}
-            className="rounded p-1 text-destructive opacity-0 group-hover:opacity-100 hover:bg-accent/70"
+            className="rounded p-1 text-destructive opacity-0 group-hover:opacity-100 [@media(hover:none)]:opacity-100 hover:bg-accent/70"
             aria-label={`Șterge ${mediaItem.name}`}
           >
             <Trash2 className="h-3.5 w-3.5" />

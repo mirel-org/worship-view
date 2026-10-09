@@ -123,7 +123,8 @@ const SongEditorDialog = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-3xl max-h-[95vh] flex flex-col">
+      {/* dvh follows the on-screen keyboard on phones, keeping the buttons in view; the content scrolls */}
+      <DialogContent className="max-w-3xl max-h-[95dvh] flex flex-col">
         <DialogHeader>
           <DialogTitle>Editează cântec</DialogTitle>
           <DialogDescription>
@@ -131,7 +132,7 @@ const SongEditorDialog = ({
             &quot;---&quot; iar ultima linie conține aranjamentul.
           </DialogDescription>
         </DialogHeader>
-        <div className="flex-1 overflow-hidden flex flex-col space-y-4">
+        <div className="flex-1 min-h-0 overflow-y-auto flex flex-col space-y-4">
           <div className="space-y-2">
             <Label htmlFor="song-name">Numele cântecului</Label>
             <Input
@@ -160,7 +161,7 @@ const SongEditorDialog = ({
             ) : (
               <textarea
                 id="song-content"
-                className="flex min-h-[500px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 font-mono resize-none"
+                className="flex flex-1 min-h-[160px] sm:min-h-[500px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 font-mono resize-none"
                 value={content}
                 onChange={(e) => { setContent(e.target.value); setError(null); }}
                 disabled={loading || saving}
