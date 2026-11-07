@@ -4,14 +4,14 @@
   "version": "2.7.2",
   "description": "Worship View is a desktop application for viewing and editing worship songs.",
   "author": {
-    "name": "RubenRatoiu",
-    "url": "https://github.com/RubenRatoiu"
-  },
+    "name": "mirel-org",
+    "url": "https://github.com/mirel-org"
+},
   "license": "MIT",
   "repository": {
-    "type": "git",
-    "url": "https://github.com/RubenRatoiu/worship-view.git"
-  },
+  "type": "git",
+  "url": "https://github.com/mirel-org/worship-view.git"
+},
   "main": ".vite/build/main.js",
   "private": true,
   "scripts": {
